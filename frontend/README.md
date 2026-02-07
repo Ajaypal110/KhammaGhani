@@ -14,3 +14,27 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCAvEjpoO-0bNTb8IuHU0wiVqkTxZuyH9Y",
+  authDomain: "khammaghani-restaurent.firebaseapp.com",
+  projectId: "khammaghani-restaurent",
+  storageBucket: "khammaghani-restaurent.firebasestorage.app",
+  messagingSenderId: "475188469130",
+  appId: "1:475188469130:web:1f48ca6cbb67a763e0fc73",
+  measurementId: "G-Z749YZ6CSH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+npm install -g firebase-tools
