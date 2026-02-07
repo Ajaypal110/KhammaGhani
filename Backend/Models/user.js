@@ -2,24 +2,32 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-    },
+    name: String,
+
     email: {
+  type: String,
+  required: true,
+  unique: true,   // 🔥 MUST
+  lowercase: true,
+  trim: true,
+},
+
+
+    password: {
       type: String,
-      required: true,
-      unique: true,
+      select: true, // 🔥 IMPORTANT
     },
-    phone: {
-      type: String, // mobile number (not verified)
+
+    phone: String,
+
+    provider: {
+      type: String,
+      default: "password",
     },
+
     isEmailVerified: {
       type: Boolean,
       default: false,
-    },
-    provider: {
-      type: String,
-      default: "email",
     },
   },
   { timestamps: true }

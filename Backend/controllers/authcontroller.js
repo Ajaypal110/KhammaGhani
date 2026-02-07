@@ -6,7 +6,7 @@ import otpGenerator from "otp-generator";
 import { sendEmailOtp } from "../utils/sendEmailOtp.js";
 
 /* =========================
-   REGISTER (EMAIL + PASSWORD)
+   REGISTER
 ========================= */
 export const registerUser = async (req, res) => {
   try {
@@ -16,43 +16,39 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    const exists = await User.findOne({ email });
+    if (exists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
-      phone, // stored only
+      password: hashed,
+      phone,
       provider: "password",
       isEmailVerified: true,
     });
 
     res.status(201).json({
       _id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
       token: generateToken(user._id),
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
 /* =========================
-   LOGIN (EMAIL + PASSWORD)
+   LOGIN
 ========================= */
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user || !user.password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -64,9 +60,6 @@ export const loginUser = async (req, res) => {
 
     res.json({
       _id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -75,15 +68,15 @@ export const loginUser = async (req, res) => {
 };
 
 /* =========================
-   SEND EMAIL OTP
+   SEND RESET OTP (EMAIL)
 ========================= */
-export const sendEmailOtpController = async (req, res) => {
+export const sendResetOtp = async (req, res) => {
   try {
-    const { email, phone } = req.body;
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email required" });
 
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     const otp = otpGenerator.generate(6, {
       digits: true,
@@ -91,63 +84,91 @@ export const sendEmailOtpController = async (req, res) => {
       specialChars: false,
     });
 
+    await Otp.deleteMany({ email });
+
     await Otp.create({
       email,
-      phone, // mobile number saved
       otp,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+      expiresAt: Date.now() + 5 * 60 * 1000,
     });
 
     await sendEmailOtp(email, otp);
 
     res.json({ message: "OTP sent to email" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
 /* =========================
-   VERIFY EMAIL OTP + LOGIN
+   RESET PASSWORD (WITH OTP)
 ========================= */
-export const verifyOtpAndLogin = async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
-    const { email, phone, otp } = req.body;
+    const { email, otp, newPassword } = req.body;
 
-    if (!email || !otp) {
-      return res.status(400).json({ message: "Email and OTP required" });
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "All fields required" });
     }
 
     const record = await Otp.findOne({ email, otp });
-
     if (!record || record.expiresAt < Date.now()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    await Otp.deleteMany({ email });
+
+    res.json({ message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* =========================
+   GOOGLE LOGIN
+========================= */
+export const googleLogin = async (req, res) => {
+  try {
+    const { email, name } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email required" });
+    }
+
+    // 🔍 ALWAYS find by email
     let user = await User.findOne({ email });
 
     if (!user) {
+      // ✅ Create user only if email does not exist
       user = await User.create({
+        name,
         email,
-        phone,
-        provider: "email-otp",
+        provider: "google",
         isEmailVerified: true,
       });
     } else {
-      if (phone && !user.phone) {
-        user.phone = phone;
+      // ✅ If user already exists (password login earlier)
+      // upgrade provider if needed
+      if (!user.provider || user.provider === "password") {
+        user.provider = "google";
+        user.isEmailVerified = true;
         await user.save();
       }
     }
 
-    await Otp.deleteMany({ email });
-
     res.json({
       _id: user._id,
-      email: user.email,
-      phone: user.phone,
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Google login failed" });
   }
 };
+
+

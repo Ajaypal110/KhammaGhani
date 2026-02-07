@@ -4,7 +4,7 @@ import {
   getMenuItems,
   updateMenuItem,
   deleteMenuItem,
-} from "../controllers/menuControllers.js";
+} from "../controllers/menucontrollers.js";
 import { protect, admin } from "../Middleware/authmiddleware.js";
 
 const router = express.Router();
