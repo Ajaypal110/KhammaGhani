@@ -83,6 +83,10 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    isReviewed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -181,6 +181,19 @@ export default function Profile() {
   const [cropImage, setCropImage] = useState(null);
   const [showCrop, setShowCrop] = useState(false);
 
+  // Review Modal State
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewData, setReviewData] = useState({
+    targetType: "",
+    targetId: "",
+    rating: 4,
+    comment: "",
+    sourceModel: "",
+    sourceId: "",
+    targetName: ""
+  });
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   // Change password state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -379,6 +392,37 @@ export default function Profile() {
     }
   };
 
+  // SUBMIT REVIEW
+  const handleReviewSubmit = async () => {
+    if (!reviewData.rating) return showMsg("Please select a rating", "error");
+    setSubmittingReview(true);
+    try {
+      await API.post("/reviews", reviewData);
+      showMsg("Review submitted successfully!");
+      setShowReviewModal(false);
+      // Refresh the active tab lists
+      if (activeTab === "bookings") fetchBookings();
+      if (activeTab === "orders") fetchOrders();
+    } catch (err) {
+      showMsg(err.response?.data?.message || "Failed to submit review", "error");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const openReviewModal = (type, targetId, name, sourceModel, sourceId) => {
+    setReviewData({
+      targetType: type,
+      targetId,
+      rating: 4,
+      comment: "",
+      sourceModel,
+      sourceId,
+      targetName: name
+    });
+    setShowReviewModal(true);
+  };
+
   // ADD ADDRESS
   const handleAddAddress = () => {
     if (!newAddressText) return;
@@ -455,6 +499,44 @@ export default function Profile() {
                 <button className="crop-cancel" onClick={() => setShowPasswordModal(false)}>Cancel</button>
                 <button className="crop-confirm" onClick={handleChangePassword} disabled={changingPwd}>
                   {changingPwd ? "Changing..." : "Change Password"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REVIEW MODAL */}
+      {showReviewModal && (
+        <div className="crop-overlay" onClick={() => setShowReviewModal(false)}>
+          <div className="crop-modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: "400px"}}>
+            <h3 style={{marginBottom: "4px"}}>Write a Review</h3>
+            <p className="crop-subtitle" style={{marginBottom: "20px"}}>Rate your experience with <strong>{reviewData.targetName}</strong></p>
+            
+            <div style={{display: "flex", flexDirection: "column", gap: "16px"}}>
+              <div>
+                <label style={{display: "block", fontSize: "14px", fontWeight: "600", marginBottom: "8px", color: "#334155"}}>Rating (1-5 Stars)</label>
+                <div style={{display: "flex", gap: "10px", fontSize: "28px", cursor: "pointer"}}>
+                   {[1,2,3,4,5].map(star => (
+                     <span key={star} onClick={() => setReviewData({...reviewData, rating: star})} style={{color: star <= reviewData.rating ? "#fbbf24" : "#e2e8f0"}}>★</span>
+                   ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{display: "block", fontSize: "14px", fontWeight: "600", marginBottom: "8px", color: "#334155"}}>Comment (Optional)</label>
+                <textarea 
+                  placeholder="Share details of your own experience..."
+                  value={reviewData.comment}
+                  onChange={(e) => setReviewData({...reviewData, comment: e.target.value})}
+                  style={{width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", minHeight: "100px", fontFamily: "inherit"}}
+                />
+              </div>
+
+              <div className="crop-actions" style={{marginTop: "10px"}}>
+                <button className="crop-cancel" onClick={() => setShowReviewModal(false)}>Cancel</button>
+                <button className="crop-confirm" onClick={handleReviewSubmit} disabled={submittingReview}>
+                  {submittingReview ? "Submitting..." : "Submit Review"}
                 </button>
               </div>
             </div>
@@ -711,6 +793,15 @@ export default function Profile() {
                             ✕ Cancel
                           </button>
                         )}
+                        {/* REVIEW BUTTON FOR BOOKINGS */}
+                        {b.status === "Confirmed" && b.paymentStatus === "Paid" && !b.isReviewed && (
+                          <button
+                            className="pay-now-btn" style={{background: "#eab308"}}
+                            onClick={() => openReviewModal("Restaurant", b.restaurant?._id, b.restaurant?.name, "Reservation", b._id)}
+                          >
+                            ⭐ Write Review
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -821,6 +912,25 @@ export default function Profile() {
                           >
                             🧾 {showReceipt === o._id ? "Hide" : "View"} Receipt
                           </button>
+                        )}
+                        {/* REVIEW BUTTON FOR ORDERS */}
+                        {o.status === "Delivered" && !o.isReviewed && (
+                           <div style={{display: "flex", gap: "6px"}}>
+                             <button
+                                className="pay-now-btn" style={{background: "#eab308"}}
+                                onClick={() => openReviewModal("Restaurant", o.restaurant?._id, o.restaurant?.name, "Order", o._id)}
+                              >
+                                ⭐ Rate Restaurant
+                              </button>
+                              {o.items?.length > 0 && o.items[0].menuId && (
+                                <button
+                                  className="view-receipt-btn" style={{background: "#fffbeb", color: "#d97706", borderColor: "#fde68a"}}
+                                  onClick={() => openReviewModal("Menu", o.items[0].menuId._id, o.items[0].menuId.name, "Order", o._id)}
+                                >
+                                  ⭐ Rate Dish
+                                </button>
+                              )}
+                           </div>
                         )}
                       </div>
                     </div>

@@ -24,9 +24,8 @@ const orderSchema = new mongoose.Schema(
     paymentStatus: { type: String, default: "Pending" },
     paymentMethod: { type: String, default: "Razorpay" },
     razorpayOrderId: String,
-    paymentId: String,
-    receiptId: String,
     paidAt: Date,
+    isReviewed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -190,11 +190,6 @@ export default function Home() {
 
         </>
       )}
-
-      {/* ================= FOOTER ================= */}
-      <footer className="footer">
-        © {new Date().getFullYear()} KhammaGhani. All rights reserved. Made with ❤️ for Rajasthan.
-      </footer>
     </div>
   );
 }

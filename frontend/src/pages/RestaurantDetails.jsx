@@ -16,6 +16,10 @@ export default function RestaurantDetails() {
   const [sliderIndex, setSliderIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  /* Reviews State */
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({ totalReviews: 0, avgRating: 0 });
+
   /* Booking Modal State */
   const [showBooking, setShowBooking] = useState(false);
   const [bookingForm, setBookingForm] = useState({
@@ -44,6 +48,14 @@ export default function RestaurantDetails() {
 
         const imgRes = await API.get(`/restaurants/${id}/images`);
         setGalleryImages(imgRes.data || []);
+        
+        try {
+          const revRes = await API.get(`/reviews/Restaurant/${id}`);
+          setReviews(revRes.data.reviews || []);
+          setReviewStats(revRes.data.stats || { totalReviews: 0, avgRating: 0 });
+        } catch (e) {
+          console.log("Error fetching reviews", e);
+        }
       } catch (err) {
         console.log(err);
       } finally {
@@ -233,7 +245,7 @@ export default function RestaurantDetails() {
 
         <div className="hero-overlay">
           <h1>{restaurant.name}</h1>
-          <p>📍 {restaurant.restaurantId || "Rajasthan"} &nbsp; ⭐ {restaurant.rating || "4.0"} &nbsp; 🪑 {totalTables} Tables</p>
+          <p>📍 {restaurant.restaurantId || "Rajasthan"} &nbsp; ⭐ {reviewStats.avgRating > 0 ? reviewStats.avgRating : (restaurant.rating || "4.0")} ({reviewStats.totalReviews} Reviews) &nbsp; 🪑 {totalTables} Tables</p>
           <button className="book-btn" onClick={() => setShowBooking(true)}>
             📅 Book a Table
           </button>
@@ -288,6 +300,67 @@ export default function RestaurantDetails() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* ===== REVIEWS SECTION ===== */}
+      <div className="menu-section" style={{marginTop: "40px", marginBottom: "40px"}}>
+        <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "20px"}}>
+          <div>
+            <h2 style={{marginBottom: "8px"}}>⭐ Guest Reviews</h2>
+            <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+               <span style={{fontSize: "32px", fontWeight: "800", color: "#ff6b00"}}>{reviewStats.avgRating > 0 ? reviewStats.avgRating : (restaurant.rating || "4.0")}</span>
+               <div style={{fontSize: "14px", color: "#64748b"}}>
+                 <div style={{color: "#fbbf24", fontSize: "16px"}}>
+                    {'★'.repeat(Math.round(reviewStats.avgRating || restaurant.rating || 4))}
+                    <span style={{color: "#cbd5e1"}}>{'★'.repeat(5 - Math.round(reviewStats.avgRating || restaurant.rating || 4))}</span>
+                 </div>
+                 Based on {reviewStats.totalReviews} verified ratings
+               </div>
+            </div>
+          </div>
+          <div style={{fontSize: "13px", color: "#64748b", background: "#f8fafc", padding: "8px 12px", borderRadius: "8px", border: "1px solid #e2e8f0"}}>
+            ℹ️ Only users with completed orders or bookings can leave reviews from their Profile.
+          </div>
+        </div>
+
+        {reviews.length === 0 ? (
+          <p className="empty-text" style={{textAlign: "left", background: "#f8fafc", padding: "30px", borderRadius: "12px", border: "1px dashed #cbd5e1"}}>
+            No reviews yet. Be the first to order and share your experience!
+          </p>
+        ) : (
+          <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px"}}>
+             {reviews.map(review => (
+               <div key={review._id} style={{background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.03)", border: "1px solid #f1f5f9"}}>
+                 <div style={{display: "flex", justifyContent: "space-between", marginBottom: "12px", alignItems: "center"}}>
+                   <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+                     {review.user?.profileImage ? (
+                        <img src={review.user.profileImage} alt="User" style={{width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover"}} />
+                     ) : (
+                        <div style={{width: "40px", height: "40px", borderRadius: "50%", background: "#ff6b00", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold"}}>
+                          {review.user?.name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                     )}
+                     <div>
+                       <div style={{fontWeight: "600", fontSize: "15px", color: "#1e293b"}}>{review.user?.name || "Guest"}</div>
+                       <div style={{fontSize: "12px", color: "#94a3b8"}}>{new Date(review.createdAt).toLocaleDateString()}</div>
+                     </div>
+                   </div>
+                   <div style={{color: "#fbbf24", fontSize: "16px"}}>
+                     {'★'.repeat(review.rating)}<span style={{color: "#cbd5e1"}}>{'★'.repeat(5 - review.rating)}</span>
+                   </div>
+                 </div>
+                 {review.comment && (
+                   <p style={{fontSize: "14px", color: "#475569", lineHeight: "1.6", margin: "0"}}>
+                     "{review.comment}"
+                   </p>
+                 )}
+                 <div style={{marginTop: "12px", display: "inline-block", fontSize: "11px", padding: "4px 8px", background: "#f0fdf4", color: "#16a34a", borderRadius: "4px", fontWeight: "600"}}>
+                   ✓ Verified {review.sourceModel === "Order" ? "Delivery" : "Dining"}
+                 </div>
+               </div>
+             ))}
           </div>
         )}
       </div>
