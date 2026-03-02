@@ -1,0 +1,848 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ===================================================================
+   LAYOUT
+=================================================================== */
+.profile-page {
+  display: flex;
+  min-height: 100vh;
+  background: #fafafa;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===================================================================
+   SIDEBAR
+=================================================================== */
+.profile-sidebar {
+  width: 240px;
+  background: #fff;
+  padding: 32px 20px;
+  color: #333;
+  min-height: 100vh;
+  border-right: 1px solid #f0f0f0;
+}
+
+.profile-sidebar h3 {
+  margin-bottom: 28px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+  padding-left: 12px;
+}
+
+.profile-sidebar div {
+  padding: 12px 14px;
+  cursor: pointer;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #888;
+}
+
+.profile-sidebar div:hover {
+  background: #fff7f0;
+  color: #ff6b00;
+  transform: translateX(4px);
+}
+
+.profile-sidebar .active {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+}
+
+/* ===================================================================
+   CONTENT
+=================================================================== */
+.profile-content {
+  flex: 1;
+  padding: 40px;
+}
+
+.profile-content h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  letter-spacing: -0.3px;
+}
+
+.profile-message {
+  color: #047857;
+  margin-bottom: 16px;
+  font-weight: 600;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+  font-size: 14px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-message.error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* ===================================================================
+   PASSWORD MODAL FORM
+=================================================================== */
+.pwd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.pwd-form input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #eee;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.pwd-form input:focus {
+  border-color: #ff6b00;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.06);
+}
+
+.pwd-msg {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 0;
+}
+
+.pwd-msg.error {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.pwd-msg.success {
+  color: #047857;
+  background: #f0fdf4;
+}
+
+/* ===================================================================
+   INSTAGRAM-STYLE PROFILE PHOTO SECTION
+=================================================================== */
+.profile-photo-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 28px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ff6b00;
+  transition: all 0.3s;
+}
+
+.profile-avatar-placeholder {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #fff;
+  font-weight: 800;
+  transition: all 0.3s;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.profile-avatar-wrapper:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.profile-avatar-wrapper:hover .profile-avatar,
+.profile-avatar-wrapper:hover .profile-avatar-placeholder {
+  transform: scale(1.03);
+}
+
+.avatar-loading {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.profile-photo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.photo-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.photo-email {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0 0 10px;
+}
+
+.change-photo-btn {
+  background: none;
+  border: none;
+  color: #ff6b00;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.2s;
+  text-align: left;
+}
+
+.change-photo-btn:hover {
+  color: #e65c00;
+  text-decoration: underline;
+}
+
+/* ===================================================================
+   CROP MODAL
+=================================================================== */
+.crop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.crop-modal {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.crop-modal h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.crop-subtitle {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0 0 20px;
+}
+
+.crop-canvas-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.crop-canvas {
+  border-radius: 16px;
+  cursor: grab;
+  background: #f5f5f5;
+  touch-action: none;
+}
+
+.crop-canvas:active {
+  cursor: grabbing;
+}
+
+.crop-zoom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #888;
+}
+
+.crop-zoom input[type="range"] {
+  flex: 1;
+  max-width: 180px;
+  height: 4px;
+  appearance: none;
+  background: #eee;
+  border-radius: 4px;
+  outline: none;
+}
+
+.crop-zoom input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255, 107, 0, 0.3);
+}
+
+.crop-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.crop-cancel {
+  flex: 1;
+  padding: 12px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: #666;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.crop-cancel:hover {
+  background: #eee;
+}
+
+.crop-confirm {
+  flex: 1;
+  padding: 12px;
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.crop-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+}
+
+/* ===================================================================
+   FORM
+=================================================================== */
+.profile-form {
+  max-width: 440px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #eee;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.profile-form input:focus {
+  border-color: #ff6b00;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.06);
+}
+
+.profile-form input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-form button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-form button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 107, 0, 0.3);
+}
+
+.profile-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ===================================================================
+   RESET PASSWORD
+=================================================================== */
+.reset-password {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.reset-password h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.reset-password .danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  padding: 11px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.reset-password .danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
+}
+
+/* ===================================================================
+   MY BOOKINGS
+=================================================================== */
+.my-bookings h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+}
+
+.empty-msg {
+  color: #aaa;
+  font-style: italic;
+  padding: 40px;
+  text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  font-weight: 500;
+  border: 1px solid #f0f0f0;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.booking-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.booking-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.booking-card-header {
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff7f0;
+  border-bottom: 1px solid #ffecd2;
+}
+
+.booking-card-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.booking-status {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pending {
+  background: #fef3cd;
+  color: #92400e;
+}
+
+.status-confirmed {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.status-cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.booking-card-body {
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.booking-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.booking-detail.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 11px;
+  color: #bbb;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.booking-card-footer {
+  padding: 12px 22px;
+  background: #fafafa;
+  font-size: 12px;
+  color: #bbb;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+}
+
+.cancel-booking-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.cancel-booking-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+}
+
+/* ===================================================================
+   PAYMENT & RECEIPT IN BOOKINGS
+=================================================================== */
+.payment-badge {
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.payment-badge.paid {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.payment-badge.unpaid {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.view-receipt-btn,
+.pay-now-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+  border: none;
+}
+
+.view-receipt-btn {
+  background: #fff7f0;
+  color: #ff6b00;
+  border: 1px solid #ffe0c2;
+}
+
+.view-receipt-btn:hover {
+  background: #ff6b00;
+  color: #fff;
+}
+
+.pay-now-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+}
+
+.pay-now-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25);
+}
+
+.pay-now-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inline-receipt {
+  padding: 16px;
+  border-top: 1px solid #f0f0f0;
+  animation: slideDown 0.3s ease;
+}
+
+.receipt-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.receipt-header {
+  text-align: center;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 2px dashed #f0f0f0;
+}
+
+.receipt-brand {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ff6b00;
+}
+
+.receipt-id {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+}
+
+.receipt-row span {
+  color: #aaa;
+}
+
+.receipt-row strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.receipt-row.total-row {
+  border-top: 2px solid #ff6b00;
+  border-bottom: none;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.receipt-row.total-row strong {
+  color: #ff6b00;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.receipt-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 2px dashed #f0f0f0;
+  margin-top: 12px;
+}
+
+.paid-stamp {
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 4px 14px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.receipt-date {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.print-receipt-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.print-receipt-btn:hover {
+  background: #e55d00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.25);
+}
