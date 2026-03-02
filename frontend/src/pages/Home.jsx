@@ -3,6 +3,7 @@ import { FiShoppingCart, FiUser, FiLogOut } from "react-icons/fi";
 import "../styles/home.css";
 import { useEffect, useState } from "react";
 import API from "../api/axios";
+import Loader from "../components/Loader";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Home() {
   const [restaurants, setRestaurants] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
@@ -31,6 +33,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const resData = await API.get("/restaurants");
         setRestaurants(resData.data);
 
@@ -38,6 +41,8 @@ export default function Home() {
         setMenuItems(menuData.data);
       } catch (error) {
         console.error("API error:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -112,7 +117,13 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ================= HERO ================= */}
+      {/* ================= HERO OR MAIN CONTENT ================= */}
+
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          {/* ================= HERO SECTION ================= */}
       <section className="hero">
         <h1>Authentic Rajasthani Taste 🍛</h1>
         <p>Order delicious food from KhammaGhani restaurants near you</p>
@@ -184,8 +195,9 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
-        </section>
+            </div>
+          </section>
+        </>
       )}
 
       {/* ================= FOOTER ================= */}

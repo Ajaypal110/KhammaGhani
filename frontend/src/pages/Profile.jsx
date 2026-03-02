@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import API from "../api/axios";
+import Loader from "../components/Loader";
 import "../styles/profile.css";
 
 /* ================================================================
@@ -163,6 +164,7 @@ export default function Profile() {
   const [user, setUser] = useState({ name: "", email: "", phone: "", dob: "" });
   const [bookings, setBookings] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [showReceipt, setShowReceipt] = useState(null); // booking ID to show receipt for
   const [payingBooking, setPayingBooking] = useState(null);
   const [payMethod, setPayMethod] = useState("UPI");
@@ -221,16 +223,19 @@ export default function Profile() {
 
   // FETCH USER DETAILS
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
+        setLoading(true);
         const { data } = await API.get("/auth/me");
         setUser(data);
+        await fetchBookings();
       } catch {
         showMsg("Failed to load profile", "error");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchProfile();
-    fetchBookings();
+    fetchData();
   }, []);
 
   // FETCH MY BOOKINGS
@@ -365,6 +370,14 @@ export default function Profile() {
       return () => clearTimeout(timer);
     }
   }, [message]);
+
+  if (loading) {
+    return (
+      <div className="profile-page">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="profile-page">
