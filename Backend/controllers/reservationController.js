@@ -1,5 +1,5 @@
 import Reservation from "../Models/Reservation.js";
-import User from "../Models/user.js";
+import User from "../Models/User.js";
 import razorpay from "../config/razorpay.js";
 import crypto from "crypto";
 

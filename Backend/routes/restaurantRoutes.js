@@ -1,5 +1,5 @@
 import express from "express";
-import User from "../Models/user.js";
+import User from "../Models/User.js";
 import protect from "../Middleware/authMiddleware.js";
 import { upload } from "../Middleware/upload.js";
 import cloudinary from "../config/cloudinary.js";

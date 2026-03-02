@@ -1,6 +1,6 @@
 import express from "express";
 import Menu from "../Models/Menu.js";
-import protect from "../Middleware/authmiddleware.js";
+import protect from "../Middleware/authMiddleware.js";
 import { upload } from "../Middleware/upload.js";
 import cloudinary from "../config/cloudinary.js";
 
