@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import Loader from "../components/Loader";
 import "../styles/restaurantDetails.css";
 
 export default function RestaurantDetails() {
@@ -179,8 +180,8 @@ export default function RestaurantDetails() {
     setBookedTables([]);
   };
 
-  if (loading) return <h2 className="loading">Loading...</h2>;
-  if (!restaurant) return <h2 className="loading">Restaurant Not Found</h2>;
+  if (loading) return <div className="restaurant-page"><Loader /></div>;
+  if (!restaurant) return <div className="restaurant-page"><h2 className="loading">Restaurant Not Found</h2></div>;
 
   const totalTables = restaurant.totalTables || 10;
 
