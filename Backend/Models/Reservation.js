@@ -7,9 +7,17 @@ const reservationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    restaurant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: {
       type: String,
       required: true,
+    },
+    email: {
+      type: String,
     },
     phone: {
       type: String,
@@ -19,7 +27,11 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       required: true, // YYYY-MM-DD
     },
-    time: {
+    timeFrom: {
+      type: String,
+      required: true, // HH:mm
+    },
+    timeTo: {
       type: String,
       required: true, // HH:mm
     },
@@ -27,10 +39,49 @@ const reservationSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    tableNo: {
+      type: Number,
+      required: true,
+    },
+    specialRequests: {
+      type: String,
+      default: "",
+    },
     status: {
       type: String,
       enum: ["Pending", "Confirmed", "Cancelled"],
       default: "Pending",
+    },
+
+    // ============ PAYMENT FIELDS ============
+    bookingAmount: {
+      type: Number,
+      default: 0, // Amount in INR
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Unpaid", "Paid"],
+      default: "Unpaid",
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["None", "UPI", "Card", "Net Banking"],
+      default: "None",
+    },
+    paymentId: {
+      type: String, // Unique payment transaction ID
+      default: "",
+    },
+    receiptId: {
+      type: String, // Unique receipt ID for display
+      default: "",
+    },
+    paidAt: {
+      type: Date,
+    },
+    razorpayOrderId: {
+      type: String,
+      default: "",
     },
   },
   { timestamps: true }

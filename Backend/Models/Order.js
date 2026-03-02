@@ -1,39 +1,23 @@
+// Models/Order.js
 import mongoose from "mongoose";
-
-const orderItemSchema = new mongoose.Schema({
-  menuItem: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Menu",
-    required: true,
-  },
-  name: String,
-  price: Number,
-  quantity: {
-    type: Number,
-    required: true,
-  },
-});
 
 const orderSchema = new mongoose.Schema(
   {
-    user: {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    restaurant: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      ref: "Restaurant",
     },
-    items: [orderItemSchema],
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["Pending", "Preparing", "Delivered", "Cancelled"],
-      default: "Pending",
-    },
+    items: [
+      {
+        menuId: { type: mongoose.Schema.Types.ObjectId, ref: "Menu" },
+        qty: Number,
+      },
+    ],
+    totalAmount: Number,
+    status: { type: String, default: "Placed" },
   },
   { timestamps: true }
 );
 
-const Order = mongoose.model("Order", orderSchema);
-export default Order;
+export default mongoose.model("Order", orderSchema);

@@ -6,7 +6,7 @@ import otpGenerator from "otp-generator";
 import { sendEmailOtp } from "../utils/sendEmailOtp.js";
 
 /* =========================
-   REGISTER
+   REGISTER (AUTO LOGIN)
 ========================= */
 export const registerUser = async (req, res) => {
   try {
@@ -14,6 +14,12 @@ export const registerUser = async (req, res) => {
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
+    }
+
+    // ✅ Email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Enter a valid email" });
     }
 
     const exists = await User.findOne({ email });
@@ -29,9 +35,11 @@ export const registerUser = async (req, res) => {
       password: hashed,
       phone,
       provider: "password",
+      role: "user",
       isEmailVerified: true,
     });
 
+    // ✅ AUTO LOGIN AFTER REGISTER
     res.status(201).json({
       _id: user._id,
       token: generateToken(user._id),
@@ -49,6 +57,7 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select("+password");
+
     if (!user || !user.password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -60,6 +69,7 @@ export const loginUser = async (req, res) => {
 
     res.json({
       _id: user._id,
+      role: user.role,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -68,7 +78,7 @@ export const loginUser = async (req, res) => {
 };
 
 /* =========================
-   SEND RESET OTP (EMAIL)
+   SEND RESET OTP (BLOCK RESTAURANT)
 ========================= */
 export const sendResetOtp = async (req, res) => {
   try {
@@ -76,7 +86,17 @@ export const sendResetOtp = async (req, res) => {
     if (!email) return res.status(400).json({ message: "Email required" });
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 🔒 BLOCK RESTAURANT
+    if (user.role === "restaurant") {
+      return res.status(403).json({
+        message: "Password reset not allowed for restaurant accounts",
+      });
+    }
 
     const otp = otpGenerator.generate(6, {
       digits: true,
@@ -101,7 +121,7 @@ export const sendResetOtp = async (req, res) => {
 };
 
 /* =========================
-   RESET PASSWORD (WITH OTP)
+   RESET PASSWORD (BLOCK RESTAURANT)
 ========================= */
 export const resetPassword = async (req, res) => {
   try {
@@ -111,13 +131,21 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // 🔒 BLOCK RESTAURANT
+    if (user.role === "restaurant") {
+      return res.status(403).json({
+        message: "Password reset not allowed for restaurant accounts",
+      });
+    }
+
     const record = await Otp.findOne({ email, otp });
     if (!record || record.expiresAt < Date.now()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
-
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
 
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
@@ -131,7 +159,7 @@ export const resetPassword = async (req, res) => {
 };
 
 /* =========================
-   GOOGLE LOGIN
+   GOOGLE LOGIN (BLOCK RESTAURANT)
 ========================= */
 export const googleLogin = async (req, res) => {
   try {
@@ -141,21 +169,26 @@ export const googleLogin = async (req, res) => {
       return res.status(400).json({ message: "Email required" });
     }
 
-    // 🔍 ALWAYS find by email
     let user = await User.findOne({ email });
 
+    // 🔒 BLOCK RESTAURANT GOOGLE LOGIN
+    if (user && user.role === "restaurant") {
+      return res.status(403).json({
+        message: "Google login not allowed for restaurant accounts",
+      });
+    }
+
     if (!user) {
-      // ✅ Create user only if email does not exist
       user = await User.create({
         name,
         email,
         provider: "google",
+        role: "user",
         isEmailVerified: true,
       });
     } else {
-      // ✅ If user already exists (password login earlier)
-      // upgrade provider if needed
-      if (!user.provider || user.provider === "password") {
+      // Same email → same account
+      if (user.provider === "password") {
         user.provider = "google";
         user.isEmailVerified = true;
         await user.save();
@@ -166,9 +199,58 @@ export const googleLogin = async (req, res) => {
       _id: user._id,
       token: generateToken(user._id),
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Google login failed" });
+  }
+};
+export const restaurantLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const restaurant = await User.findOne({
+      email,
+      role: "restaurant",
+    }).select("+password");
+
+    if (!restaurant) {
+      return res.status(401).json({ message: "Not a restaurant account" });
+    }
+
+    const isMatch = await bcrypt.compare(password, restaurant.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    res.json({
+      _id: restaurant._id,
+      role: restaurant.role,
+      token: generateToken(restaurant._id, restaurant.role),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
 
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      provider: user.provider,
+      role: user.role || "user",
+      profileImage: user.profileImage,
+      dob: user.dob,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
