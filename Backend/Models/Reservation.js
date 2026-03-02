@@ -65,7 +65,7 @@ const reservationSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["None", "UPI", "Card", "Net Banking"],
+      enum: ["None", "UPI", "Card", "Net Banking", "Razorpay"],
       default: "None",
     },
     paymentId: {
