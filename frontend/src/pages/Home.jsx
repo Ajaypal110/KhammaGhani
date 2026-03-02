@@ -84,25 +84,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= CATEGORIES ROW ================= */}
-      <div className="categories-container">
-        <div className="categories-scroll">
-          {[
-            { n: "Combo Meals", e: "🍛" },
-            { n: "Pasta", e: "🍝" },
-            { n: "Burger", e: "🍔" },
-            { n: "Sandwich", e: "🥪" },
-            { n: "Sides & Fries", e: "🍟" },
-            { n: "Kids' Meals", e: "🍱" }
-          ].map((cat, i) => (
-             <div className="category-item" key={i}>
-                <div className="cat-icon-box">{cat.e}</div>
-                <span>{cat.n}</span>
-             </div>
-          ))}
-        </div>
-      </div>
-
       {loading ? (
         <Loader />
       ) : (

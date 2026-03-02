@@ -7,13 +7,12 @@ import "../styles/home.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
-
   const [showProfile, setShowProfile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
+  const [user, setUser] = useState(null);
 
   const { cartItems } = useCart();
   const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
@@ -22,7 +21,13 @@ export default function Navbar() {
   const isLoggedIn = !!token;
 
   useEffect(() => {
-    if (showSearch && restaurants.length === 0) {
+    if (isLoggedIn && !user) {
+      API.get("/auth/me").then(res => setUser(res.data)).catch(console.error);
+    }
+  }, [isLoggedIn, user]);
+
+  useEffect(() => {
+    if (searchQuery.length > 0 && restaurants.length === 0) {
       Promise.all([API.get("/restaurants"), API.get("/menu")])
         .then(([resData, menuData]) => {
           setRestaurants(resData.data);
@@ -30,10 +35,19 @@ export default function Navbar() {
         })
         .catch(console.error);
     }
-  }, [showSearch]);
+    if (searchQuery.length > 0) setShowSearch(true);
+    else setShowSearch(false);
+  }, [searchQuery]);
 
   const filteredRestaurants = restaurants.filter(r => r.name?.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredDishes = menuItems.filter(m => m.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    const parts = name.split(" ").filter(p => p.length > 0);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return parts[0][0].toUpperCase();
+  };
 
   /* ================= LOGOUT ================= */
   const logoutHandler = () => {
@@ -47,10 +61,6 @@ export default function Navbar() {
     navigate("/profile");
   };
 
-  const handleSearchClick = () => {
-    setShowSearch(!showSearch);
-  };
-
   /* Only show transparent/absolute nature if we're on the homepage hero. 
      Otherwise, make it solid green and relative on pages like Profile/Cart */
   const isHome = location.pathname === "/";
@@ -61,9 +71,9 @@ export default function Navbar() {
       style={isHome ? {} : { position: "sticky", borderBottom: "5px solid #ff6b00" }}
     >
       <div className="brand" onClick={() => navigate("/")}>
-        <div className="brand-icon">KG</div>
-        <span className="brand-main">Khamma</span>
-        <span className="brand-accent">Ghani</span>
+        <div className="brand-icon" style={{background: "#fff", color: "#112918"}}>KG</div>
+        <span className="brand-main" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: "-1px", fontSize: "26px", color: "#fff"}}>Khamma</span>
+        <span className="brand-accent" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.5px", fontSize: "26px", color: "#ff6b00", marginLeft: 0}}>Ghani</span>
       </div>
 
       <div className="nav-links">
@@ -86,15 +96,33 @@ export default function Navbar() {
         )}
 
         {isLoggedIn && (
-          <div className="nav-icons">
-            {/* Show search icon contextually or globally to link back to home */}
-            <FiSearch 
-              className="nav-search-icon" 
-              onClick={handleSearchClick}
-              title="Search Restaurants"
-            />
+          <div className="nav-icons" style={{display: "flex", alignItems: "center", gap: "24px"}}>
+            
+            {/* PERSISTENT SEARCH BAR */}
+            <div className="nav-search-wrapper" style={{ position: "relative" }}>
+              <div style={{
+                display: "flex", alignItems: "center", background: "rgba(255,255,255,0.1)",
+                borderRadius: "30px", padding: "6px 16px", border: "1px solid rgba(255,255,255,0.2)",
+                transition: "all 0.3s"
+              }}>
+                <FiSearch style={{ color: "#fff", marginRight: "8px", fontSize: "16px" }} />
+                <input 
+                  type="text" 
+                  placeholder="Search restaurants & dishes..." 
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{
+                    background: "transparent", border: "none", color: "#fff", 
+                    outline: "none", width: "220px", fontSize: "14px", fontFamily: "inherit"
+                  }}
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} style={{background: "transparent", border: "none", color: "#fff", cursor: "pointer", padding: "0 4px"}}>✕</button>
+                )}
+              </div>
+            </div>
 
-            <div className="cart-icon-wrapper" style={{ position: "relative", cursor: "pointer" }} onClick={() => navigate("/cart")}>
+            <div className="cart-icon-wrapper" style={{ position: "relative", cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => navigate("/cart")}>
               <FiShoppingCart className="nav-icon" />
               {cartCount > 0 && (
                 <span style={{
@@ -114,10 +142,22 @@ export default function Navbar() {
             </div>
 
             <div className="profile-box">
-              <FiUser
-                className="nav-icon"
-                onClick={() => setShowProfile((prev) => !prev)}
-              />
+              <div 
+                onClick={() => setShowProfile((prev) => !prev)} 
+                style={{ 
+                  width: "36px", height: "36px", borderRadius: "50%", 
+                  background: user?.profileImage ? "transparent" : "#ff6b00", 
+                  color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", overflow: "hidden", border: "2px solid rgba(255,107,0,0.5)",
+                  fontWeight: "bold", fontSize: "14px"
+                }}
+              >
+                {user?.profileImage ? (
+                  <img src={user.profileImage} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  user ? getInitials(user.name) : <FiUser />
+                )}
+              </div>
 
               {showProfile && (
                 <div className="profile-dropdown">
@@ -135,7 +175,7 @@ export default function Navbar() {
       </div>
 
       {/* ================= SEARCH DROPDOWN ================= */}
-      {showSearch && (
+      {showSearch && searchQuery.length > 0 && (
         <div style={{
           position: "absolute", top: "100%", left: 0, right: 0, 
           background: "#fff", borderBottom: "1px solid #e2e8f0", 
@@ -143,20 +183,7 @@ export default function Navbar() {
           boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
           color: "#334155"
         }}>
-          <div style={{display: "flex", gap: "12px", alignItems: "center", marginBottom: "20px"}}>
-            <input 
-              autoFocus
-              type="text" 
-              placeholder="Search for restaurants or dishes globally..." 
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              style={{flex: 1, padding: "14px 20px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "16px", outline: "none", fontFamily: "inherit"}}
-            />
-            <button onClick={() => {setShowSearch(false); setSearchQuery("");}} style={{padding: "14px 24px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600"}}>Close</button>
-          </div>
-
-          {searchQuery.length > 1 && (
-            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", maxHeight: "400px", overflowY: "auto", paddingRight: "10px"}}>
+          <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", maxHeight: "400px", overflowY: "auto", paddingRight: "10px"}}>
               {/* Restaurants */}
               <div>
                 <h4 style={{marginBottom: "12px", color: "#16a34a", display: "flex", alignItems: "center", gap: "6px"}}>🍔 Restaurants</h4>
@@ -201,7 +228,6 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-          )}
         </div>
       )}
 
