@@ -1,0 +1,979 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* ===================================================================
+   PAGE
+=================================================================== */
+.restaurant-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  background: #fafafa;
+  -webkit-font-smoothing: antialiased;
+}
+
+.loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: #aaa;
+  font-weight: 600;
+}
+
+/* ===================================================================
+   BACK BUTTON
+=================================================================== */
+.back-btn {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 100;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #f0f0f0;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.back-btn:hover {
+  background: #fff7f0;
+  color: #ff6b00;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 20px rgba(255, 107, 0, 0.1);
+}
+
+/* ===================================================================
+   HERO + IMAGE SLIDER
+=================================================================== */
+.restaurant-hero {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.restaurant-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.4s ease;
+}
+
+.hero-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #fff3e6, #ffe0c2);
+}
+
+.hero-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40px 36px;
+  background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.65) 100%);
+  color: #fff;
+}
+
+.hero-overlay h1 {
+  font-size: 38px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.hero-overlay p {
+  font-size: 15px;
+  opacity: 0.9;
+  margin-bottom: 16px;
+  font-weight: 400;
+}
+
+.book-btn {
+  padding: 13px 28px;
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.2px;
+}
+
+.book-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4);
+}
+
+/* ===== HERO SLIDER CONTROLS ===== */
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 5;
+}
+
+.hero-prev {
+  left: 18px;
+}
+
+.hero-next {
+  right: 18px;
+}
+
+.hero-arrow:hover {
+  background: rgba(255, 107, 0, 0.8);
+  border-color: rgba(255, 107, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.hero-counter {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a1a1a;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 5;
+}
+
+.hero-dots {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.hero-dot.active {
+  background: #ff6b00;
+  border-color: #ff6b00;
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.5);
+}
+
+.hero-dot:hover {
+  border-color: #fff;
+}
+
+/* ===================================================================
+   MENU
+=================================================================== */
+.restaurant-page .menu-section {
+  padding: 50px 36px;
+  background: #fff;
+}
+
+.restaurant-page .menu-section h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  letter-spacing: -0.3px;
+}
+
+.empty-text {
+  color: #aaa;
+  font-style: italic;
+  text-align: center;
+  padding: 40px;
+  background: #fafafa;
+  border-radius: 16px;
+  font-weight: 500;
+  border: 1px solid #f0f0f0;
+}
+
+.restaurant-page .menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 24px;
+}
+
+.restaurant-page .menu-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f0f0f0;
+}
+
+.restaurant-page .menu-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(255, 107, 0, 0.08);
+  border-color: rgba(255, 107, 0, 0.15);
+}
+
+.restaurant-page .menu-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.restaurant-page .menu-card:hover img {
+  transform: scale(1.04);
+}
+
+.menu-info {
+  padding: 18px;
+}
+
+.menu-info h4 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+  letter-spacing: -0.2px;
+}
+
+.menu-info p {
+  font-size: 13px;
+  color: #aaa;
+  height: 38px;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.menu-bottom {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-bottom span {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ff6b00;
+}
+
+.menu-bottom button {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.menu-bottom button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.25);
+}
+
+/* ===================================================================
+   BOOKING MODAL
+=================================================================== */
+.booking-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.booking-modal {
+  background: #fff;
+  width: 95%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 36px;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  position: relative;
+  animation: modalSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: #f5f5f5;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #888;
+}
+
+.modal-close:hover {
+  background: #fef2f2;
+  color: #ef4444;
+  transform: rotate(90deg);
+}
+
+.booking-modal h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.modal-subtitle {
+  color: #aaa;
+  font-size: 14px;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.booking-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.booking-modal input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #eee;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+  font-family: inherit;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.booking-modal input:focus {
+  border-color: #ff6b00;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.06);
+}
+
+.guests-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guests-row label {
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.guests-row input {
+  flex: 1;
+}
+
+.submit-booking-btn {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.2px;
+  margin-top: 4px;
+}
+
+.submit-booking-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 107, 0, 0.35);
+}
+
+.booking-msg {
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+/* Form Row */
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row input {
+  flex: 1;
+}
+
+.form-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Textarea */
+.booking-modal textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #eee;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+  resize: none;
+  font-family: inherit;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.booking-modal textarea:focus {
+  border-color: #ff6b00;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.06);
+}
+
+/* ===================================================================
+   BOOKING FEE INFO
+=================================================================== */
+.booking-fee-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff7f0;
+  border: 1px solid #ffe0c2;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.fee-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ff6b00;
+}
+
+/* ===================================================================
+   PAYMENT STEP
+=================================================================== */
+.payment-step,
+.receipt-step {
+  text-align: center;
+}
+
+.payment-step h2,
+.receipt-step h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.payment-summary {
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.summary-row span {
+  color: #888;
+}
+
+.summary-row strong {
+  color: #1a1a1a;
+}
+
+.summary-row.total-row {
+  border-top: 2px solid #ff6b00;
+  border-bottom: none;
+  margin-top: 6px;
+  padding-top: 12px;
+}
+
+.summary-row.total-row strong {
+  color: #ff6b00;
+  font-size: 18px;
+}
+
+/* Payment Methods */
+.payment-methods {
+  margin: 14px 0;
+  text-align: left;
+}
+
+.method-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.method-options {
+  display: flex;
+  gap: 8px;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 2px solid #eee;
+  background: #fafafa;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  color: #888;
+  transition: all 0.25s ease;
+}
+
+.method-btn:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
+}
+
+.method-btn.active {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: #fff;
+  border-color: #ff6b00;
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.25);
+}
+
+.method-icon {
+  font-size: 22px;
+}
+
+.pay-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+}
+
+.pay-btn:hover {
+  box-shadow: 0 10px 30px rgba(22, 163, 74, 0.3) !important;
+}
+
+.skip-pay-btn {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 6px;
+  transition: color 0.2s;
+}
+
+.skip-pay-btn:hover {
+  color: #ff6b00;
+}
+
+.razorpay-trust {
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+  margin: 8px 0 0;
+  font-weight: 500;
+}
+
+/* ===================================================================
+   RECEIPT STEP
+=================================================================== */
+.receipt-success-icon {
+  font-size: 50px;
+  margin-bottom: 12px;
+  animation: receiptPop 0.5s ease;
+}
+
+@keyframes receiptPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.receipt-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+  text-align: left;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.receipt-header {
+  text-align: center;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 2px dashed #f0f0f0;
+}
+
+.receipt-brand {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ff6b00;
+}
+
+.receipt-id {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.receipt-body {
+  margin-bottom: 14px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+}
+
+.receipt-row span {
+  color: #aaa;
+}
+
+.receipt-row strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.receipt-row.total-row {
+  border-top: 2px solid #ff6b00;
+  border-bottom: none;
+  margin-top: 6px;
+  padding-top: 10px;
+}
+
+.receipt-row.total-row strong {
+  color: #ff6b00;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.mono {
+  font-family: monospace !important;
+  font-size: 12px !important;
+  letter-spacing: 0.5px;
+}
+
+.receipt-footer {
+  text-align: center;
+  padding-top: 14px;
+  border-top: 2px dashed #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paid-stamp {
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 5px 16px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.receipt-date {
+  font-size: 12px;
+  color: #bbb;
+}
+
+/* ===================================================================
+   TABLE PICKER
+=================================================================== */
+.table-picker {
+  margin: 4px 0;
+}
+
+.table-picker label {
+  font-weight: 700;
+  color: #1a1a1a;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* STATUS BAR */
+.table-status-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.table-count {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.available-count {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.booked-count {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* FILTER BAR */
+.table-filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.table-filter-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #eee;
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.25s ease;
+  color: #888;
+}
+
+.table-filter-btn:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
+}
+
+.table-filter-btn.active {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: #fff;
+  border-color: #ff6b00;
+}
+
+/* ALL BOOKED WARNING */
+.all-booked-msg {
+  padding: 12px 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c2410c;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* TABLE GRID */
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.table-btn {
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 2px solid #eee;
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.25s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.table-btn-icon {
+  font-size: 16px;
+}
+
+.table-btn-num {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.table-btn-label {
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.table-btn:hover:not(:disabled) {
+  border-color: #ff6b00;
+  background: #fff7f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
+}
+
+.table-btn.selected {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: #fff;
+  border-color: #ff6b00;
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.table-btn.booked {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.table-legend {
+  display: flex;
+  gap: 18px;
+  font-size: 12px;
+  color: #aaa;
+  align-items: center;
+  font-weight: 500;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.legend-dot.available {
+  background: #fafafa;
+  border: 2px solid #eee;
+}
+
+.legend-dot.booked-dot {
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+}
+
+.legend-dot.selected-dot {
+  background: #ff6b00;
+  border: 2px solid #ff6b00;
+}

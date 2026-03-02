@@ -42,6 +42,7 @@ export default function Register() {
       });
 
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("role");
       navigate("/");
     } catch (err) {
       setMessage(err.response?.data?.message || "Registration failed");
@@ -66,6 +67,7 @@ export default function Register() {
       });
 
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("role");
       navigate("/");
     } catch {
       setMessage("Google sign-in failed");

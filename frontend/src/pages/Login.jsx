@@ -5,6 +5,7 @@ import "../styles/auth.css";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
+
 export default function Login() {
   const navigate = useNavigate();
 
@@ -41,10 +42,13 @@ export default function Login() {
       });
 
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("role");
       navigate("/");
-    } catch (err) {
-      setMessage(err.response?.data?.message || "Login failed");
-    }
+    }catch (err) {
+  console.log("LOGIN ERROR 👉", err.response?.data || err.message);
+  setMessage(err.response?.data?.message || "Login failed");
+}
+
   };
 
   /* =====================
@@ -120,6 +124,7 @@ export default function Login() {
       });
 
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("role");
       navigate("/");
     } catch {
       setMessage("Google login failed");
@@ -130,8 +135,10 @@ export default function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Login</h2>
+
         {message && <p className="auth-message">{message}</p>}
 
+        {/* ================= LOGIN ================= */}
         {step === "login" && (
           <form onSubmit={loginHandler}>
             <input
@@ -158,6 +165,7 @@ export default function Login() {
 
             <button type="submit">Login</button>
 
+            {/* GOOGLE LOGIN */}
             <button
               type="button"
               className="google-btn google-flex"
@@ -171,6 +179,15 @@ export default function Login() {
               Continue with Google
             </button>
 
+            {/* ✅ RESTAURANT LOGIN BUTTON (ADDED) */}
+            <button
+              type="button"
+              className="restaurant-btn"
+              onClick={() => navigate("/restaurant/login")}
+            >
+              Restaurant Login
+            </button>
+
             <div className="auth-link">
               New user?{" "}
               <span onClick={() => navigate("/register")}>Register</span>
@@ -178,6 +195,7 @@ export default function Login() {
           </form>
         )}
 
+        {/* ================= FORGOT ================= */}
         {step === "forgot" && (
           <>
             <input
@@ -198,6 +216,7 @@ export default function Login() {
           </>
         )}
 
+        {/* ================= OTP ================= */}
         {step === "otp" && (
           <>
             <input
@@ -212,6 +231,7 @@ export default function Login() {
           </>
         )}
 
+        {/* ================= RESET ================= */}
         {step === "reset" && (
           <>
             <input

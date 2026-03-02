@@ -1,20 +1,45 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OtpLogin from "./pages/OtpLogin";
 import Auth from "./pages/Auth";
+import RestaurantDetails from "./pages/RestaurantDetails";
+import DishDetails from "./pages/DishDetails";
 
+
+
+import RestaurantLogin from "./pages/RestaurantLogin";
+import RestaurantDashboard from "./pages/RestaurantDashboard";
+import RestaurantProtected from "./components/RestaurantProtected";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* ================= USER ROUTES ================= */}
         <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/otp-login" element={<OtpLogin />} />
-        <Route path="/" element={<Auth />} />
+
+        {/* ================= RESTAURANT ROUTES ================= */}
+        <Route path="/restaurant/login" element={<RestaurantLogin />} />
+
+        <Route
+          path="/restaurant/dashboard"
+          element={
+            <RestaurantProtected>
+              <RestaurantDashboard />
+            </RestaurantProtected>
+          }
+        />
+        <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/dish/:id" element={<DishDetails />} />
       </Routes>
     </BrowserRouter>
   );
