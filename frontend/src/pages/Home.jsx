@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { FiShoppingCart, FiUser, FiLogOut } from "react-icons/fi";
+import { FiShoppingCart, FiUser, FiLogOut, FiSearch } from "react-icons/fi";
+import { FaPlay } from "react-icons/fa";
 import "../styles/home.css";
 import { useEffect, useState } from "react";
 import API from "../api/axios";
@@ -63,20 +64,17 @@ export default function Home() {
       {/* ================= NAVBAR ================= */}
       <nav className="navbar">
         <div className="brand" onClick={() => navigate("/")}>
+          <div className="brand-icon">KG</div>
           <span className="brand-main">Khamma</span>
           <span className="brand-accent">Ghani</span>
-          <div className="brand-tagline">Authentic Rajasthani Taste</div>
         </div>
 
-        {/* SEARCH BAR */}
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Search restaurants..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <button>Search</button>
+        <div className="nav-links">
+          <a href="#" className="active">Home</a>
+          <a href="#">About Us</a>
+          <a href="#">Shop</a>
+          <a href="#">Services</a>
+          <a href="#">Contact Us</a>
         </div>
 
         <div className="nav-actions">
@@ -94,6 +92,8 @@ export default function Home() {
 
           {isLoggedIn && (
             <div className="nav-icons">
+              <FiSearch className="nav-search-icon" />
+
               <div className="cart-icon-wrapper" style={{ position: "relative", cursor: "pointer" }} onClick={() => navigate("/cart")}>
                 <FiShoppingCart className="nav-icon" />
                 {cartCount > 0 && (
@@ -135,93 +135,179 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ================= HERO OR MAIN CONTENT ================= */}
+      {/* ================= HERO SECTION ================= */}
+      <section className="hero-wrapper">
+        <div className="hero-content">
+          <h1>Experience Adventure in Every Dish We Serve</h1>
+          <p>Order delicious, authentic Rajasthani food and more from top-rated restaurants near you. Fast delivery, unmatched taste.</p>
+          <div className="hero-buttons">
+            <button className="btn-primary" onClick={() => {
+              document.getElementById('restaurantsList').scrollIntoView({ behavior: 'smooth' });
+            }}>Order Now ➔</button>
+            <button className="btn-video">
+              <div className="play-icon"><FaPlay size={14} /></div>
+              Watch Video
+            </button>
+          </div>
+        </div>
+
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Food Plate" className="hero-food-plate" style={{borderRadius: "50%"}} />
+
+        <div className="hero-wave">
+          <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path fill="#fdfdfd" fillOpacity="1" d="M0,192L48,192C96,192,192,192,288,181.3C384,171,480,149,576,160C672,171,768,213,864,229.3C960,245,1056,235,1152,208C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          </svg>
+        </div>
+      </section>
+
+      {/* ================= CATEGORIES ROW ================= */}
+      <div className="categories-container">
+        <div className="categories-scroll">
+          {[
+            { n: "Combo Meals", e: "🍛" },
+            { n: "Pasta", e: "🍝" },
+            { n: "Burger", e: "🍔" },
+            { n: "Sandwich", e: "🥪" },
+            { n: "Sides & Fries", e: "🍟" },
+            { n: "Kids' Meals", e: "🍱" }
+          ].map((cat, i) => (
+             <div className="category-item" key={i}>
+                <div className="cat-icon-box">{cat.e}</div>
+                <span>{cat.n}</span>
+             </div>
+          ))}
+        </div>
+      </div>
 
       {loading ? (
         <Loader />
       ) : (
         <>
-          {/* ================= HERO SECTION ================= */}
-      <section className="hero">
-        <h1>Authentic Rajasthani Taste 🍛</h1>
-        <p>Order delicious food from KhammaGhani restaurants near you</p>
-      </section>
-
-      {/* ================= RESTAURANTS ================= */}
-      <section className="restaurants">
-        <h2>Our Restaurants</h2>
-
-        <div className="restaurant-grid">
-          {filteredRestaurants.length === 0 ? (
-            <p>No restaurants found</p>
-          ) : (
-            filteredRestaurants.map((res) => (
-              <div
-                key={res._id}
-                className="restaurant-card"
-                onClick={() => navigate(`/restaurant/${res._id}`)}
-              >
-                {/* Cover Image */}
-                <div className="restaurant-card-img">
-                  {res.restaurantImages && res.restaurantImages.length > 0 ? (
-                    <img
-                      src={res.restaurantImages[0]}
-                      alt={res.name}
-                    />
-                  ) : (
-                    <div className="restaurant-placeholder">
-                      <span>🍽️</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="restaurant-card-info">
-                  <h4>{res.name}</h4>
-                  <p className="restaurant-location">📍 {res.restaurantId || "Rajasthan"}</p>
-                  <div className="restaurant-card-meta">
-                    <span className="restaurant-rating">
-                      ⭐ {res.rating || "4.0"}
-                    </span>
-                    <span className={`restaurant-status ${res.isOpen !== false ? "open" : "closed"}`}>
-                      {res.isOpen !== false ? "Open" : "Closed"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
-
-      {/* ================= MENU SECTION ================= */}
-      {menuItems.length > 0 && (
-        <section className="menu-section">
-          <h2>Popular Dishes</h2>
-
-          <div className="menu-grid">
-            {menuItems.slice(0, 6).map((item) => (
-              <div key={item._id} className="menu-card"
-                   onClick={() => navigate(`/dish/${item._id}`)}>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                />
-                <div className="menu-card-body">
-                  <h4>{item.name}</h4>
-                  <p className="menu-price">₹ {item.price}</p>
-                </div>
-              </div>
-            ))}
+          {/* ================= FEATURED BANNER ================= */}
+          <section className="featured-section">
+            <div className="featured-text">
+              <h2>Captivating Culinary Favorites.</h2>
+              <p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment.</p>
+              <button className="btn-primary" onClick={() => {
+              document.getElementById('menuList').scrollIntoView({ behavior: 'smooth' });
+              }}>Get Menu ➔</button>
+            </div>
+            <div className="featured-img-grid">
+              <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Cooking 1" />
+              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Cooking 2" />
             </div>
           </section>
-        )}
+
+          {/* ================= MENU SECTION ================= */}
+          {menuItems.length > 0 && (
+            <section className="restaurants-wrapper" id="menuList">
+              <span className="section-tag">A Menu That Always Makes You Fall In Love</span>
+              <h2>Popular Dishes</h2>
+              <div className="menu-grid">
+                {menuItems.slice(0, 8).map((item) => (
+                  <div key={item._id} className="res-card"
+                       onClick={() => navigate(`/dish/${item._id}`)}>
+                    <div className="res-card-img-box">
+                      <img src={item.image} alt={item.name} />
+                    </div>
+                    <div className="res-card-info">
+                      <h4>{item.name}</h4>
+                      <div className="res-stars">★★★★★</div>
+                      <div className="res-meta mt-2" style={{marginTop: "12px"}}>
+                        <span className="res-price">₹ {item.price}.00</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ================= RESTAURANTS SECTION ================= */}
+          <section className="restaurants-wrapper" id="restaurantsList" style={{background: '#fdfdfd'}}>
+            <span className="section-tag">Find Your Favorite Spot</span>
+            <h2>Our Top Rated Restaurants</h2>
+
+            {/* In-page basic search for restaurants */}
+            <input 
+              type="text" 
+              placeholder="Search Restaurants..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{padding: '12px 20px', width: '100%', maxWidth: '400px', borderRadius: '30px', border: '1px solid #ccc', marginBottom: '30px'}}
+            />
+
+            <div className="restaurant-grid">
+              {filteredRestaurants.length === 0 ? (
+                <p>No restaurants found</p>
+              ) : (
+                filteredRestaurants.map((res) => (
+                  <div
+                    key={res._id}
+                    className="res-card"
+                    onClick={() => navigate(`/restaurant/${res._id}`)}
+                  >
+                    <div className="res-card-img-box">
+                      {res.restaurantImages && res.restaurantImages.length > 0 ? (
+                        <img src={res.restaurantImages[0]} alt={res.name} />
+                      ) : (
+                        <div style={{width:'100%', height:'100%', background:'#f1f5f9', display:'flex', alignItems:'center', justifyContent:'center', fontSize: '40px'}}>🍽️</div>
+                      )}
+                    </div>
+                    <div className="res-card-info">
+                      <h4>{res.name}</h4>
+                      <p>📍 {res.restaurantId || "Rajasthan"}</p>
+                      <div className="res-meta">
+                        <span className="res-stars">★ {res.rating || "4.5"}</span>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: res.isOpen !== false ? '#16a34a' : '#ef4444'}}>
+                          {res.isOpen !== false ? "OPEN" : "CLOSED"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* ================= APP & RESERVATION BENNER ================= */}
+          <section className="app-reservation-section">
+            <div className="app-promo-box">
+              <h3>Begin Your Journey<br/>with KhammaGhani Today!</h3>
+              <p>Download our mobile app to track your live orders, get exclusive App-only discounts, and uncover Rajasthan's best kept culinary secrets.</p>
+              <div className="app-badges">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Play Store" />
+              </div>
+            </div>
+
+            <div className="reservation-box">
+              <h3>Book a Table Directly</h3>
+              <p>Elevate Your Dining Experience with a Reserved Table!</p>
+              <form className="res-form" onSubmit={(e) => { e.preventDefault(); alert("Please visit a restaurant profile to book a table."); }}>
+                <input type="text" placeholder="Your Name" required/>
+                <input type="text" placeholder="Phone Number" required/>
+                <input type="date" className="full-w" required/>
+                <select>
+                  <option>2 People</option>
+                  <option>4 People</option>
+                  <option>6+ People</option>
+                </select>
+                <select>
+                  <option>Dinner</option>
+                  <option>Lunch</option>
+                </select>
+                <button type="submit">Book Table Now</button>
+              </form>
+            </div>
+          </section>
+
         </>
       )}
 
       {/* ================= FOOTER ================= */}
       <footer className="footer">
-        © {new Date().getFullYear()} KhammaGhani. All rights reserved.
+        © {new Date().getFullYear()} KhammaGhani. All rights reserved. Made with ❤️ for Rajasthan.
       </footer>
     </div>
   );
