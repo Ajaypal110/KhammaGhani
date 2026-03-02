@@ -15,7 +15,16 @@ const orderSchema = new mongoose.Schema(
       },
     ],
     totalAmount: Number,
+    deliveryFee: { type: Number, default: 0 },
+    deliveryAddress: { type: String },
+    distance: { type: Number },
     status: { type: String, default: "Placed" },
+    paymentStatus: { type: String, default: "Pending" },
+    paymentMethod: { type: String, default: "Razorpay" },
+    razorpayOrderId: String,
+    paymentId: String,
+    receiptId: String,
+    paidAt: Date,
   },
   { timestamps: true }
 );

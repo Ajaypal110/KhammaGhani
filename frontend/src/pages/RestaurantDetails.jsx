@@ -3,10 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import Loader from "../components/Loader";
 import "../styles/restaurantDetails.css";
+import { useCart } from "../context/CartContext";
 
 export default function RestaurantDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const [restaurant, setRestaurant] = useState(null);
   const [menu, setMenu] = useState([]);
@@ -273,7 +275,15 @@ export default function RestaurantDetails() {
                   <p>{item.description}</p>
                   <div className="menu-bottom">
                     <span>₹ {item.price}</span>
-                    <button>Add</button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(item, item.restaurant || id);
+                        alert("Added to cart!");
+                      }}
+                    >
+                      Add
+                    </button>
                   </div>
                 </div>
               </div>

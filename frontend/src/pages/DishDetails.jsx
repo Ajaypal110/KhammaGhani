@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import Loader from "../components/Loader";
+import { useCart } from "../context/CartContext";
 
 export default function DishDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [dish, setDish] = useState(null);
 
   useEffect(() => {
@@ -15,7 +18,7 @@ export default function DishDetails() {
     fetchDish();
   }, [id]);
 
-  if (!dish) return <h2 style={{ textAlign: "center", padding: "80px 20px", color: "#aaa", fontFamily: "Inter, sans-serif" }}>Loading...</h2>;
+  if (!dish) return <div style={{ paddingTop: "100px" }}><Loader /></div>;
 
   return (
     <div style={{
@@ -115,6 +118,10 @@ export default function DishDetails() {
           )}
 
           <button
+            onClick={() => {
+              addToCart(dish, dish.restaurant);
+              alert("Added to cart!");
+            }}
             style={{
               display: "block",
               width: "100%",

@@ -14,11 +14,14 @@ import RestaurantLogin from "./pages/RestaurantLogin";
 import RestaurantDashboard from "./pages/RestaurantDashboard";
 import RestaurantProtected from "./components/RestaurantProtected";
 import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
+import { CartProvider } from "./context/CartContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
         {/* ================= USER ROUTES ================= */}
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
@@ -40,8 +43,10 @@ function App() {
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/dish/:id" element={<DishDetails />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </BrowserRouter>
+    </CartProvider>
   );
 }
 

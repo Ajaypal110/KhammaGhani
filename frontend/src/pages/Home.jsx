@@ -4,6 +4,7 @@ import "../styles/home.css";
 import { useEffect, useState } from "react";
 import API from "../api/axios";
 import Loader from "../components/Loader";
+import { useCart } from "../context/CartContext";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -13,6 +14,9 @@ export default function Home() {
   const [menuItems, setMenuItems] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const { cartItems } = useCart();
+  const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
@@ -90,10 +94,24 @@ export default function Home() {
 
           {isLoggedIn && (
             <div className="nav-icons">
-              <FiShoppingCart
-                className="nav-icon"
-                onClick={() => navigate("/cart")}
-              />
+              <div className="cart-icon-wrapper" style={{ position: "relative", cursor: "pointer" }} onClick={() => navigate("/cart")}>
+                <FiShoppingCart className="nav-icon" />
+                {cartCount > 0 && (
+                  <span style={{
+                    position: "absolute",
+                    top: "-8px",
+                    right: "-12px",
+                    background: "#ff6b00",
+                    color: "white",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    borderRadius: "50%",
+                    padding: "2px 6px",
+                  }}>
+                    {cartCount}
+                  </span>
+                )}
+              </div>
 
               <div className="profile-box">
                 <FiUser

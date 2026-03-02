@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import Loader from "../components/Loader";
 import "../styles/restaurant.css";
 
 export default function RestaurantDashboard() {
@@ -14,6 +15,7 @@ export default function RestaurantDashboard() {
   const [restaurantName, setRestaurantName] = useState(
     localStorage.getItem("restaurantName") || "Restaurant"
   );
+  const [loading, setLoading] = useState(true);
 
   const logoutHandler = () => {
     localStorage.removeItem("restaurantToken");
@@ -23,11 +25,18 @@ export default function RestaurantDashboard() {
   };
 
   useEffect(() => {
-    fetchMyMenu();
-    fetchMyImages();
-    fetchBookings();
-    fetchOrders();
-    fetchProfile();
+    const loadAllData = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchMyMenu(),
+        fetchMyImages(),
+        fetchBookings(),
+        fetchOrders(),
+        fetchProfile(),
+      ]);
+      setLoading(false);
+    };
+    loadAllData();
   }, []);
 
   /* ================= FETCH DATA ================= */
@@ -147,24 +156,30 @@ export default function RestaurantDashboard() {
 
         {/* CONTENT */}
         <main className="content">
-          {activeTab === "menu" && (
-            <MenuSection menu={menu} refresh={fetchMyMenu} />
-          )}
+          {loading ? (
+            <Loader />
+          ) : (
+            <>
+              {activeTab === "menu" && (
+                <MenuSection menu={menu} refresh={fetchMyMenu} />
+              )}
 
-          {activeTab === "images" && (
-            <ImagesSection images={images} refresh={fetchMyImages} />
-          )}
+              {activeTab === "images" && (
+                <ImagesSection images={images} refresh={fetchMyImages} />
+              )}
 
-          {activeTab === "bookings" && (
-            <BookingsSection bookings={bookings} refresh={fetchBookings} />
-          )}
+              {activeTab === "bookings" && (
+                <BookingsSection bookings={bookings} refresh={fetchBookings} />
+              )}
 
-          {activeTab === "tables" && (
-            <TablesSection totalTables={totalTables} refresh={fetchProfile} />
-          )}
+              {activeTab === "tables" && (
+                <TablesSection totalTables={totalTables} refresh={fetchProfile} />
+              )}
 
-          {activeTab === "orders" && (
-            <OrdersSection orders={orders} />
+              {activeTab === "orders" && (
+                <OrdersSection orders={orders} />
+              )}
+            </>
           )}
         </main>
       </div>
