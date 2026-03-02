@@ -6,8 +6,8 @@ import {
   resetPassword,
   googleLogin,
   restaurantLogin,
-} from "../controllers/authcontroller.js";
-import { getUserProfile } from "../controllers/authController.js";
+} from "../controllers/authController.js";
+import { getUserProfile } from"../controllers/authController.js";
 import protect from "../Middleware/authMiddleware.js";
 import User from "../Models/User.js";
 import bcrypt from "bcryptjs";
