@@ -61,79 +61,7 @@ export default function Home() {
 
   return (
     <div className="home">
-      {/* ================= NAVBAR ================= */}
-      <nav className="navbar">
-        <div className="brand" onClick={() => navigate("/")}>
-          <div className="brand-icon">KG</div>
-          <span className="brand-main">Khamma</span>
-          <span className="brand-accent">Ghani</span>
-        </div>
-
-        <div className="nav-links">
-          <a href="#" className="active">Home</a>
-          <a href="#">About Us</a>
-          <a href="#">Shop</a>
-          <a href="#">Services</a>
-          <a href="#">Contact Us</a>
-        </div>
-
-        <div className="nav-actions">
-          {!isLoggedIn && (
-            <>
-              <button onClick={() => navigate("/login")}>Login</button>
-              <button
-                className="restaurant-btn-nav"
-                onClick={() => navigate("/restaurant/login")}
-              >
-                Restaurant Login
-              </button>
-            </>
-          )}
-
-          {isLoggedIn && (
-            <div className="nav-icons">
-              <FiSearch className="nav-search-icon" />
-
-              <div className="cart-icon-wrapper" style={{ position: "relative", cursor: "pointer" }} onClick={() => navigate("/cart")}>
-                <FiShoppingCart className="nav-icon" />
-                {cartCount > 0 && (
-                  <span style={{
-                    position: "absolute",
-                    top: "-8px",
-                    right: "-12px",
-                    background: "#ff6b00",
-                    color: "white",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    borderRadius: "50%",
-                    padding: "2px 6px",
-                  }}>
-                    {cartCount}
-                  </span>
-                )}
-              </div>
-
-              <div className="profile-box">
-                <FiUser
-                  className="nav-icon"
-                  onClick={() => setShowProfile((prev) => !prev)}
-                />
-
-                {showProfile && (
-                  <div className="profile-dropdown">
-                    <div onClick={goProfile}>
-                      <FiUser /> Profile
-                    </div>
-                    <div onClick={logoutHandler} className="logout">
-                      <FiLogOut /> Logout
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
+      {/* Navbar is now handled globally in App.jsx */}
 
       {/* ================= HERO SECTION ================= */}
       <section className="hero-wrapper">
@@ -230,6 +158,7 @@ export default function Home() {
 
             {/* In-page basic search for restaurants */}
             <input 
+              id="homeSearchInput"
               type="text" 
               placeholder="Search Restaurants..." 
               value={search}
@@ -270,35 +199,15 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ================= APP & RESERVATION BENNER ================= */}
-          <section className="app-reservation-section">
-            <div className="app-promo-box">
+          {/* ================= APP BANNER ONLY ================= */}
+          <section className="app-reservation-section" style={{ gridTemplateColumns: "1fr" }}>
+            <div className="app-promo-box" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
               <h3>Begin Your Journey<br/>with KhammaGhani Today!</h3>
               <p>Download our mobile app to track your live orders, get exclusive App-only discounts, and uncover Rajasthan's best kept culinary secrets.</p>
-              <div className="app-badges">
+              <div className="app-badges" style={{ justifyContent: "center" }}>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" />
                 <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Play Store" />
               </div>
-            </div>
-
-            <div className="reservation-box">
-              <h3>Book a Table Directly</h3>
-              <p>Elevate Your Dining Experience with a Reserved Table!</p>
-              <form className="res-form" onSubmit={(e) => { e.preventDefault(); alert("Please visit a restaurant profile to book a table."); }}>
-                <input type="text" placeholder="Your Name" required/>
-                <input type="text" placeholder="Phone Number" required/>
-                <input type="date" className="full-w" required/>
-                <select>
-                  <option>2 People</option>
-                  <option>4 People</option>
-                  <option>6+ People</option>
-                </select>
-                <select>
-                  <option>Dinner</option>
-                  <option>Lunch</option>
-                </select>
-                <button type="submit">Book Table Now</button>
-              </form>
             </div>
           </section>
 

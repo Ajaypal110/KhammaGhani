@@ -16,11 +16,13 @@ import RestaurantProtected from "./components/RestaurantProtected";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        <Navbar />
         <Routes>
         {/* ================= USER ROUTES ================= */}
         <Route path="/" element={<Home />} />
