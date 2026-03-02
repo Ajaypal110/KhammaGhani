@@ -72,10 +72,6 @@ export default function Home() {
             <button className="btn-primary" onClick={() => {
               document.getElementById('restaurantsList').scrollIntoView({ behavior: 'smooth' });
             }}>Order Now ➔</button>
-            <button className="btn-video">
-              <div className="play-icon"><FaPlay size={14} /></div>
-              Watch Video
-            </button>
           </div>
         </div>
 
