@@ -29,6 +29,8 @@ export default function Cart() {
   const [distanceKm, setDistanceKm] = useState(null);
   const [locLoading, setLocLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
 
@@ -39,7 +41,9 @@ export default function Cart() {
     deliveryFee = Math.round(distanceKm * 10);
   }
 
-  const totalAmount = subtotal + deliveryFee;
+
+
+  const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee);
 
   useEffect(() => {
     if (restaurantId) {
@@ -73,10 +77,11 @@ export default function Cart() {
           }
 
           // Geocode Restaurant Address to get distance
-          if (restaurant && restaurant.address) {
+          const resQuery = (restaurant && restaurant.address) ? restaurant.address : (restaurant && restaurant.restaurantId);
+          if (resQuery) {
             const resGeo = await fetch(
               `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-                restaurant.address
+                resQuery
               )}`
             );
             const resData = await resGeo.json();
@@ -130,9 +135,9 @@ export default function Cart() {
         qty: item.qty,
       }));
 
-      const { data: orderData } = await API.post("/order/order", {
+      const { data: orderData } = await API.post("/orders/order", {
         items: itemsPayload,
-        totalAmount: subtotal,
+        totalAmount: totalAmount, // Adjusted for discount
         deliveryFee,
         deliveryAddress: address,
         distance: distanceKm,
@@ -140,7 +145,7 @@ export default function Cart() {
       });
 
       // 2. Init Razorpay
-      const { data: rzpData } = await API.post(`/order/razorpay-order/${orderData._id}`);
+      const { data: rzpData } = await API.post(`/orders/razorpay-order/${orderData._id}`);
 
       const options = {
         key: rzpData.keyId,
@@ -155,7 +160,7 @@ export default function Cart() {
         handler: async (response) => {
           try {
             // 3. Verify Payment
-            await API.post(`/order/verify-payment/${orderData._id}`, {
+            await API.post(`/orders/verify-payment/${orderData._id}`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -226,11 +231,17 @@ export default function Cart() {
             <span>Subtotal</span>
             <span>₹{subtotal}</span>
           </div>
+          {discountAmount > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", color: "#16a34a", fontWeight: "600" }}>
+              <span>Discount ({couponCode.toUpperCase()})</span>
+              <span>- ₹{discountAmount}</span>
+            </div>
+          )}
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
             <span>Delivery Fee</span>
             <span>
               {subtotal > 500 ? (
-                <span style={{ color: "green", fontWeight: "bold" }}>FREE</span>
+                <span style={{ color: "green", fontWeight: "bold" }}>FREE (Order &gt; ₹500)</span>
               ) : distanceKm !== null ? (
                 `₹${deliveryFee}`
               ) : (
@@ -238,10 +249,42 @@ export default function Cart() {
               )}
             </span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "20px", fontWeight: "800" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "20px", fontWeight: "800", borderTop: "1px solid #ddd", paddingTop: "12px" }}>
             <span>Total</span>
             <span>₹{totalAmount}</span>
           </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: "30px", padding: "20px", border: "1px solid #eee", borderRadius: "12px", background: "#fefcfa" }}>
+        <h3 style={{ margin: "0 0 12px 0", fontSize: "16px" }}>Available Offers</h3>
+        <div style={{ border: "2px dashed #ff6b00", borderRadius: "8px", padding: "16px", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ display: "inline-block", padding: "4px 8px", background: "#ffedd5", color: "#c2410c", fontWeight: "bold", borderRadius: "4px", fontSize: "12px", marginBottom: "8px" }}>
+              NEWUSER10
+            </div>
+            <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a1a" }}>10% OFF on your order</div>
+            <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Get 10% off your entire subtotal.</p>
+          </div>
+          <button 
+            onClick={() => {
+              setCouponCode("NEWUSER10");
+              setDiscountAmount(Math.round(subtotal * 0.10));
+              alert("Coupon APPLIED: 10% Off!");
+            }} 
+            disabled={couponCode === "NEWUSER10"}
+            style={{ 
+              padding: "8px 16px", 
+              background: couponCode === "NEWUSER10" ? "#e5e7eb" : "#ff6b00", 
+              color: couponCode === "NEWUSER10" ? "#9ca3af" : "#fff", 
+              border: "none", 
+              borderRadius: "8px", 
+              cursor: couponCode === "NEWUSER10" ? "not-allowed" : "pointer", 
+              fontWeight: "600" 
+            }}
+          >
+            {couponCode === "NEWUSER10" ? "Applied" : "Apply"}
+          </button>
         </div>
       </div>
 
