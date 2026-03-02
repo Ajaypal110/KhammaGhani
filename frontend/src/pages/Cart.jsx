@@ -26,6 +26,7 @@ export default function Cart() {
 
   const [restaurant, setRestaurant] = useState(null);
   const [address, setAddress] = useState("");
+  const [userAddresses, setUserAddresses] = useState([]);
   const [distanceKm, setDistanceKm] = useState(null);
   const [locLoading, setLocLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -58,9 +59,23 @@ export default function Cart() {
     }
   };
 
+  const handleRemoveCoupon = () => {
+    setDiscountAmount(0);
+    setCouponCode("");
+  };
+
   const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      API.get("/auth/me")
+        .then((res) => {
+          if (res.data.addresses) setUserAddresses(res.data.addresses);
+        })
+        .catch(console.error);
+    }
+
     if (restaurantId) {
       API.get(`/restaurants/${restaurantId}`)
         .then((res) => setRestaurant(res.data))
@@ -284,19 +299,18 @@ export default function Cart() {
             <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Get 10% off your entire subtotal.</p>
           </div>
           <button 
-            onClick={() => handleApplyCoupon("FIRST10")}
-            disabled={couponCode === "FIRST10"}
+            onClick={() => couponCode === "FIRST10" ? handleRemoveCoupon() : handleApplyCoupon("FIRST10")}
             style={{ 
               padding: "8px 16px", 
-              background: couponCode === "FIRST10" ? "#e5e7eb" : "#ff6b00", 
-              color: couponCode === "FIRST10" ? "#9ca3af" : "#fff", 
+              background: couponCode === "FIRST10" ? "#fee2e2" : "#ff6b00", 
+              color: couponCode === "FIRST10" ? "#ef4444" : "#fff", 
               border: "none", 
               borderRadius: "8px", 
-              cursor: couponCode === "FIRST10" ? "not-allowed" : "pointer", 
+              cursor: "pointer", 
               fontWeight: "600" 
             }}
           >
-            {couponCode === "FIRST10" ? "Applied" : "Apply"}
+            {couponCode === "FIRST10" ? "✕ Remove" : "Apply"}
           </button>
         </div>
 
@@ -310,19 +324,19 @@ export default function Cart() {
             <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Valid on orders above ₹1000.</p>
           </div>
           <button 
-            onClick={() => handleApplyCoupon("GET100")}
-            disabled={couponCode === "GET100" || subtotal <= 1000}
+            onClick={() => couponCode === "GET100" ? handleRemoveCoupon() : handleApplyCoupon("GET100")}
+            disabled={couponCode !== "GET100" && subtotal <= 1000}
             style={{ 
               padding: "8px 16px", 
-              background: couponCode === "GET100" ? "#e5e7eb" : (subtotal > 1000 ? "#16a34a" : "#cbd5e1"), 
-              color: couponCode === "GET100" ? "#9ca3af" : "#fff", 
+              background: couponCode === "GET100" ? "#fee2e2" : (subtotal > 1000 ? "#16a34a" : "#cbd5e1"), 
+              color: couponCode === "GET100" ? "#ef4444" : "#fff", 
               border: "none", 
               borderRadius: "8px", 
-              cursor: (couponCode === "GET100" || subtotal <= 1000) ? "not-allowed" : "pointer", 
+              cursor: (couponCode !== "GET100" && subtotal <= 1000) ? "not-allowed" : "pointer", 
               fontWeight: "600" 
             }}
           >
-            {couponCode === "GET100" ? "Applied" : "Apply"}
+            {couponCode === "GET100" ? "✕ Remove" : "Apply"}
           </button>
         </div>
       </div>
@@ -330,6 +344,32 @@ export default function Cart() {
       <div style={{ marginBottom: "30px", padding: "20px", border: "1px solid #eee", borderRadius: "12px" }}>
         <h3 style={{ margin: "0 0 16px 0" }}>Delivery Information</h3>
         
+        {userAddresses && userAddresses.length > 0 && (
+          <div style={{ marginBottom: "16px" }}>
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "8px", marginTop: 0 }}>Saved Addresses:</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {userAddresses.map((addr, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setAddress(addr.address)}
+                  style={{
+                    padding: "8px 12px",
+                    background: address === addr.address ? "#ffedd5" : "#f1f5f9",
+                    color: address === addr.address ? "#c2410c" : "#334155",
+                    border: address === addr.address ? "1px solid #ff6b00" : "1px solid transparent",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "500",
+                    fontSize: "14px"
+                  }}
+                >
+                  {addr.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
           <button 
             onClick={handleGetLocation} 
@@ -341,8 +381,8 @@ export default function Cart() {
         </div>
 
         <textarea
-          style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", minHeight: "80px", fontFamily: "inherit" }}
-          placeholder="Enter complete delivery address manually or use Live Location above."
+          style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", minHeight: "80px", fontFamily: "inherit", boxSizing: "border-box" }}
+          placeholder="Enter complete delivery address manually, select a saved address, or use Live Location above."
           value={address}
           onChange={(e) => setAddress(e.target.value)}
         />

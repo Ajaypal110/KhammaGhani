@@ -7,7 +7,7 @@ import {
   googleLogin,
   restaurantLogin,
 } from "../controllers/authController.js";
-import { getUserProfile } from"../controllers/authController.js";
+import { getUserProfile } from "../controllers/authController.js";
 import protect from "../Middleware/authMiddleware.js";
 import User from "../Models/User.js";
 import bcrypt from "bcryptjs";
@@ -35,6 +35,7 @@ router.put("/update-profile", protect, async (req, res) => {
     if (req.body.name) user.name = req.body.name;
     if (req.body.phone) user.phone = req.body.phone;
     if (req.body.dob) user.dob = req.body.dob;
+    if (req.body.addresses) user.addresses = req.body.addresses;
 
     await user.save();
     res.json({ message: "Profile updated successfully" });

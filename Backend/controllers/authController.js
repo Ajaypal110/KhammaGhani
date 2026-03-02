@@ -249,6 +249,7 @@ export const getUserProfile = async (req, res) => {
       role: user.role || "user",
       profileImage: user.profileImage,
       dob: user.dob,
+      addresses: user.addresses || [],
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

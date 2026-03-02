@@ -27,6 +27,13 @@ const userSchema = new mongoose.Schema(
       default: "password",
     },
 
+    addresses: [
+      {
+        label: { type: String, enum: ["Home", "Office", "Other"], default: "Home" },
+        address: String,
+      }
+    ],
+
     isEmailVerified: {
       type: Boolean,
       default: false,

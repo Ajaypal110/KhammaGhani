@@ -163,14 +163,19 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
   const [user, setUser] = useState({ name: "", email: "", phone: "", dob: "" });
   const [bookings, setBookings] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [showReceipt, setShowReceipt] = useState(null); // booking ID to show receipt for
+  const [showReceipt, setShowReceipt] = useState(null); // booking ID or order ID
   const [payingBooking, setPayingBooking] = useState(null);
   const [payMethod, setPayMethod] = useState("UPI");
   const [messageType, setMessageType] = useState("success"); // "success" or "error"
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Addresses state
+  const [newAddressLabel, setNewAddressLabel] = useState("Home");
+  const [newAddressText, setNewAddressText] = useState("");
 
   // Crop modal state
   const [cropImage, setCropImage] = useState(null);
@@ -228,7 +233,7 @@ export default function Profile() {
         setLoading(true);
         const { data } = await API.get("/auth/me");
         setUser(data);
-        await fetchBookings();
+        await Promise.all([fetchBookings(), fetchOrders()]);
       } catch {
         showMsg("Failed to load profile", "error");
       } finally {
@@ -245,6 +250,16 @@ export default function Profile() {
       setBookings(data);
     } catch (err) {
       console.log("Bookings fetch error:", err);
+    }
+  };
+
+  // FETCH MY ORDERS
+  const fetchOrders = async () => {
+    try {
+      const { data } = await API.get("/orders/myorders");
+      setOrders(data);
+    } catch (err) {
+      console.log("Orders fetch error:", err);
     }
   };
 
@@ -269,6 +284,7 @@ export default function Profile() {
         name: user.name,
         phone: user.phone,
         dob: user.dob,
+        addresses: user.addresses,
       });
       showMsg("Profile updated successfully ✓");
     } catch {
@@ -363,6 +379,20 @@ export default function Profile() {
     }
   };
 
+  // ADD ADDRESS
+  const handleAddAddress = () => {
+    if (!newAddressText) return;
+    const updatedAddresses = [...(user.addresses || []), { label: newAddressLabel, address: newAddressText }];
+    setUser({ ...user, addresses: updatedAddresses });
+    setNewAddressText("");
+  };
+
+  // REMOVE ADDRESS
+  const handleRemoveAddress = (idx) => {
+    const updatedAddresses = (user.addresses || []).filter((_, i) => i !== idx);
+    setUser({ ...user, addresses: updatedAddresses });
+  };
+
   // Auto-clear message
   useEffect(() => {
     if (message) {
@@ -449,7 +479,7 @@ export default function Profile() {
         </div>
         <div
           className={activeTab === "orders" ? "active" : ""}
-          onClick={() => setActiveTab("orders")}
+          onClick={() => { setActiveTab("orders"); fetchOrders(); }}
         >
           📦 My Orders
         </div>
@@ -543,7 +573,47 @@ export default function Profile() {
                   onChange={(e) => setUser({ ...user, dob: e.target.value })}
                 />
               </div>
-              <button onClick={updateProfile} disabled={saving}>
+
+              {/* SAVED ADDRESSES */}
+              <div className="form-group saved-addresses-section">
+                <label>Saved Delivery Addresses</label>
+                {(user.addresses || []).length === 0 ? (
+                  <p style={{ fontSize: 13, color: "#888", marginBottom: "12px" }}>No saved addresses yet.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: "16px" }}>
+                    {user.addresses.map((addr, idx) => (
+                      <div key={idx} style={{ padding: "12px", border: "1px solid #ddd", borderRadius: "8px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <div>
+                          <span style={{ background: "#eee", padding: "4px 8px", borderRadius: "4px", fontSize: 12, fontWeight: "bold", marginRight: 8 }}>{addr.label}</span>
+                          <span style={{ fontSize: 14 }}>{addr.address}</span>
+                        </div>
+                        <button style={{ background: "none", color: "red", border: "none", cursor: "pointer", fontSize: 18 }} onClick={() => handleRemoveAddress(idx)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", marginTop: "12px" }}>
+                  <select 
+                    style={{ padding: "12px", border: "1px solid #ddd", borderRadius: "8px", background: "#f9f9f9" }}
+                    value={newAddressLabel} onChange={(e) => setNewAddressLabel(e.target.value)}
+                  >
+                    <option value="Home">Home</option>
+                    <option value="Office">Office</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <input
+                    type="text"
+                    style={{ flex: 1 }}
+                    placeholder="Enter new address"
+                    value={newAddressText}
+                    onChange={(e) => setNewAddressText(e.target.value)}
+                  />
+                  <button type="button" onClick={handleAddAddress} style={{ width: "auto", padding: "12px 16px", background: "#f0f0f0", color: "#333" }}>+ Add</button>
+                </div>
+              </div>
+
+              <button onClick={updateProfile} disabled={saving} style={{ marginTop: "16px" }}>
                 {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
@@ -684,8 +754,127 @@ export default function Profile() {
           </div>
         )}
 
+        {/* MY ORDERS TAB */}
+        {activeTab === "orders" && (
+          <div className="my-bookings">
+            <h2>📦 My Food Orders</h2>
+
+            {orders.length === 0 ? (
+              <p className="empty-msg">No orders yet. Discover restaurants and order food!</p>
+            ) : (
+              <div className="bookings-list">
+                {orders.map((o) => (
+                  <div key={o._id} className="booking-card">
+                    <div className="booking-card-header">
+                      <h3>{o.restaurant?.name || "Restaurant"}</h3>
+                      <span className={`booking-status status-${o.status?.toLowerCase()}`}>
+                        {o.status}
+                      </span>
+                    </div>
+                    <div className="booking-card-body">
+                      {o.items?.map((item, idx) => (
+                        <div key={idx} className="booking-detail full-width" style={{ borderBottom: "1px dashed #eee", paddingBottom: "8px", marginBottom: "8px" }}>
+                          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                            {item.menuId?.image && (
+                              <img src={item.menuId.image} alt="dish" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover" }} />
+                            )}
+                            <div>
+                              <strong>{item.menuId?.name || "Dish"}</strong> x {item.qty}
+                              <div style={{ fontSize: 12, color: "#666" }}>₹{item.menuId?.price || 0} / each</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="booking-detail">
+                        <span className="detail-label">📍 Delivery</span>
+                        <span className="detail-value" style={{ fontSize: 13, lineHeight: 1.4 }}>{o.deliveryAddress}</span>
+                      </div>
+                      <div className="booking-detail">
+                        <span className="detail-label">🚚 Fee</span>
+                        <span className="detail-value">{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</span>
+                      </div>
+                      <div className="booking-detail">
+                        <span className="detail-label">💰 Payment</span>
+                        <span className={`detail-value payment-badge ${o.paymentStatus === "Paid" ? "paid" : "unpaid"}`}>
+                          {o.paymentStatus === "Paid" ? "✓ Paid" : "Unpaid"}
+                          {o.totalAmount ? ` (₹${o.totalAmount})` : ""}
+                        </span>
+                      </div>
+                      {o.paymentStatus === "Paid" && o.receiptId && (
+                        <div className="booking-detail">
+                          <span className="detail-label">🧾 Receipt</span>
+                          <span className="detail-value" style={{ fontFamily: "monospace", fontSize: 12 }}>{o.receiptId}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="booking-card-footer">
+                      <span>
+                        Placed on {new Date(o.createdAt).toLocaleDateString("en-IN", {
+                          day: "numeric", month: "short", year: "numeric",
+                        })}
+                      </span>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {o.paymentStatus === "Paid" && (
+                          <button
+                            className="view-receipt-btn"
+                            onClick={() => setShowReceipt(showReceipt === o._id ? null : o._id)}
+                          >
+                            🧾 {showReceipt === o._id ? "Hide" : "View"} Receipt
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* INLINE RECEIPT FOR ORDERS */}
+                    {showReceipt === o._id && o.paymentStatus === "Paid" && (
+                      <div className="inline-receipt">
+                        <div className="receipt-card" id={`receipt-${o._id}`}>
+                          <div className="receipt-header">
+                            <div className="receipt-brand">Khamma Ghani Food Delivery</div>
+                            <div className="receipt-id">Receipt #{o.receiptId}</div>
+                          </div>
+                          <div className="receipt-body">
+                            <div className="receipt-row"><span>Restaurant</span><strong>{o.restaurant?.name}</strong></div>
+                            <div className="receipt-row"><span>Guest</span><strong>{user.name}</strong></div>
+                            
+                            <div style={{ margin: "16px 0", borderTop: "1px dashed #eee", borderBottom: "1px dashed #eee", padding: "12px 0" }}>
+                              {o.items?.map((item, idx) => (
+                                <div key={idx} className="receipt-row" style={{ border: "none" }}>
+                                  <span>{item.qty}x {item.menuId?.name}</span>
+                                  <strong>₹{item.qty * (item.menuId?.price || 0)}</strong>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="receipt-row"><span>Delivery Address</span><strong style={{ textAlign: "right", maxWidth: "60%" }}>{o.deliveryAddress}</strong></div>
+                            <div className="receipt-row"><span>Delivery Fee</span><strong>₹{o.deliveryFee}</strong></div>
+                            <div className="receipt-row"><span>Method</span><strong>{o.paymentMethod}</strong></div>
+                            <div className="receipt-row"><span>Payment ID</span><strong style={{ fontFamily: 'monospace', fontSize: 12 }}>{o.paymentId}</strong></div>
+                            <div className="receipt-row total-row"><span>Total Paid</span><strong>₹{o.totalAmount}</strong></div>
+                          </div>
+                          <div className="receipt-footer">
+                            <span className="paid-stamp">✓ PAID</span>
+                            <span className="receipt-date">{new Date(o.paidAt || o.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                          </div>
+                        </div>
+                        <button className="print-receipt-btn" onClick={() => {
+                          const el = document.getElementById(`receipt-${o._id}`);
+                          const w = window.open("", "_blank");
+                          w.document.write(`<html><head><title>Receipt - ${o.receiptId}</title><style>body{font-family:Inter,sans-serif;padding:40px;color:#1a1a1a}.receipt-header{text-align:center;margin-bottom:20px;border-bottom:2px dashed #eee;padding-bottom:16px}.receipt-brand{font-size:24px;font-weight:800;color:#ff6b00}.receipt-id{font-size:14px;color:#888;margin-top:4px}.receipt-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5}.receipt-row span{color:#888}.receipt-row strong{color:#1a1a1a}.total-row{border-top:2px solid #ff6b00;margin-top:8px;padding-top:12px}.total-row strong{color:#ff6b00;font-size:18px}.receipt-footer{text-align:center;margin-top:20px;padding-top:16px;border-top:2px dashed #eee}.paid-stamp{background:#f0fdf4;color:#16a34a;padding:6px 20px;border-radius:8px;font-weight:800;font-size:16px}</style></head><body>${el.innerHTML}</body></html>`);
+                          w.document.close();
+                          w.print();
+                        }}>🖨️ Print Receipt</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* PLACEHOLDERS */}
-        {activeTab !== "profile" && activeTab !== "bookings" && (
+        {activeTab !== "profile" && activeTab !== "bookings" && activeTab !== "orders" && (
           <h2>Coming Soon 🚧</h2>
         )}
       </div>
