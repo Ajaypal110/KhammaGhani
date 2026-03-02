@@ -88,8 +88,8 @@ export const createRazorpayOrderFood = async (req, res) => {
     if (orderDoc.paymentStatus === "Paid") {
       return res.status(400).json({ message: "Payment already completed" });
     }
-
-    const amountInPaise = Math.round((orderDoc.totalAmount + (orderDoc.deliveryFee || 0)) * 100);
+    // The orderDoc.totalAmount already includes the delivery fee and discount from the frontend
+    const amountInPaise = Math.round(orderDoc.totalAmount * 100);
 
     const rzpOrder = await razorpay.orders.create({
       amount: amountInPaise,

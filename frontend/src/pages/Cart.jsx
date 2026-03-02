@@ -42,6 +42,21 @@ export default function Cart() {
   }
 
 
+  const handleApplyCoupon = (code) => {
+    if (code === "FIRST10") {
+      setDiscountAmount(Math.round(subtotal * 0.10));
+      setCouponCode(code);
+      alert("Coupon APPLIED: 10% Off your first order!");
+    } else if (code === "GET100" && subtotal > 1000) {
+      setDiscountAmount(100);
+      setCouponCode(code);
+      alert("Coupon APPLIED: ₹100 Off!");
+    } else if (code === "GET100") {
+      alert("Cart subtotal must be greater than ₹1000 to apply GET100.");
+    } else {
+      alert("Invalid Coupon Code");
+    }
+  };
 
   const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee);
 
@@ -258,32 +273,56 @@ export default function Cart() {
 
       <div style={{ marginBottom: "30px", padding: "20px", border: "1px solid #eee", borderRadius: "12px", background: "#fefcfa" }}>
         <h3 style={{ margin: "0 0 12px 0", fontSize: "16px" }}>Available Offers</h3>
-        <div style={{ border: "2px dashed #ff6b00", borderRadius: "8px", padding: "16px", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        
+        {/* FIRST10 Coupon */}
+        <div style={{ border: "2px dashed #ff6b00", borderRadius: "8px", padding: "16px", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
           <div>
             <div style={{ display: "inline-block", padding: "4px 8px", background: "#ffedd5", color: "#c2410c", fontWeight: "bold", borderRadius: "4px", fontSize: "12px", marginBottom: "8px" }}>
-              NEWUSER10
+              FIRST10
             </div>
-            <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a1a" }}>10% OFF on your order</div>
+            <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a1a" }}>10% OFF on your first order</div>
             <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Get 10% off your entire subtotal.</p>
           </div>
           <button 
-            onClick={() => {
-              setCouponCode("NEWUSER10");
-              setDiscountAmount(Math.round(subtotal * 0.10));
-              alert("Coupon APPLIED: 10% Off!");
-            }} 
-            disabled={couponCode === "NEWUSER10"}
+            onClick={() => handleApplyCoupon("FIRST10")}
+            disabled={couponCode === "FIRST10"}
             style={{ 
               padding: "8px 16px", 
-              background: couponCode === "NEWUSER10" ? "#e5e7eb" : "#ff6b00", 
-              color: couponCode === "NEWUSER10" ? "#9ca3af" : "#fff", 
+              background: couponCode === "FIRST10" ? "#e5e7eb" : "#ff6b00", 
+              color: couponCode === "FIRST10" ? "#9ca3af" : "#fff", 
               border: "none", 
               borderRadius: "8px", 
-              cursor: couponCode === "NEWUSER10" ? "not-allowed" : "pointer", 
+              cursor: couponCode === "FIRST10" ? "not-allowed" : "pointer", 
               fontWeight: "600" 
             }}
           >
-            {couponCode === "NEWUSER10" ? "Applied" : "Apply"}
+            {couponCode === "FIRST10" ? "Applied" : "Apply"}
+          </button>
+        </div>
+
+        {/* GET100 Coupon */}
+        <div style={{ border: "2px dashed #16a34a", borderRadius: "8px", padding: "16px", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ display: "inline-block", padding: "4px 8px", background: "#dcfce7", color: "#15803d", fontWeight: "bold", borderRadius: "4px", fontSize: "12px", marginBottom: "8px" }}>
+              GET100
+            </div>
+            <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a1a" }}>Flat ₹100 OFF</div>
+            <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Valid on orders above ₹1000.</p>
+          </div>
+          <button 
+            onClick={() => handleApplyCoupon("GET100")}
+            disabled={couponCode === "GET100" || subtotal <= 1000}
+            style={{ 
+              padding: "8px 16px", 
+              background: couponCode === "GET100" ? "#e5e7eb" : (subtotal > 1000 ? "#16a34a" : "#cbd5e1"), 
+              color: couponCode === "GET100" ? "#9ca3af" : "#fff", 
+              border: "none", 
+              borderRadius: "8px", 
+              cursor: (couponCode === "GET100" || subtotal <= 1000) ? "not-allowed" : "pointer", 
+              fontWeight: "600" 
+            }}
+          >
+            {couponCode === "GET100" ? "Applied" : "Apply"}
           </button>
         </div>
       </div>
