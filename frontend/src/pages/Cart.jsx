@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import "../styles/home.css"; // Reuse some styles or inline for now
+import "../styles/home.css"; 
+import "../styles/cart.css"; // The new Swiggy-like design
 
 // Haversine formula to calculate distance in km
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -64,7 +65,8 @@ export default function Cart() {
     setCouponCode("");
   };
 
-  const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee);
+  const gstAmount = Math.round((subtotal - discountAmount) * 0.18);
+  const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee + gstAmount);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -167,8 +169,10 @@ export default function Cart() {
 
       const { data: orderData } = await API.post("/orders/order", {
         items: itemsPayload,
-        totalAmount: totalAmount, // Adjusted for discount
+        totalAmount: totalAmount, // Adjusted for discount + GST + Delivery
         deliveryFee,
+        gst: gstAmount,
+        discount: discountAmount,
         deliveryAddress: address,
         distance: distanceKm,
         restaurantId
@@ -232,192 +236,167 @@ export default function Cart() {
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "80px auto", padding: "20px", fontFamily: "Inter, sans-serif" }}>
-      <h2>Your Cart</h2>
-      {restaurant && <p style={{ color: "#888", marginBottom: "20px" }}>Ordering from: <strong>{restaurant.name}</strong></p>}
-
-      <div style={{ border: "1px solid #eee", borderRadius: "12px", overflow: "hidden", marginBottom: "30px" }}>
-        {cartItems.map((item) => (
-          <div key={item._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", borderBottom: "1px solid #eee" }}>
-            <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-              <img src={item.image} alt={item.name} style={{ width: "60px", height: "60px", borderRadius: "8px", objectFit: "cover" }} />
-              <div>
-                <h4 style={{ margin: 0 }}>{item.name}</h4>
-                <div style={{ fontSize: "14px", color: "#666", marginTop: "4px" }}>
-                  ₹{item.price} x {item.qty}
-                </div>
+    <div style={{ background: "#f8f9fa", minHeight: "100vh", paddingBottom: "100px" }}>
+      <div className="cart-container">
+        
+        {/* LEFT COLUMN - Addresses & Items */}
+        <div className="cart-left-col">
+          
+          <div className="cart-card">
+            <h3>📍 Delivery Address</h3>
+            
+            {userAddresses && userAddresses.length > 0 && (
+              <div className="address-grid">
+                {userAddresses.map((addr, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`address-pill ${address === addr.address ? 'selected' : ''}`}
+                    onClick={() => setAddress(addr.address)}
+                  >
+                    <div className="address-pill-label">
+                      {addr.label === "Home" ? "🏠" : addr.label === "Office" ? "🏢" : "📍"} {addr.label}
+                    </div>
+                    <div className="address-pill-text">{addr.address}</div>
+                  </div>
+                ))}
               </div>
+            )}
+
+            <button 
+              className="action-btn-outline" 
+              onClick={handleGetLocation} 
+              disabled={locLoading}
+              style={{ marginBottom: "16px" }}
+            >
+              {locLoading ? "Detecting location..." : "📌 Use Current Live Location"}
+            </button>
+
+            <textarea
+              className="address-textarea"
+              placeholder="Enter precise delivery address or landmark manally..."
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+            {distanceKm !== null && subtotal <= 500 && (
+              <p style={{ fontSize: "13px", color: "#64748b", marginTop: "8px" }}>
+                Distance: ~{distanceKm.toFixed(1)} km
+              </p>
+            )}
+          </div>
+
+          <div className="cart-card">
+            <h3>🛒 Order Details</h3>
+            <div className="restaurant-branding">
+              <h2>{restaurant?.name || "Loading..."}</h2>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <strong>₹{item.price * item.qty}</strong>
-              <button onClick={() => removeFromCart(item._id)} style={{ padding: "6px 12px", background: "#fef2f2", color: "#ef4444", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" }}>
-                -
+            
+            <div className="cart-items-list">
+              {cartItems.map((item) => (
+                <div key={item._id} className="cart-item-row">
+                  <div className="cart-item-info">
+                    <img src={item.image} alt={item.name} className="cart-item-img" />
+                    <div>
+                      <h4 className="cart-item-name">{item.name}</h4>
+                      <div className="cart-item-price">₹{item.price} each</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: "8px" }}>
+                    <div className="qty-control">
+                      <button className="qty-btn remove" onClick={() => removeFromCart(item._id)}>−</button>
+                      <span className="qty-val">{item.qty}</span>
+                      <button className="qty-btn" onClick={() => addToCart(item, restaurantId)}>+</button>
+                    </div>
+                    <div className="item-total">₹{item.price * item.qty}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={clearCart}
+              style={{ width: "100%", padding: "12px", background: "transparent", color: "#ef4444", border: "1px dashed #ef4444", borderRadius: "8px", marginTop: "24px", cursor: "pointer", fontWeight: "600" }}
+            >
+              Clear Cart
+            </button>
+          </div>
+
+        </div>
+
+        {/* RIGHT COLUMN - Offers & Bill */}
+        <div className="cart-right-col">
+          
+          <div className="cart-card">
+            <h3>🎁 Offers & Benefits</h3>
+            
+            <div className={`offer-card-small ${couponCode === "FIRST10" ? "applied" : ""}`}>
+              <div>
+                <span className="offer-label">FIRST10</span>
+                <div className="offer-title">10% OFF on first order</div>
+              </div>
+              <button 
+                className={`offer-apply-btn ${couponCode === "FIRST10" ? "remove-mode" : ""}`}
+                onClick={() => couponCode === "FIRST10" ? handleRemoveCoupon() : handleApplyCoupon("FIRST10")}
+              >
+                {couponCode === "FIRST10" ? "Remove" : "Apply"}
+              </button>
+            </div>
+
+            <div className={`offer-card-small ${couponCode === "GET100" ? "applied" : ""}`}>
+              <div>
+                <span className="offer-label">GET100</span>
+                <div className="offer-title">Flat ₹100 OFF (&gt;₹1k)</div>
+              </div>
+              <button 
+                disabled={couponCode !== "GET100" && subtotal <= 1000}
+                className={`offer-apply-btn ${couponCode === "GET100" ? "remove-mode" : ""}`}
+                onClick={() => couponCode === "GET100" ? handleRemoveCoupon() : handleApplyCoupon("GET100")}
+              >
+                {couponCode === "GET100" ? "Remove" : "Apply"}
               </button>
             </div>
           </div>
-        ))}
-        <div style={{ padding: "16px", background: "#fafafa" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span>Subtotal</span>
-            <span>₹{subtotal}</span>
-          </div>
-          {discountAmount > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", color: "#16a34a", fontWeight: "600" }}>
-              <span>Discount ({couponCode.toUpperCase()})</span>
-              <span>- ₹{discountAmount}</span>
+
+          <div className="cart-card">
+            <h3>🧾 Bill Details</h3>
+            
+            <div className="bill-row">
+              <span>Item Total</span>
+              <span>₹{subtotal}</span>
             </div>
-          )}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-            <span>Delivery Fee</span>
-            <span>
-              {subtotal > 500 ? (
-                <span style={{ color: "green", fontWeight: "bold" }}>FREE (Order &gt; ₹500)</span>
-              ) : distanceKm !== null ? (
-                `₹${deliveryFee}`
-              ) : (
-                <span style={{ color: "#888", fontSize: "12px" }}>Calculate distance</span>
-              )}
-            </span>
+            
+            {discountAmount > 0 && (
+              <div className="bill-row discount">
+                <span>Discount ({couponCode})</span>
+                <span>- ₹{discountAmount}</span>
+              </div>
+            )}
+
+            <div className="bill-row">
+              <span>Delivery Fee {subtotal > 500 && <span style={{color: '#16a34a', fontWeight: 'bold'}}>(Free)</span>}</span>
+              <span>₹{deliveryFee}</span>
+            </div>
+
+            <div className="bill-row">
+              <span>GST & Restaurant Charges (18%)</span>
+              <span>₹{gstAmount}</span>
+            </div>
+
+            <div className="bill-row total">
+              <span>To Pay</span>
+              <span>₹{totalAmount}</span>
+            </div>
+
+            <button
+              className="checkout-btn"
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+            >
+              {checkoutLoading ? "Processing..." : `Checkout • ₹${totalAmount}`}
+            </button>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "20px", fontWeight: "800", borderTop: "1px solid #ddd", paddingTop: "12px" }}>
-            <span>Total</span>
-            <span>₹{totalAmount}</span>
-          </div>
+
         </div>
       </div>
-
-      <div style={{ marginBottom: "30px", padding: "20px", border: "1px solid #eee", borderRadius: "12px", background: "#fefcfa" }}>
-        <h3 style={{ margin: "0 0 12px 0", fontSize: "16px" }}>Available Offers</h3>
-        
-        {/* FIRST10 Coupon */}
-        <div style={{ border: "2px dashed #ff6b00", borderRadius: "8px", padding: "16px", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-          <div>
-            <div style={{ display: "inline-block", padding: "4px 8px", background: "#ffedd5", color: "#c2410c", fontWeight: "bold", borderRadius: "4px", fontSize: "12px", marginBottom: "8px" }}>
-              FIRST10
-            </div>
-            <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a1a" }}>10% OFF on your first order</div>
-            <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Get 10% off your entire subtotal.</p>
-          </div>
-          <button 
-            onClick={() => couponCode === "FIRST10" ? handleRemoveCoupon() : handleApplyCoupon("FIRST10")}
-            style={{ 
-              padding: "8px 16px", 
-              background: couponCode === "FIRST10" ? "#fee2e2" : "#ff6b00", 
-              color: couponCode === "FIRST10" ? "#ef4444" : "#fff", 
-              border: "none", 
-              borderRadius: "8px", 
-              cursor: "pointer", 
-              fontWeight: "600" 
-            }}
-          >
-            {couponCode === "FIRST10" ? "✕ Remove" : "Apply"}
-          </button>
-        </div>
-
-        {/* GET100 Coupon */}
-        <div style={{ border: "2px dashed #16a34a", borderRadius: "8px", padding: "16px", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ display: "inline-block", padding: "4px 8px", background: "#dcfce7", color: "#15803d", fontWeight: "bold", borderRadius: "4px", fontSize: "12px", marginBottom: "8px" }}>
-              GET100
-            </div>
-            <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a1a" }}>Flat ₹100 OFF</div>
-            <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>Valid on orders above ₹1000.</p>
-          </div>
-          <button 
-            onClick={() => couponCode === "GET100" ? handleRemoveCoupon() : handleApplyCoupon("GET100")}
-            disabled={couponCode !== "GET100" && subtotal <= 1000}
-            style={{ 
-              padding: "8px 16px", 
-              background: couponCode === "GET100" ? "#fee2e2" : (subtotal > 1000 ? "#16a34a" : "#cbd5e1"), 
-              color: couponCode === "GET100" ? "#ef4444" : "#fff", 
-              border: "none", 
-              borderRadius: "8px", 
-              cursor: (couponCode !== "GET100" && subtotal <= 1000) ? "not-allowed" : "pointer", 
-              fontWeight: "600" 
-            }}
-          >
-            {couponCode === "GET100" ? "✕ Remove" : "Apply"}
-          </button>
-        </div>
-      </div>
-
-      <div style={{ marginBottom: "30px", padding: "20px", border: "1px solid #eee", borderRadius: "12px" }}>
-        <h3 style={{ margin: "0 0 16px 0" }}>Delivery Information</h3>
-        
-        {userAddresses && userAddresses.length > 0 && (
-          <div style={{ marginBottom: "16px" }}>
-            <p style={{ fontSize: "14px", color: "#666", marginBottom: "8px", marginTop: 0 }}>Saved Addresses:</p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              {userAddresses.map((addr, idx) => (
-                <button 
-                  key={idx}
-                  onClick={() => setAddress(addr.address)}
-                  style={{
-                    padding: "8px 12px",
-                    background: address === addr.address ? "#ffedd5" : "#f1f5f9",
-                    color: address === addr.address ? "#c2410c" : "#334155",
-                    border: address === addr.address ? "1px solid #ff6b00" : "1px solid transparent",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontWeight: "500",
-                    fontSize: "14px"
-                  }}
-                >
-                  {addr.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
-          <button 
-            onClick={handleGetLocation} 
-            disabled={locLoading}
-            style={{ padding: "12px 20px", background: "#e0f2fe", color: "#0284c7", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", flexShrink: 0 }}
-          >
-            {locLoading ? "Checking..." : "📍 Use Live Location"}
-          </button>
-        </div>
-
-        <textarea
-          style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", minHeight: "80px", fontFamily: "inherit", boxSizing: "border-box" }}
-          placeholder="Enter complete delivery address manually, select a saved address, or use Live Location above."
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
-        
-        {distanceKm !== null && subtotal <= 500 && (
-          <p style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
-            Distance to restaurant: ~{distanceKm.toFixed(1)} km (Delivery: ₹10/km)
-          </p>
-        )}
-        {subtotal > 500 && (
-          <p style={{ fontSize: "12px", color: "green", marginTop: "8px", fontWeight: "500" }}>
-            Your order is over ₹500. Delivery is free! 🎉
-          </p>
-        )}
-      </div>
-
-      <button
-        onClick={handleCheckout}
-        disabled={checkoutLoading}
-        style={{
-          width: "100%", padding: "16px", background: "linear-gradient(135deg, #ff6b00, #ff8c33)", 
-          color: "#fff", border: "none", borderRadius: "12px", fontSize: "18px", fontWeight: "800",
-          cursor: "pointer"
-        }}
-      >
-        {checkoutLoading ? "Processing..." : `Checkout • Pay ₹${totalAmount}`}
-      </button>
-
-      <button
-        onClick={clearCart}
-        style={{ width: "100%", padding: "16px", background: "transparent", color: "#666", border: "none", marginTop: "10px", cursor: "pointer" }}
-      >
-        Clear Cart
-      </button>
-
     </div>
   );
 }

@@ -3,7 +3,7 @@ import Order from "../Models/Order.js";
 // USER: Place order
 export const placeOrder = async (req, res) => {
   try {
-    const { items, totalAmount, deliveryFee, deliveryAddress, distance, restaurantId } = req.body;
+    const { items, totalAmount, deliveryFee, gst, discount, deliveryAddress, distance, restaurantId } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No order items" });
@@ -15,6 +15,8 @@ export const placeOrder = async (req, res) => {
       items,
       totalAmount,
       deliveryFee: deliveryFee || 0,
+      gst: gst || 0,
+      discount: discount || 0,
       deliveryAddress,
       distance,
     });

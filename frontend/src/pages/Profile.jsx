@@ -847,7 +847,11 @@ export default function Profile() {
                             </div>
 
                             <div className="receipt-row"><span>Delivery Address</span><strong style={{ textAlign: "right", maxWidth: "60%" }}>{o.deliveryAddress}</strong></div>
-                            <div className="receipt-row"><span>Delivery Fee</span><strong>₹{o.deliveryFee}</strong></div>
+                            
+                            {o.discount > 0 && <div className="receipt-row"><span>Discount</span><strong style={{color: "#16a34a"}}>-₹{o.discount}</strong></div>}
+                            <div className="receipt-row"><span>Delivery Fee</span><strong>{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</strong></div>
+                            {o.gst > 0 && <div className="receipt-row"><span>GST (18%)</span><strong>₹{o.gst}</strong></div>}
+                            
                             <div className="receipt-row"><span>Method</span><strong>{o.paymentMethod}</strong></div>
                             <div className="receipt-row"><span>Payment ID</span><strong style={{ fontFamily: 'monospace', fontSize: 12 }}>{o.paymentId}</strong></div>
                             <div className="receipt-row total-row"><span>Total Paid</span><strong>₹{o.totalAmount}</strong></div>

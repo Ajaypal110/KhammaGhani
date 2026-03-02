@@ -15,6 +15,8 @@ const orderSchema = new mongoose.Schema(
       },
     ],
     totalAmount: Number,
+    discount: { type: Number, default: 0 },
+    gst: { type: Number, default: 0 },
     deliveryFee: { type: Number, default: 0 },
     deliveryAddress: { type: String },
     distance: { type: Number },
