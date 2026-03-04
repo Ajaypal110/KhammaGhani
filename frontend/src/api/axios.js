@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://khammaghani.onrender.com";
 
 const API = axios.create({
   baseURL: `${API_BASE}/api`,
@@ -13,13 +13,10 @@ API.interceptors.request.use((req) => {
   const path = window.location.pathname;
   const isRestaurantOwnerPage =
     path === "/restaurant/dashboard" || path === "/restaurant/login";
-  const isAgentPage = path.startsWith("/agent");
 
   let token;
   if (isRestaurantOwnerPage) {
     token = localStorage.getItem("restaurantToken");
-  } else if (isAgentPage) {
-    token = localStorage.getItem("agentToken");
   } else {
     token = localStorage.getItem("token");
   }
