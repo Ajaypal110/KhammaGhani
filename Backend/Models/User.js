@@ -19,6 +19,9 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: String,
+    address: String,
+    lat: Number, // Restaurant Latitude
+    lon: Number, // Restaurant Longitude
     profileImage: String,
     dob: String,
 
@@ -29,6 +32,15 @@ const userSchema = new mongoose.Schema(
 
     addresses: [
       {
+        fullName: String,
+        phone: String,
+        house: String,
+        area: String,
+        city: String,
+        pincode: String,
+        lat: Number, // Address Latitude
+        lon: Number, // Address Longitude
+        type: { type: String, enum: ["Home", "Work", "Office"], default: "Home" },
         label: { type: String, enum: ["Home", "Office", "Other"], default: "Home" },
         address: String,
       }
@@ -69,6 +81,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // Whether payment is required for booking
     },
+    // ============ USER FAVORITES ============
+    favorites: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Menu" },
+    ],
 
   },
   { timestamps: true }

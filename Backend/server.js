@@ -12,6 +12,8 @@ import searchRoutes from "./routes/searchRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
 import restaurantDashboardRoutes from "./routes/restaurantDashboardRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import deliveryAgentRoutes from "./routes/deliveryAgentRoutes.js";
+import agentPortalRoutes from "./routes/agentPortalRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -31,6 +33,8 @@ app.use("/api", searchRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/restaurant", restaurantDashboardRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/delivery-agents", deliveryAgentRoutes);
+app.use("/api/agent-portal", agentPortalRoutes);
 
 app.get("/", (req, res) => {
   res.send("Khamagani API is running...");

@@ -234,7 +234,7 @@ export const restaurantLogin = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password").populate("favorites");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -250,8 +250,41 @@ export const getUserProfile = async (req, res) => {
       profileImage: user.profileImage,
       dob: user.dob,
       addresses: user.addresses || [],
+      favorites: user.favorites || [],
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+/* =========================
+   TOGGLE USER FAVORITE
+========================= */
+export const toggleFavorite = async (req, res) => {
+  try {
+    const menuId = req.params.menuId;
+    const user = await User.findById(req.user._id);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Check if the menuId exists in favorites
+    const isFavorited = user.favorites.includes(menuId);
+
+    if (isFavorited) {
+      // Remove it
+      user.favorites = user.favorites.filter((id) => id.toString() !== menuId);
+    } else {
+      // Add it
+      user.favorites.push(menuId);
+    }
+
+    await user.save();
+
+    // Return the updated populated favorites to the frontend
+    const updatedUser = await User.findById(req.user._id).populate("favorites");
+    res.json({ favorites: updatedUser.favorites });
+
+  } catch (err) {
+    res.status(500).json({ message: "Failed to toggle favorite" });
   }
 };

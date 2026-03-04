@@ -566,6 +566,12 @@ export default function Profile() {
           📦 My Orders
         </div>
         <div
+          className={activeTab === "favorites" ? "active" : ""}
+          onClick={() => setActiveTab("favorites")}
+        >
+          ❤️ My Favorites
+        </div>
+        <div
           className={activeTab === "settings" ? "active" : ""}
           onClick={() => setActiveTab("settings")}
         >
@@ -870,22 +876,32 @@ export default function Profile() {
                               <img src={item.menuId.image} alt="dish" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover" }} />
                             )}
                             <div>
-                              <strong>{item.menuId?.name || "Dish"}</strong> x {item.qty}
+                              <strong>{item.menuId?.name || "Dish"}</strong>
+                              {item.variant && (
+                                <span style={{ fontSize: 11, background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: "10px", marginLeft: "8px", fontWeight: "700" }}>
+                                  {item.variant}
+                                </span>
+                              )}
+                              <span> x {item.qty}</span>
                               <div style={{ fontSize: 12, color: "#666" }}>₹{item.menuId?.price || 0} / each</div>
                             </div>
                           </div>
                         </div>
                       ))}
                       <div className="booking-detail">
-                        <span className="detail-label">📍 Delivery</span>
-                        <span className="detail-value" style={{ fontSize: 13, lineHeight: 1.4 }}>{o.deliveryAddress}</span>
+                        <span className="detail-label">📍 Distance</span>
+                        <span className="detail-value">{o.deliveryDistance !== undefined ? `${o.deliveryDistance.toFixed(1)} km` : "N/A"}</span>
                       </div>
                       <div className="booking-detail">
-                        <span className="detail-label">🚚 Fee</span>
+                        <span className="detail-label">🚚 Delivery Fee</span>
                         <span className="detail-value">{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</span>
                       </div>
                       <div className="booking-detail">
-                        <span className="detail-label">💰 Payment</span>
+                        <span className="detail-label">🎫 Platform Fee</span>
+                        <span className="detail-value">₹{o.platformFee || 0}</span>
+                      </div>
+                      <div className="booking-detail">
+                        <span className="detail-label">💰 Final Total</span>
                         <span className={`detail-value payment-badge ${o.paymentStatus === "Paid" ? "paid" : "unpaid"}`}>
                           {o.paymentStatus === "Paid" ? "✓ Paid" : "Unpaid"}
                           {o.totalAmount ? ` (₹${o.totalAmount})` : ""}
@@ -895,6 +911,18 @@ export default function Profile() {
                         <div className="booking-detail">
                           <span className="detail-label">🧾 Receipt</span>
                           <span className="detail-value" style={{ fontFamily: "monospace", fontSize: 12 }}>{o.receiptId}</span>
+                        </div>
+                      )}
+
+                      {/* Delivery Agent Info */}
+                      {o.deliveryAgent?.name && (
+                        <div className="booking-detail full-width" style={{ background: "#f5f3ff", padding: "12px 16px", borderRadius: "10px", marginTop: "8px" }}>
+                          <div style={{ fontWeight: "700", color: "#7c3aed", marginBottom: "6px", fontSize: "14px" }}>🚴 Delivery Agent</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", fontSize: "13px", color: "#374151" }}>
+                            <div><strong>Name:</strong> {o.deliveryAgent.name}</div>
+                            <div><strong>Phone:</strong> {o.deliveryAgent.phone}</div>
+                            <div><strong>Vehicle:</strong> {o.deliveryAgent.vehicleType}</div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -950,21 +978,23 @@ export default function Profile() {
                             <div style={{ margin: "16px 0", borderTop: "1px dashed #eee", borderBottom: "1px dashed #eee", padding: "12px 0" }}>
                               {o.items?.map((item, idx) => (
                                 <div key={idx} className="receipt-row" style={{ border: "none" }}>
-                                  <span>{item.qty}x {item.menuId?.name}</span>
+                                  <span>{item.qty}x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}</span>
                                   <strong>₹{item.qty * (item.menuId?.price || 0)}</strong>
                                 </div>
                               ))}
                             </div>
 
                             <div className="receipt-row"><span>Delivery Address</span><strong style={{ textAlign: "right", maxWidth: "60%" }}>{o.deliveryAddress}</strong></div>
+                            <div className="receipt-row"><span>Delivery Distance</span><strong>{o.deliveryDistance !== undefined ? `${o.deliveryDistance.toFixed(1)} km` : "N/A"}</strong></div>
                             
                             {o.discount > 0 && <div className="receipt-row"><span>Discount</span><strong style={{color: "#16a34a"}}>-₹{o.discount}</strong></div>}
                             <div className="receipt-row"><span>Delivery Fee</span><strong>{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</strong></div>
+                            <div className="receipt-row"><span>Platform Fee</span><strong>₹{o.platformFee || 0}</strong></div>
                             {o.gst > 0 && <div className="receipt-row"><span>GST (18%)</span><strong>₹{o.gst}</strong></div>}
                             
                             <div className="receipt-row"><span>Method</span><strong>{o.paymentMethod}</strong></div>
                             <div className="receipt-row"><span>Payment ID</span><strong style={{ fontFamily: 'monospace', fontSize: 12 }}>{o.paymentId}</strong></div>
-                            <div className="receipt-row total-row"><span>Total Paid</span><strong>₹{o.totalAmount}</strong></div>
+                            <div className="receipt-row total-row"><span>Final Total Paid</span><strong>₹{o.totalAmount}</strong></div>
                           </div>
                           <div className="receipt-footer">
                             <span className="paid-stamp">✓ PAID</span>
@@ -987,8 +1017,53 @@ export default function Profile() {
           </div>
         )}
 
+        {/* FAVORITES TAB */}
+        {activeTab === "favorites" && (
+          <div className="my-bookings">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+              <h2 style={{ marginBottom: 0 }}>❤️ My Favorite Dishes</h2>
+              <span style={{ fontSize: "14px", color: "#64748b", fontWeight: "600", background: "#f1f5f9", padding: "4px 12px", borderRadius: "20px" }}>
+                {user.favorites?.length || 0} Saved
+              </span>
+            </div>
+
+            {(!user.favorites || user.favorites.length === 0) ? (
+              <div className="empty-msg" style={{ padding: "60px 20px" }}>
+                <div style={{ fontSize: "40px", marginBottom: "16px" }}>💔</div>
+                <p style={{ margin: 0, color: "#94a3b8" }}>You haven't favorited any dishes yet.</p>
+                <button 
+                  onClick={() => navigate("/")}
+                  style={{ marginTop: "20px", background: "#ff6b00", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "10px", fontWeight: "700", cursor: "pointer" }}
+                >
+                  Explore Menu
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "20px" }}>
+                {user.favorites.map((item) => (
+                  <div key={item._id} className="booking-card" style={{ cursor: "pointer" }} onClick={() => navigate(`/dish/${item._id}`)}>
+                    <div style={{ height: "140px", width: "100%", overflow: "hidden" }}>
+                      <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                    <div style={{ padding: "15px" }}>
+                      <h4 style={{ margin: "0 0 5px 0", fontSize: "16px", fontWeight: "700", color: "#1e293b" }}>{item.name}</h4>
+                      <p style={{ margin: "0 0 12px 0", color: "#ff6b00", fontWeight: "800", fontSize: "15px" }}>₹ {item.price}</p>
+                      <button 
+                        className="view-receipt-btn" 
+                        style={{ width: "100%", padding: "10px", textAlign: "center", justifyContent: "center" }}
+                      >
+                        Order Now
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* PLACEHOLDERS */}
-        {activeTab !== "profile" && activeTab !== "bookings" && activeTab !== "orders" && (
+        {activeTab !== "profile" && activeTab !== "bookings" && activeTab !== "orders" && activeTab !== "favorites" && (
           <h2>Coming Soon 🚧</h2>
         )}
       </div>

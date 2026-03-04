@@ -210,6 +210,35 @@ router.put("/my/payment-settings", protect, async (req, res) => {
 });
 
 /* =========================
+   UPDATE MY ADDRESS
+========================= */
+router.put("/my/address", protect, async (req, res) => {
+  try {
+    const { address, lat, lon } = req.body;
+
+    const restaurant = await User.findById(req.user._id);
+    if (!restaurant || restaurant.role !== "restaurant") {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    restaurant.address = address;
+    if (lat !== undefined) restaurant.lat = Number(lat);
+    if (lon !== undefined) restaurant.lon = Number(lon);
+
+    await restaurant.save();
+
+    res.json({
+      message: "Address and coordinates updated successfully",
+      address: restaurant.address,
+      lat: restaurant.lat,
+      lon: restaurant.lon,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/* =========================
    GET ALL RESTAURANTS
 ========================= */
 router.get("/", async (req, res) => {

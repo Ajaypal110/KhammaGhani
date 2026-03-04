@@ -9,8 +9,23 @@ export const CartProvider = ({ children }) => {
   });
   
   const [restaurantId, setRestaurantId] = useState(() => {
-    const saved = localStorage.getItem("khamma_cart_restaurant");
-    return saved || null;
+    const savedResId = localStorage.getItem("khamma_cart_restaurant");
+    // Heal corrupted state if it somehow became [object Object]
+    if (savedResId && savedResId !== "[object Object]") return savedResId;
+
+    // Backup: recover from items if top-level ID is missing
+    const savedCart = localStorage.getItem("khamma_cart");
+    if (savedCart) {
+      try {
+        const items = JSON.parse(savedCart);
+        if (items.length > 0) {
+          const firstItem = items[0];
+          const rId = firstItem.restaurant?._id || firstItem.restaurant;
+          if (rId && typeof rId === 'string' && rId !== "[object Object]") return rId;
+        }
+      } catch (e) {}
+    }
+    return null;
   });
 
   useEffect(() => {
@@ -22,42 +37,79 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems, restaurantId]);
 
-  const addToCart = (item, resId) => {
+  const addToCart = (item, resId, variant = null, qty = 1, selectedAddOns = [], spiceLevel = "None", instructions = "") => {
+    const normalizedResId = resId?._id || resId;
+    
     // Check if adding from a different restaurant
-    if (restaurantId && restaurantId !== resId) {
+    if (restaurantId && restaurantId !== normalizedResId) {
       const confirmClear = window.confirm(
         "You have items from another restaurant in your cart. Do you want to clear the cart and add this item?"
       );
       if (!confirmClear) return;
       
-      setCartItems([{ ...item, qty: 1 }]);
-      setRestaurantId(resId);
+      setCartItems([{ ...item, variant, qty, selectedAddOns, spiceLevel, instructions }]);
+      setRestaurantId(normalizedResId);
       return;
     }
 
-    setRestaurantId(resId);
+    setRestaurantId(normalizedResId);
 
     setCartItems((prev) => {
-      const existing = prev.find((i) => i._id === item._id);
+      // Find matching item by ID, variant, and customizations
+      const existing = prev.find((i) => 
+        i._id === item._id && 
+        (variant ? i.variant?.name === variant.name : !i.variant) &&
+        JSON.stringify(i.selectedAddOns || []) === JSON.stringify(selectedAddOns) &&
+        i.spiceLevel === spiceLevel &&
+        i.instructions === instructions
+      );
+      
       if (existing) {
         return prev.map((i) =>
-          i._id === item._id ? { ...i, qty: i.qty + 1 } : i
+          (i._id === item._id && 
+           (variant ? i.variant?.name === variant.name : !i.variant) &&
+           JSON.stringify(i.selectedAddOns || []) === JSON.stringify(selectedAddOns) &&
+           i.spiceLevel === spiceLevel &&
+           i.instructions === instructions)
+            ? { ...i, qty: i.qty + qty } 
+            : i
         );
       }
-      return [...prev, { ...item, qty: 1 }];
+      return [...prev, { ...item, variant, qty, selectedAddOns, spiceLevel, instructions }];
     });
   };
 
-  const removeFromCart = (itemId) => {
+  const removeFromCart = (itemId, variant = null, selectedAddOns = [], spiceLevel = "None", instructions = "") => {
     setCartItems((prev) => {
-      const existing = prev.find((i) => i._id === itemId);
+      const existing = prev.find((i) => 
+        i._id === itemId && 
+        (variant ? i.variant?.name === variant.name : !i.variant) &&
+        JSON.stringify(i.selectedAddOns || []) === JSON.stringify(selectedAddOns) &&
+        i.spiceLevel === spiceLevel &&
+        i.instructions === instructions
+      );
+      
+      if (!existing) return prev;
+
       if (existing.qty === 1) {
-        const newCart = prev.filter((i) => i._id !== itemId);
+        const newCart = prev.filter((i) => 
+          !(i._id === itemId && 
+            (variant ? i.variant?.name === variant.name : !i.variant) &&
+            JSON.stringify(i.selectedAddOns || []) === JSON.stringify(selectedAddOns) &&
+            i.spiceLevel === spiceLevel &&
+            i.instructions === instructions)
+        );
         if (newCart.length === 0) setRestaurantId(null);
         return newCart;
       }
       return prev.map((i) =>
-        i._id === itemId ? { ...i, qty: i.qty - 1 } : i
+        (i._id === itemId && 
+         (variant ? i.variant?.name === variant.name : !i.variant) &&
+         JSON.stringify(i.selectedAddOns || []) === JSON.stringify(selectedAddOns) &&
+         i.spiceLevel === spiceLevel &&
+         i.instructions === instructions) 
+          ? { ...i, qty: i.qty - 1 } 
+          : i
       );
     });
   };

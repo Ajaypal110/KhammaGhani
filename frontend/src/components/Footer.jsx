@@ -29,9 +29,9 @@ export default function Footer() {
         <div className="footer-col legal-col">
           <h4>Legal</h4>
           <ul>
-            <li><a href="#">Terms & Conditions</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Refund Policy</a></li>
+            <li><Link to="/terms">Terms & Conditions</Link></li>
+            <li><Link to="/privacy">Privacy Policy</Link></li>
+            <li><Link to="/refund-policy">Refund Policy</Link></li>
           </ul>
         </div>
 
@@ -40,10 +40,10 @@ export default function Footer() {
           <div className="social-icons">
             <a href="#" className="social-icon" aria-label="Facebook"><FaFacebookF /></a>
             <a href="#" className="social-icon" aria-label="Twitter"><FaTwitter /></a>
-            <a href="#" className="social-icon" aria-label="Instagram"><FaInstagram /></a>
+            <a href="https://www.instagram.com/_khammaghani_restaurants/" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Instagram"><FaInstagram /></a>
             <a href="#" className="social-icon" aria-label="LinkedIn"><FaLinkedinIn /></a>
           </div>
-          <p className="footer-contact">support@khammaghani.com</p>
+          <p className="footer-contact">khammaghani14@gmail.com</p>
         </div>
       </div>
       <div className="footer-bottom">

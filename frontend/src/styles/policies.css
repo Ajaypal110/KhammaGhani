@@ -1,0 +1,70 @@
+.policy-container {
+    max-width: 900px;
+    margin: 120px auto 100px;
+    padding: 40px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    line-height: 1.8;
+    color: #334155;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.policy-container h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+}
+
+.policy-container h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    margin: 15px auto;
+    border-radius: 2px;
+}
+
+.policy-section {
+    margin-bottom: 40px;
+}
+
+.policy-section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.policy-section p {
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+.policy-section ul {
+    padding-left: 20px;
+    margin-bottom: 16px;
+}
+
+.policy-section li {
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+@media (max-width: 768px) {
+    .policy-container {
+        margin: 100px 20px 60px;
+        padding: 30px 20px;
+    }
+
+    .policy-container h1 {
+        font-size: 28px;
+    }
+}

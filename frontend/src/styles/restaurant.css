@@ -86,19 +86,24 @@
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
-/* === SIDEBAR + BODY === */
 .dash-body {
   display: flex;
   flex: 1;
+  overflow: hidden;
 }
 
 .sidebar {
-  width: 250px;
-  background: #fff;
+  width: 260px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
   padding: 0;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #f0f0f0;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -169,29 +174,13 @@
   box-shadow: 0 4px 18px rgba(255, 107, 0, 0.25);
 }
 
-.sidebar-logout {
-  padding: 14px 20px;
-  border: none;
-  background: #fff;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  transition: all 0.3s ease;
-  border-top: 1px solid #f5f5f5;
-}
-
-.sidebar-logout:hover {
-  background: #fef2f2;
-}
-
 /* === MAIN CONTENT === */
 .content {
   flex: 1;
   padding: 32px;
   overflow-y: auto;
   background: #fafafa;
+  height: calc(100vh - 64px);
 }
 
 .section-title {
@@ -845,3 +834,119 @@
   font-size: 13px;
   border-top: 1px solid #f0f0f0;
 }
+
+/* ================================================================
+   IMPROVED SIDEBAR SLIDER INDICATOR
+================================================================ */
+.sidebar-links {
+  position: relative;
+}
+
+.sidebar-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #fff;
+  border-radius: 0 4px 4px 0;
+  opacity: 0.6;
+}
+
+.sidebar-btn.active {
+  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 18px rgba(255, 107, 0, 0.3);
+  transform: none;
+}
+
+/* ================================================================
+   IMPROVED MENU FORM SECTION CARDS
+================================================================ */
+.form-section-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1.5px solid #f1f5f9;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s;
+}
+
+.form-section-card:focus-within {
+  border-color: rgba(255, 107, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(255, 107, 0, 0.08);
+}
+
+.form-section-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 18px 0;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Image upload improved */
+.menu-card-form .image-upload {
+  height: 160px;
+  border-radius: 16px;
+  border-width: 2px;
+  background: #f8fafc;
+  margin-bottom: 16px;
+}
+
+/* All inputs inside form */
+.menu-card-form input,
+.menu-card-form textarea,
+.menu-card-form select {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  font-size: 14px;
+  transition: all 0.2s;
+  outline: none;
+  font-family: inherit;
+  background: #f8fafc;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.menu-card-form input:focus,
+.menu-card-form textarea:focus,
+.menu-card-form select:focus {
+  border-color: #ff6b00;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08);
+}
+
+.menu-card-form input::placeholder,
+.menu-card-form textarea::placeholder {
+  color: #94a3b8;
+}
+
+.menu-wrapper {
+  max-width: 900px;
+  width: 100%;
+}
+
+/* Submit button */
+.menu-card-form .primary-btn {
+  height: 52px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 14px;
+  letter-spacing: 0.3px;
+}
+
+/* sidebar-logout removed — logout is now in top navbar */

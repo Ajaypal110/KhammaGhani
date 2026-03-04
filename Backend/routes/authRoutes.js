@@ -6,8 +6,9 @@ import {
   resetPassword,
   googleLogin,
   restaurantLogin,
+  getUserProfile,
+  toggleFavorite,
 } from "../controllers/authController.js";
-import { getUserProfile } from "../controllers/authController.js";
 import protect from "../Middleware/authMiddleware.js";
 import User from "../Models/User.js";
 import bcrypt from "bcryptjs";
@@ -25,6 +26,7 @@ router.post("/google-login", googleLogin);
 router.post("/restaurant/login", restaurantLogin);
 router.get("/profile", protect, getUserProfile);
 router.get("/me", protect, getUserProfile);
+router.post("/favorites/:menuId", protect, toggleFavorite);
 
 // UPDATE PROFILE (name, phone, dob)
 router.put("/update-profile", protect, async (req, res) => {

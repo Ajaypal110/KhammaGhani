@@ -571,6 +571,52 @@
 }
 
 /* ===================================================================
+   FILTER UI & CATEGORY SCROLL
+=================================================================== */
+.home-categories-scroll::-webkit-scrollbar {
+  display: none;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+}
+
+.home-categories-scroll {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  /* Removed mask-image to prevent fading of last item */
+}
+
+.filter-overlay {
+  animation: fadeIn 0.25s ease;
+}
+
+.filter-modal {
+  animation: modalSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===================================================================
    APP BANNER & RESERVATION SECTION
 =================================================================== */
 .app-reservation-section {
@@ -686,4 +732,68 @@
   font-size: 14px;
   font-weight: 500;
   border-top: 1px solid #f1f5f9;
+}
+
+/* ===================================================================
+   VISUAL CATEGORY CARDS
+   =================================================================== */
+.home-category-card {
+  min-width: 100px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+}
+
+.home-category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: #ff6b00;
+}
+
+.home-category-card.active {
+  border-color: #ff6b00;
+  background: #fffafa;
+  box-shadow: 0 8px 20px rgba(255, 107, 0, 0.15);
+}
+
+.category-card-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #f8fafc;
+}
+
+.home-category-card:hover .category-card-icon {
+  transform: scale(1.1);
+}
+
+.category-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+}
+
+.home-category-card.active .category-card-name {
+  color: #ff6b00;
 }
