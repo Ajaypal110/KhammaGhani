@@ -1,0 +1,357 @@
+/* Agent Dashboard Styles */
+:root {
+    --agent-primary: #ff6b00;
+    --agent-secondary: #3b82f6;
+    --agent-success: #10b981;
+    --agent-warning: #f59e0b;
+    --agent-danger: #ef4444;
+    --agent-bg: #f8fafc;
+    --agent-text: #1e293b;
+    --agent-muted: #64748b;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.agent-portal-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+    background-color: var(--agent-bg);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* Header */
+.agent-header {
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.agent-info h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--agent-text);
+}
+
+.agent-info p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--agent-muted);
+}
+
+.status-toggle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.status-btn {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+/* Earnings Grid */
+.earnings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.earning-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.earning-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--agent-muted);
+    text-transform: uppercase;
+}
+
+.earning-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--agent-text);
+}
+
+.earning-value.total {
+    color: var(--agent-primary);
+}
+
+/* Order Cards */
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--agent-text);
+    margin: 24px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.order-card-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.order-id {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--agent-muted);
+}
+
+.payment-info {
+    text-align: right;
+}
+
+.payment-amount {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.payment-method {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.order-body {
+    padding: 20px;
+}
+
+.location-item {
+    display: flex;
+    gap: 16px;
+    position: relative;
+}
+
+.location-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20px;
+}
+
+.loc-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.loc-dot.pickup {
+    background: var(--agent-secondary);
+    border: 3px solid #bfdbfe;
+}
+
+.loc-dot.drop {
+    background: var(--agent-danger);
+    border: 3px solid #fecaca;
+}
+
+.loc-line {
+    width: 2px;
+    flex: 1;
+    background: #e2e8f0;
+    margin: 4px 0;
+}
+
+.loc-details {
+    flex: 1;
+    padding-bottom: 20px;
+}
+
+.loc-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--agent-muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.loc-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--agent-text);
+}
+
+.loc-addr {
+    font-size: 13px;
+    color: var(--agent-muted);
+    line-height: 1.4;
+}
+
+.items-list {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.item-row {
+    font-size: 13px;
+    color: var(--agent-text);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+/* Actions */
+.order-actions {
+    padding: 16px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    padding: 12px;
+    border-radius: 12px;
+    color: var(--agent-text);
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.action-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s;
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+.btn-accept {
+    background: var(--agent-primary);
+}
+
+.btn-pick {
+    background: var(--agent-secondary);
+}
+
+.btn-deliver {
+    background: var(--agent-success);
+}
+
+.btn-cod {
+    background: var(--agent-warning);
+}
+
+/* History */
+.history-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--agent-success);
+}
+
+.hist-info h4 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.hist-time {
+    font-size: 11px;
+    color: var(--agent-muted);
+    margin-top: 2px;
+}
+
+.hist-amount {
+    font-size: 16px;
+    font-weight: 800;
+    text-align: right;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    border: 2px dashed #e2e8f0;
+    border-radius: 24px;
+    color: var(--agent-muted);
+}
+
+.empty-emoji {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* Privacy Banner */
+.privacy-banner {
+    background: #fff7ed;
+    color: #9a3412;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #ffedd5;
+    margin-top: 8px;
+}

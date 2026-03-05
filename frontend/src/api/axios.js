@@ -10,16 +10,11 @@ API.interceptors.request.use((req) => {
   // Only use restaurantToken for the DASHBOARD and restaurant LOGIN pages
   // /restaurant/dashboard and /restaurant/login are restaurant-owner pages
   // /restaurant/:id is a USER page (viewing a restaurant), so use user token
-  const path = window.location.pathname;
-  const isRestaurantOwnerPage =
-    path === "/restaurant/dashboard" || path === "/restaurant/login";
-
-  let token;
-  if (isRestaurantOwnerPage) {
-    token = localStorage.getItem("restaurantToken");
-  } else {
-    token = localStorage.getItem("token");
-  }
+  // Unified Token Logic
+  // Prefer the generic 'token', then fallback to role-specific ones for legacy support
+  const token = localStorage.getItem("token") ||
+    localStorage.getItem("restaurantToken") ||
+    localStorage.getItem("agentToken");
 
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;

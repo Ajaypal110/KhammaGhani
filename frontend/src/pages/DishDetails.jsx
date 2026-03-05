@@ -63,7 +63,7 @@ export default function DishDetails() {
       alert("Please select a size/portion first");
       return;
     }
-    addToCart(dish, dish.restaurant, selectedVariant, quantity, selectedAddOns, "None", instructions);
+    addToCart(dish, dish.restaurant, selectedVariant, quantity, selectedAddOns, spiceLevel, instructions);
     navigate(-1);
   };
 

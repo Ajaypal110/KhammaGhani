@@ -4,6 +4,7 @@ import Otp from "../Models/Otp.js";
 import generateToken from "../utils/generateToken.js";
 import otpGenerator from "otp-generator";
 import { sendEmailOtp } from "../utils/sendEmailOtp.js";
+import DeliveryAgent from "../Models/DeliveryAgent.js";
 
 /* =========================
    REGISTER (AUTO LOGIN)
@@ -224,9 +225,70 @@ export const restaurantLogin = async (req, res) => {
     res.json({
       _id: restaurant._id,
       role: restaurant.role,
-      token: generateToken(restaurant._id, restaurant.role),
+      token: generateToken(restaurant._id),
     });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* =========================
+   UNIFIED LOGIN (Email or Agent ID)
+========================= */
+export const unifiedLogin = async (req, res) => {
+  try {
+    const { identifier, password } = req.body; // identifier can be email or agentId
+
+    if (!identifier || !password) {
+      return res.status(400).json({ message: "Identifier and password are required" });
+    }
+
+    let authenticatedUser = null;
+    let role = null;
+
+    // 1. Check User collection (covers User, Restaurant, Admin)
+    // Try to find by email or adminId
+    const query = identifier.includes("@")
+      ? { email: identifier.toLowerCase() }
+      : { adminId: identifier.toUpperCase() }; // adminId is usually uppercase
+
+    const user = await User.findOne(query).select("+password");
+
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        authenticatedUser = user;
+        role = user.role || "user";
+      }
+    }
+
+    // 2. If no user found, check DeliveryAgent collection
+    if (!authenticatedUser) {
+      const agentQuery = identifier.includes("@") ? null : { agentId: identifier };
+      if (agentQuery) {
+        const agent = await DeliveryAgent.findOne(agentQuery).select("+password");
+        if (agent) {
+          const isMatch = await bcrypt.compare(password, agent.password);
+          if (isMatch) {
+            authenticatedUser = agent;
+            role = "deliveryAgent";
+          }
+        }
+      }
+    }
+
+    if (!authenticatedUser) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    res.json({
+      _id: authenticatedUser._id,
+      name: authenticatedUser.name,
+      role,
+      token: generateToken(authenticatedUser._id),
+    });
+  } catch (error) {
+    console.error("Unified Login Error:", error);
     res.status(500).json({ message: error.message });
   }
 };

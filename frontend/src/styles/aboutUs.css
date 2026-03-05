@@ -1,0 +1,386 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+/* ===================================================================
+   ABOUT PAGE - HERO
+=================================================================== */
+.about-hero {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #122d1a;
+    overflow: hidden;
+    padding: 100px 20px 80px;
+}
+
+.about-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=60&w=1400') center/cover no-repeat;
+    opacity: 0.15;
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+}
+
+.about-hero-badge {
+    display: inline-block;
+    background: rgba(255, 107, 0, 0.25);
+    color: #ffb366;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.about-hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 16px 0;
+    letter-spacing: -1px;
+    line-height: 1.1;
+}
+
+.about-hero h1 span {
+    color: #ff6b00;
+}
+
+.about-hero p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* ===================================================================
+   ABOUT PAGE - SECTIONS WRAPPER
+=================================================================== */
+.about-page {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8f9fb;
+}
+
+.about-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 70px 24px;
+}
+
+.about-section-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1e293b;
+    text-align: center;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+}
+
+.about-section-subtitle {
+    font-size: 16px;
+    color: #64748b;
+    text-align: center;
+    margin: 0 0 48px 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* ===================================================================
+   ABOUT - INTRO + MISSION (Side-by-side cards)
+=================================================================== */
+.about-intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+}
+
+.about-intro-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s;
+}
+
+.about-intro-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
+}
+
+.about-intro-card .card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+.about-intro-card .card-icon.orange {
+    background: #fff3e6;
+}
+
+.about-intro-card .card-icon.blue {
+    background: #e8f4fd;
+}
+
+.about-intro-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 14px 0;
+}
+
+.about-intro-card p {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ===================================================================
+   ABOUT - FRANCHISE NETWORK
+=================================================================== */
+.about-franchise-section {
+    background: #fff;
+}
+
+.franchise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.franchise-card {
+    background: #f8f9fb;
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s;
+    cursor: default;
+}
+
+.franchise-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.08);
+    border-color: #ff6b00;
+}
+
+.franchise-card .city-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b00, #ff8c33);
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+}
+
+.franchise-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+}
+
+.franchise-card p {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ===================================================================
+   ABOUT - WHAT WE OFFER
+=================================================================== */
+.offer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+}
+
+.offer-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 20px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s;
+}
+
+.offer-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.07);
+}
+
+.offer-card .offer-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fff3e6, #ffe4cc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+}
+
+.offer-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ===================================================================
+   ABOUT - VISION
+=================================================================== */
+.about-vision {
+    background: linear-gradient(135deg, #1a0a00, #3d1800);
+    border-radius: 24px;
+    padding: 50px 40px;
+    text-align: center;
+    color: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.about-vision h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+}
+
+.about-vision p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+/* ===================================================================
+   ABOUT - CONTACT
+=================================================================== */
+.about-contact-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.about-contact-card .contact-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b00, #ff8c33);
+    color: #fff;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.about-contact-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.about-contact-card p {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0 0 6px 0;
+}
+
+.about-contact-card a {
+    color: #ff6b00;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.about-contact-card a:hover {
+    text-decoration: underline;
+}
+
+/* ===================================================================
+   RESPONSIVE
+=================================================================== */
+@media (max-width: 768px) {
+    .about-hero {
+        min-height: 320px;
+        padding: 90px 16px 60px;
+    }
+
+    .about-hero h1 {
+        font-size: 34px;
+    }
+
+    .about-hero p {
+        font-size: 15px;
+    }
+
+    .about-intro-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-section {
+        padding: 50px 16px;
+    }
+
+    .about-section-title {
+        font-size: 26px;
+    }
+
+    .franchise-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 14px;
+    }
+
+    .offer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .about-vision {
+        padding: 36px 24px;
+        border-radius: 18px;
+    }
+
+    .about-vision h3 {
+        font-size: 22px;
+    }
+
+    .about-contact-card {
+        padding: 30px 24px;
+    }
+}

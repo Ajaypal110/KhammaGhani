@@ -233,3 +233,45 @@
   border-radius: 10px;
   border: 1px solid #fee2e2;
 }
+
+/* ===================================================================
+   POLICY CHECKBOX
+=================================================================== */
+.auth-policy-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 0 20px;
+  text-align: left;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.auth-policy-checkbox input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  margin: 2px 0 0 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: #ff6b00;
+}
+
+.auth-policy-checkbox a {
+  color: #ff6b00;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-policy-checkbox a:hover {
+  text-decoration: underline;
+}
+
+.auth-card button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}

@@ -4,6 +4,9 @@ import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/home.css"; 
 import "../styles/cart.css"; // The new Swiggy-like design
+import PolicyModal from "../components/PolicyModal";
+import ConfirmModal from "../components/ConfirmModal";
+import "../styles/policies.css";
 
 const emptyAddr = { fullName: "", phone: "", house: "", area: "", city: "", pincode: "", type: "Home", lat: null, lon: null };
 
@@ -25,6 +28,11 @@ export default function Cart() {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [platformFee, setPlatformFee] = useState(5); // Default platform fee ₹5
   const [distError, setDistError] = useState("");
+  const [checkoutPolicyAccepted, setCheckoutPolicyAccepted] = useState(false);
+  const [checkoutPolicyModal, setCheckoutPolicyModal] = useState(null); // "terms" | "privacy" | "refund" | null
+  const [paymentMethod, setPaymentMethod] = useState("Online");
+  const [showCODConfirm, setShowCODConfirm] = useState(false);
+  const [deleteAddressId, setDeleteAddressId] = useState(null);
 
   // Address Form State
   const [showAddrForm, setShowAddrForm] = useState(false);
@@ -63,7 +71,8 @@ export default function Cart() {
   };
 
   const gstAmount = Math.round((subtotal - discountAmount) * 0.18);
-  const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee + gstAmount + platformFee);
+  const codFee = paymentMethod === "COD" ? 20 : 0;
+  const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee + gstAmount + platformFee + codFee);
 
   // Fetch addresses and restaurant
   const fetchAddresses = async () => {
@@ -198,17 +207,23 @@ export default function Cart() {
   };
 
   // Delete address
-  const handleDeleteAddr = async (addrId) => {
-    if (!window.confirm("Delete this address?")) return;
+  const handleDeleteAddr = (addrId) => {
+    setDeleteAddressId(addrId);
+  };
+
+  const confirmDeleteAddress = async () => {
+    if (!deleteAddressId) return;
     try {
-      const { data } = await API.delete(`/users/addresses/${addrId}`);
+      const { data } = await API.delete(`/users/addresses/${deleteAddressId}`);
       setUserAddresses(data);
-      if (selectedAddrId === addrId) {
+      if (selectedAddrId === deleteAddressId) {
         setSelectedAddrId(null);
         setAddress("");
       }
     } catch (err) {
       alert("Failed to delete address");
+    } finally {
+      setDeleteAddressId(null);
     }
   };
 
@@ -311,7 +326,11 @@ export default function Cart() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
+    if (!checkoutPolicyAccepted) {
+      alert("Please accept the Terms & Conditions, Privacy Policy, and Refund Policy to continue.");
+      return;
+    }
     if (!address) {
       alert("Please select a delivery address or use your live location.");
       return;
@@ -327,6 +346,15 @@ export default function Cart() {
       return;
     }
 
+    if (paymentMethod === "COD") {
+      setShowCODConfirm(true);
+      return;
+    }
+
+    processOrder();
+  };
+
+  const processOrder = async () => {
     setCheckoutLoading(true);
 
     try {
@@ -351,8 +379,17 @@ export default function Cart() {
         discount: discountAmount,
         deliveryAddress: address,
         deliveryDistance: distanceKm,
-        restaurantId
+        restaurantId,
+        paymentMethod
       });
+
+      // Bypase Razorpay if COD is selected
+      if (paymentMethod === "COD") {
+        alert("Order successfully placed via Cash on Delivery!");
+        clearCart();
+        navigate("/profile");
+        return;
+      }
 
       // 2. Init Razorpay
       const { data: rzpData } = await API.post(`/orders/razorpay-order/${orderData._id}`);
@@ -720,6 +757,23 @@ export default function Cart() {
           </div>
 
           <div className="cart-card">
+            <h3>💳 Payment Method</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: paymentMethod === "Online" ? "#fff7f2" : "#f8fafc", padding: "12px", borderRadius: "10px", border: paymentMethod === "Online" ? "2px solid #ff6b00" : "1.5px solid #e2e8f0", transition: "all 0.2s" }}>
+                <input type="radio" name="payment" value="Online" checked={paymentMethod === "Online"} onChange={() => setPaymentMethod("Online")} style={{ accentColor: "#ff6b00", width: "18px", height: "18px" }} />
+                <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "15px" }}>Online / UPI (via Razorpay)</span>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: paymentMethod === "COD" ? "#fff7f2" : "#f8fafc", padding: "12px", borderRadius: "10px", border: paymentMethod === "COD" ? "2px solid #ff6b00" : "1.5px solid #e2e8f0", transition: "all 0.2s" }}>
+                <input type="radio" name="payment" value="COD" checked={paymentMethod === "COD"} onChange={() => setPaymentMethod("COD")} style={{ accentColor: "#ff6b00", width: "18px", height: "18px" }} />
+                <div>
+                  <div style={{ fontWeight: "600", color: "#1e293b", fontSize: "15px" }}>Cash on Delivery</div>
+                  <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>₹20 additional handling fee applies</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="cart-card">
             <h3>🧾 Bill Details</h3>
             
             <div className="bill-row">
@@ -751,6 +805,13 @@ export default function Cart() {
               <span>₹{platformFee}</span>
             </div>
 
+            {paymentMethod === "COD" && (
+              <div className="bill-row discount" style={{ color: "#ef4444" }}>
+                <span>COD Handling Fee</span>
+                <span>+ ₹{codFee}</span>
+              </div>
+            )}
+
             <div className="bill-row">
               <span>GST & Restaurant Charges (18%)</span>
               <span>₹{gstAmount}</span>
@@ -761,13 +822,28 @@ export default function Cart() {
               <span>₹{totalAmount}</span>
             </div>
 
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", margin: "16px 0", fontSize: "13px", color: "#64748b", lineHeight: "1.5" }}>
+              <input
+                type="checkbox"
+                checked={checkoutPolicyAccepted}
+                onChange={(e) => setCheckoutPolicyAccepted(e.target.checked)}
+                style={{ width: "16px", height: "16px", marginTop: "2px", flexShrink: 0, accentColor: "#ff6b00", cursor: "pointer" }}
+              />
+              <span>
+                I have read and agree to the{" "}
+                <a href="#" onClick={(e) => { e.preventDefault(); setCheckoutPolicyModal("terms"); }} style={{ color: "#ff6b00", fontWeight: 600, textDecoration: "none" }}>Terms & Conditions</a>,{" "}
+                <a href="#" onClick={(e) => { e.preventDefault(); setCheckoutPolicyModal("privacy"); }} style={{ color: "#ff6b00", fontWeight: 600, textDecoration: "none" }}>Privacy Policy</a>, and{" "}
+                <a href="#" onClick={(e) => { e.preventDefault(); setCheckoutPolicyModal("refund"); }} style={{ color: "#ff6b00", fontWeight: 600, textDecoration: "none" }}>Refund Policy</a>
+              </span>
+            </div>
+
             <button
               className="checkout-btn"
               onClick={handleCheckout}
-              disabled={checkoutLoading || isDeliveryTooFar || distanceKm === null}
+              disabled={checkoutLoading || isDeliveryTooFar || distanceKm === null || !checkoutPolicyAccepted}
               style={{ 
-                opacity: (checkoutLoading || isDeliveryTooFar || distanceKm === null) ? 0.6 : 1, 
-                cursor: (checkoutLoading || isDeliveryTooFar || distanceKm === null) ? "not-allowed" : "pointer",
+                opacity: (checkoutLoading || isDeliveryTooFar || distanceKm === null || !checkoutPolicyAccepted) ? 0.6 : 1, 
+                cursor: (checkoutLoading || isDeliveryTooFar || distanceKm === null || !checkoutPolicyAccepted) ? "not-allowed" : "pointer",
                 background: (isDeliveryTooFar || distanceKm === null) ? "#94a3b8" : "#ff6b00" 
               }}
             >
@@ -777,6 +853,47 @@ export default function Cart() {
 
         </div>
       </div>
+
+      {checkoutPolicyModal && (
+        <PolicyModal type={checkoutPolicyModal} onClose={() => setCheckoutPolicyModal(null)} />
+      )}
+
+      {deleteAddressId && (
+        <ConfirmModal
+          title="Delete Address?"
+          message="Are you sure you want to permanently delete this delivery address?"
+          confirmText="Delete Address"
+          cancelText="Keep Address"
+          onConfirm={confirmDeleteAddress}
+          onCancel={() => setDeleteAddressId(null)}
+        />
+      )}
+
+      {showCODConfirm && (
+        <div className="policy-modal-overlay" onClick={() => setShowCODConfirm(false)} style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", zIndex: 9999 }}>
+          <div className="policy-modal-content" onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: "30px", borderRadius: "16px", maxWidth: "400px", width: "90%", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}>
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>💵</div>
+            <h3 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: "800", color: "#1e293b" }}>Confirm Cash on Delivery</h3>
+            <p style={{ margin: "0 0 24px", color: "#64748b", fontSize: "15px", lineHeight: "1.5" }}>
+              You have selected Cash on Delivery. An extra handling fee of <b>₹20</b> applies. Do you want to place the requested order?
+            </p>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button 
+                onClick={() => setShowCODConfirm(false)}
+                style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", background: "#fff", color: "#334155", fontWeight: "600", cursor: "pointer" }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => { setShowCODConfirm(false); processOrder(); }}
+                style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "none", background: "#ff6b00", color: "#fff", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 12px rgba(255, 107, 0, 0.2)" }}
+              >
+                Confirm Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

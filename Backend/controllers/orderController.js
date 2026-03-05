@@ -126,7 +126,7 @@ export const getDeliveryInfo = async (req, res) => {
 // USER: Place order
 export const placeOrder = async (req, res) => {
   try {
-    const { items, itemsPrice, totalAmount, deliveryFee: clientFee, gst, discount, deliveryAddress, deliveryDistance, restaurantId } = req.body;
+    const { items, itemsPrice, totalAmount, deliveryFee: clientFee, gst, discount, deliveryAddress, deliveryDistance, restaurantId, paymentMethod } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No order items" });
@@ -145,8 +145,9 @@ export const placeOrder = async (req, res) => {
     else if (deliveryDistance <= 20) calculatedDeliveryFee = 100;
 
     const platformFee = 5;
+    const codFee = paymentMethod === "COD" ? 20 : 0;
     const subtotal = itemsPrice || 0;
-    const finalTotal = Math.max(0, subtotal - (discount || 0) + (gst || 0) + calculatedDeliveryFee + platformFee);
+    const finalTotal = Math.max(0, subtotal - (discount || 0) + (gst || 0) + calculatedDeliveryFee + platformFee + codFee);
 
     const order = await Order.create({
       user: req.user._id,
@@ -157,9 +158,12 @@ export const placeOrder = async (req, res) => {
       deliveryDistance,
       deliveryFee: calculatedDeliveryFee,
       platformFee,
+      codFee,
       gst: gst || 0,
       discount: discount || 0,
       deliveryAddress,
+      paymentMethod: paymentMethod === "COD" ? "Cash on Delivery" : "Razorpay",
+      paymentStatus: "Pending", // Ensure status remains Pending initially
     });
 
     res.status(201).json(order);
@@ -171,7 +175,14 @@ export const placeOrder = async (req, res) => {
 // USER: Get my orders
 export const getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id })
+    const orders = await Order.find({
+      user: req.user._id,
+      $or: [
+        { paymentMethod: "Cash on Delivery" },
+        { paymentMethod: "Razorpay", paymentStatus: "Paid" },
+        { paymentMethod: { $exists: false } } // Legacy support if any
+      ]
+    })
       .populate("restaurant", "name")
       .populate("items.menuId", "name image price")
       .sort({
@@ -186,7 +197,13 @@ export const getMyOrders = async (req, res) => {
 // ADMIN: Get all orders
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
+    const orders = await Order.find({
+      $or: [
+        { paymentMethod: "Cash on Delivery" },
+        { paymentMethod: "Razorpay", paymentStatus: "Paid" },
+        { paymentMethod: { $exists: false } } // Legacy support if any
+      ]
+    })
       .populate("user", "name email")
       .sort({ createdAt: -1 });
 
@@ -196,19 +213,33 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// ADMIN: Update order status
+// ADMIN / RESTAURANT: Update order status generically (Accept, Reject, Preparing, Ready)
 export const updateOrderStatus = async (req, res) => {
   try {
+    const { status } = req.body;
     const order = await Order.findById(req.params.id);
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Restrict updates to either Admin (if role exists) or the specific Restaurant owner
+    if (order.restaurant && order.restaurant.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    order.status = req.body.status || order.status;
-    const updated = await order.save();
+    // Process cancellations
+    if (status === "Cancelled" && order.paymentStatus === "Paid") {
+      // Logic for refund could go here 
+    }
 
-    res.json(updated);
+    // Free delivery agent if marked as Delivered
+    if (status === "Delivered" && order.deliveryAgent?.agentId) {
+      await DeliveryAgent.findByIdAndUpdate(order.deliveryAgent.agentId, { status: "Available" });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -339,8 +370,8 @@ export const assignDeliveryAgent = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    if (order.status !== "Confirmed") {
-      return res.status(400).json({ message: "Order must be Confirmed before assigning agent" });
+    if (order.status !== "Confirmed" && order.status !== "Ready") {
+      return res.status(400).json({ message: "Order must be Confirmed or Ready before assigning agent" });
     }
 
     const agent = await DeliveryAgent.findById(agentId);
@@ -372,30 +403,4 @@ export const assignDeliveryAgent = async (req, res) => {
   }
 };
 
-// RESTAURANT: Mark order as delivered (Assigned → Delivered)
-export const markOrderDelivered = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: "Order not found" });
 
-    if (order.restaurant.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-
-    if (order.status !== "Assigned") {
-      return res.status(400).json({ message: "Order must be Assigned before marking delivered" });
-    }
-
-    order.status = "Delivered";
-    await order.save();
-
-    // Free the delivery agent
-    if (order.deliveryAgent?.agentId) {
-      await DeliveryAgent.findByIdAndUpdate(order.deliveryAgent.agentId, { status: "Available" });
-    }
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};

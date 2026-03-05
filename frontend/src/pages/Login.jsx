@@ -24,31 +24,42 @@ export default function Login() {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   /* =====================
-     LOGIN
+     UNIFIED LOGIN
   ===================== */
   const loginHandler = async (e) => {
     e.preventDefault();
     setMessage("");
-
-    if (!isValidEmail(email)) {
-      setMessage("Enter a valid email address");
-      return;
-    }
+    setLoading(true);
 
     try {
-      const { data } = await API.post("/auth/login", {
-        email,
+      const { data } = await API.post("/auth/unified-login", {
+        identifier: email, // This is now Email or Agent ID
         password,
       });
 
+      // Unified Token Management
       localStorage.setItem("token", data.token);
-      localStorage.removeItem("role");
-      navigate("/");
-    }catch (err) {
-  console.log("LOGIN ERROR 👉", err.response?.data || err.message);
-  setMessage(err.response?.data?.message || "Login failed");
-}
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("userName", data.name);
 
+      // Role-based Redirection
+      if (data.role === "restaurant") {
+        localStorage.setItem("restaurantToken", data.token); // Legacy support
+        navigate("/restaurant/dashboard");
+      } else if (data.role === "deliveryAgent") {
+        localStorage.setItem("agentToken", data.token); // Legacy support
+        navigate("/agent/dashboard");
+      } else if (data.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.log("LOGIN ERROR 👉", err.response?.data || err.message);
+      setMessage(err.response?.data?.message || "Login failed. Check your ID/Email and password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* =====================
@@ -142,8 +153,8 @@ export default function Login() {
         {step === "login" && (
           <form onSubmit={loginHandler}>
             <input
-              type="email"
-              placeholder="Email"
+              type="text"
+              placeholder="Email, Agent ID, or Admin ID"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -163,7 +174,9 @@ export default function Login() {
               </span>
             </div>
 
-            <button type="submit">Login</button>
+            <button type="submit" disabled={loading}>
+              {loading ? "Authenticating..." : "Login"}
+            </button>
 
             {/* GOOGLE LOGIN */}
             <button
@@ -177,15 +190,6 @@ export default function Login() {
                 className="google-icon"
               />
               Continue with Google
-            </button>
-
-            {/* ✅ RESTAURANT LOGIN BUTTON (ADDED) */}
-            <button
-              type="button"
-              className="restaurant-btn"
-              onClick={() => navigate("/restaurant/login")}
-            >
-              Restaurant Login
             </button>
 
             <div className="auth-link">

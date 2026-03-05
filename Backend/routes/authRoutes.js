@@ -6,6 +6,7 @@ import {
   resetPassword,
   googleLogin,
   restaurantLogin,
+  unifiedLogin,
   getUserProfile,
   toggleFavorite,
 } from "../controllers/authController.js";
@@ -24,6 +25,7 @@ router.post("/reset-password", resetPassword);
 
 router.post("/google-login", googleLogin);
 router.post("/restaurant/login", restaurantLogin);
+router.post("/unified-login", unifiedLogin);
 router.get("/profile", protect, getUserProfile);
 router.get("/me", protect, getUserProfile);
 router.post("/favorites/:menuId", protect, toggleFavorite);

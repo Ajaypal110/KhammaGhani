@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import Loader from "../components/Loader";
 import DietaryIcon from "../components/DietaryIcon";
+import ConfirmModal from "../components/ConfirmModal";
+import OrderCard from "../components/dashboard/OrderCard";
 import "../styles/restaurant.css";
 
 export default function RestaurantDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("menu");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [menu, setMenu] = useState([]);
   const [images, setImages] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -84,7 +86,9 @@ export default function RestaurantDashboard() {
   const fetchOrders = async () => {
     try {
       const { data } = await API.get("/restaurant/orders");
-      setOrders(data);
+      // Sort latest first natively
+      const sortedOrders = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setOrders(sortedOrders);
     } catch (err) {
       console.log(err);
     }
@@ -130,10 +134,22 @@ export default function RestaurantDashboard() {
 
           <div className="sidebar-links">
             <button
+              className={activeTab === "dashboard" ? "sidebar-btn active" : "sidebar-btn"}
+              onClick={() => setActiveTab("dashboard")}
+            >
+              <span className="sidebar-icon">📊</span> Dashboard
+            </button>
+            <button
+              className={activeTab === "orders" ? "sidebar-btn active" : "sidebar-btn"}
+              onClick={() => setActiveTab("orders")}
+            >
+              <span className="sidebar-icon">📦</span> Orders
+            </button>
+            <button
               className={activeTab === "menu" ? "sidebar-btn active" : "sidebar-btn"}
               onClick={() => setActiveTab("menu")}
             >
-              <span className="sidebar-icon">🍽️</span> Manage Menu
+              <span className="sidebar-icon">🍽️</span> Menu
             </button>
             <button
               className={activeTab === "images" ? "sidebar-btn active" : "sidebar-btn"}
@@ -154,16 +170,22 @@ export default function RestaurantDashboard() {
               <span className="sidebar-icon">🪑</span> Manage Tables
             </button>
             <button
-              className={activeTab === "orders" ? "sidebar-btn active" : "sidebar-btn"}
-              onClick={() => setActiveTab("orders")}
-            >
-              <span className="sidebar-icon">📦</span> Orders
-            </button>
-            <button
               className={activeTab === "agents" ? "sidebar-btn active" : "sidebar-btn"}
               onClick={() => setActiveTab("agents")}
             >
-              <span className="sidebar-icon">😴</span> Delivery Agents
+              <span className="sidebar-icon">🚴</span> Delivery Agents
+            </button>
+            <button
+              className={activeTab === "analytics" ? "sidebar-btn active" : "sidebar-btn"}
+              onClick={() => setActiveTab("analytics")}
+            >
+              <span className="sidebar-icon">📈</span> Analytics
+            </button>
+            <button
+              className={activeTab === "settings" ? "sidebar-btn active" : "sidebar-btn"}
+              onClick={() => setActiveTab("settings")}
+            >
+              <span className="sidebar-icon">⚙️</span> Settings
             </button>
           </div>
         </aside>
@@ -174,6 +196,9 @@ export default function RestaurantDashboard() {
             <Loader />
           ) : (
             <>
+              {activeTab === "dashboard" && (
+                <DashboardSection orders={orders} menu={menu} />
+              )}
               {activeTab === "menu" && (
                 <MenuSection menu={menu} refresh={fetchMyMenu} />
               )}
@@ -211,6 +236,77 @@ export default function RestaurantDashboard() {
 }
 
 /* ================================================================
+   DASHBOARD OVERVIEW SECTION
+================================================================ */
+function DashboardSection({ orders, menu }) {
+  // Compute Stats Local to Today
+  const today = new Date().setHours(0, 0, 0, 0);
+
+  const todaysOrders = orders.filter((o) => new Date(o.createdAt).setHours(0, 0, 0, 0) === today);
+  const todaysRevenue = todaysOrders.reduce((acc, order) => {
+     if (order.status !== "Cancelled") return acc + (order.totalAmount || 0);
+     return acc;
+  }, 0);
+
+  const activeOrders = orders.filter(
+    (o) => o.status !== "Delivered" && o.status !== "Cancelled"
+  );
+  
+  const totalMenu = menu.length;
+
+  return (
+    <div className="dashboard-overview">
+      <h2 className="section-title">📊 Dashboard Overview</h2>
+      
+      <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px", marginBottom: "40px" }}>
+        
+        {/* Stat Card 1 */}
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: "16px", border: "1px solid #f1f5f9" }}>
+          <div style={{ width: "50px", height: "50px", borderRadius: "12px", background: "#e0e7ff", color: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>🛒</div>
+          <div>
+            <div style={{ fontSize: "13px", color: "#64748b", fontWeight: "600", textTransform: "uppercase" }}>Today's Orders</div>
+            <div style={{ fontSize: "24px", fontWeight: "800", color: "#1e293b", marginTop: "4px" }}>{todaysOrders.length}</div>
+          </div>
+        </div>
+
+        {/* Stat Card 2 */}
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: "16px", border: "1px solid #f1f5f9" }}>
+          <div style={{ width: "50px", height: "50px", borderRadius: "12px", background: "#dcfce7", color: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>💰</div>
+          <div>
+            <div style={{ fontSize: "13px", color: "#64748b", fontWeight: "600", textTransform: "uppercase" }}>Today's Revenue</div>
+            <div style={{ fontSize: "24px", fontWeight: "800", color: "#1e293b", marginTop: "4px" }}>₹{todaysRevenue}</div>
+          </div>
+        </div>
+
+        {/* Stat Card 3 */}
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: "16px", border: "1px solid #f1f5f9" }}>
+          <div style={{ width: "50px", height: "50px", borderRadius: "12px", background: "#fef9c3", color: "#ca8a04", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>⚡</div>
+          <div>
+            <div style={{ fontSize: "13px", color: "#64748b", fontWeight: "600", textTransform: "uppercase" }}>Active Orders</div>
+            <div style={{ fontSize: "24px", fontWeight: "800", color: "#1e293b", marginTop: "4px" }}>{activeOrders.length}</div>
+          </div>
+        </div>
+
+        {/* Stat Card 4 */}
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: "16px", border: "1px solid #f1f5f9" }}>
+          <div style={{ width: "50px", height: "50px", borderRadius: "12px", background: "#fef2f2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>🍽️</div>
+          <div>
+            <div style={{ fontSize: "13px", color: "#64748b", fontWeight: "600", textTransform: "uppercase" }}>Total Menu Items</div>
+            <div style={{ fontSize: "24px", fontWeight: "800", color: "#1e293b", marginTop: "4px" }}>{totalMenu}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#f8fafc", padding: "30px", borderRadius: "16px", textAlign: "center", border: "1.5px dashed #cbd5e1" }}>
+        <div style={{ fontSize: "40px", marginBottom: "16px" }}>🚀</div>
+        <h3 style={{ margin: "0 0 8px", color: "#334155" }}>Dashboard Ready</h3>
+        <p style={{ margin: 0, color: "#64748b" }}>You're all set to manage your restaurant operations from the sidebar.</p>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
    MENU SECTION
 ================================================================ */
 function MenuSection({ menu, refresh }) {
@@ -230,6 +326,7 @@ function MenuSection({ menu, refresh }) {
   const [addOns, setAddOns] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
 
   const categoriesList = ["Starters", "Main Course", "Rajasthani", "Chinese", "Thai", "Desserts", "Beverages", "Thali"];
 
@@ -301,13 +398,19 @@ function MenuSection({ menu, refresh }) {
     setEditingId(null);
   };
 
-  const deleteHandler = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
+  const deleteHandler = (id) => {
+    setDeleteItemId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteItemId) return;
     try {
-      await API.delete(`/menu/${id}`);
+      await API.delete(`/menu/${deleteItemId}`);
       refresh();
     } catch (err) {
       console.log(err);
+    } finally {
+      setDeleteItemId(null);
     }
   };
 
@@ -325,14 +428,29 @@ function MenuSection({ menu, refresh }) {
     setDiscountPrice(item.discountPrice || "");
     setIsGstIncluded(item.isGstIncluded || false);
     setAddOns(item.addOns || []);
-    window.scrollTo({ top: 150, behavior: "smooth" });
+    setIsModalOpen(true);
   };
 
-  return (
-    <div className="menu-wrapper" style={{ maxWidth: "900px" }}>
-      <h2 className="section-title">{editingId ? "✏️ Edit Dish" : "➕ Add New Dish"}</h2>
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-      <form className="menu-card-form" onSubmit={submitHandler} style={{ maxWidth: "860px", margin: "0 auto", gap: "20px", display: "flex", flexDirection: "column" }}>
+  return (
+    <div className="menu-wrapper" style={{ maxWidth: "1000px", margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h2 className="section-title" style={{ margin: 0 }}>📋 Your Menu ({menu.length} items)</h2>
+        <button className="primary-btn" onClick={() => { resetForm(); setIsModalOpen(true); }} style={{ padding: "10px 20px", borderRadius: "10px", fontSize: "14px" }}>
+          ➕ Add New Dish
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+          <div style={{ background: "#fff", width: "100%", maxWidth: "800px", maxHeight: "90vh", borderRadius: "16px", overflowY: "auto", position: "relative", boxShadow: "0 10px 40px rgba(0,0,0,0.2)" }}>
+            <div style={{ position: "sticky", top: 0, background: "#fff", zIndex: 10, padding: "20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, fontSize: "20px", color: "#1e293b" }}>{editingId ? "✏️ Edit Dish" : "➕ Add New Dish"}</h2>
+              <button onClick={() => { setIsModalOpen(false); resetForm(); }} style={{ background: "transparent", border: "none", fontSize: "24px", cursor: "pointer", color: "#94a3b8" }}>✕</button>
+            </div>
+            
+            <form className="menu-card-form" onSubmit={(e) => { submitHandler(e); setIsModalOpen(false); }} style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
         {/* SECTION 1: BASIC DETAILS */}
         <div className="form-section-card">
           <h3 className="form-section-title">📝 Basic Details</h3>
@@ -477,19 +595,18 @@ function MenuSection({ menu, refresh }) {
 
 
 
-        <div style={{ display: "flex", gap: "15px" }}>
+        <div style={{ display: "flex", gap: "15px", marginTop: "10px" }}>
           <button type="submit" className="primary-btn" disabled={submitting} style={{ flex: 2, height: "55px", fontSize: "16px" }}>
             {submitting ? "Processing..." : editingId ? "Save Changes" : "🚀 Create Menu Dish"}
           </button>
-          {editingId && (
-            <button type="button" className="cancel-btn" onClick={resetForm} style={{ flex: 1 }}>
-              Cancel
-            </button>
-          )}
+          <button type="button" className="cancel-btn" onClick={() => { setIsModalOpen(false); resetForm(); }} style={{ flex: 1 }}>
+            Cancel
+          </button>
         </div>
       </form>
-
-      <h2 className="section-title">📋 Your Menu ({menu.length} items)</h2>
+    </div>
+  </div>
+)}
 
       <div className="menu-grid">
         {menu.length === 0 && <p className="empty-msg">No menu items yet. Add your first dish above!</p>}
@@ -507,14 +624,28 @@ function MenuSection({ menu, refresh }) {
                   ? item.variations.map(v => `${v.name}: ₹${v.price}`).join(" | ")
                   : `₹ ${item.price}`}
                </p>
-               <span style={{ fontSize: "12px", background: "#f1f5f9", padding: "2px 8px", borderRadius: "10px", color: "#64748b" }}>{item.category || "Uncategorized"}</span>
-              <small>{item.description}</small>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "6px" }}>
+                <span style={{ fontSize: "12px", background: "#f1f5f9", padding: "4px 8px", borderRadius: "8px", color: "#64748b", fontWeight: "600" }}>{item.category || "Uncategorized"}</span>
+                <label className="toggle-switch" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#64748b", cursor: "pointer", fontWeight: "600" }}>
+                  <input type="checkbox" checked={item.available !== false} onChange={async (e) => {
+                     // Optimistically updating availability concept
+                     try {
+                        const fd = new FormData();
+                        fd.append("available", e.target.checked);
+                        await API.put(`/menu/${item._id}`, fd);
+                        refresh();
+                     } catch(err) { console.error(err) }
+                  }} style={{ accentColor: "#10b981", width: "16px", height: "16px" }} />
+                  Available
+                </label>
+              </div>
+              <small style={{ display: "block", marginTop: "8px", color: "#94a3b8" }}>{item.description}</small>
 
-              <div className="menu-actions">
-                <button className="edit-btn" onClick={() => editHandler(item)}>
+              <div className="menu-actions" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "16px" }}>
+                <button className="edit-btn" onClick={() => editHandler(item)} style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "#e0e7ff", color: "#4f46e5", border: "none", fontWeight: "600", cursor: "pointer" }}>
                   ✏️ Edit
                 </button>
-                <button className="delete-btn" onClick={() => deleteHandler(item._id)}>
+                <button className="delete-btn" onClick={() => deleteHandler(item._id)} style={{ width: "100%", padding: "10px", borderRadius: "8px", background: "#fee2e2", color: "#ef4444", border: "none", fontWeight: "600", cursor: "pointer", marginTop: 0 }}>
                   🗑️ Delete
                 </button>
               </div>
@@ -522,6 +653,17 @@ function MenuSection({ menu, refresh }) {
           </div>
         ))}
       </div>
+
+      {deleteItemId && (
+        <ConfirmModal
+          title="Delete Menu Item?"
+          message="Are you sure you want to delete this dish from your menu? This action cannot be undone."
+          confirmText="Delete Dish"
+          cancelText="Cancel"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteItemId(null)}
+        />
+      )}
     </div>
   );
 }
@@ -533,6 +675,7 @@ function ImagesSection({ images, refresh }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [removeImageUrl, setRemoveImageUrl] = useState(null);
 
   const isMaxReached = images.length >= 10;
 
@@ -560,13 +703,18 @@ function ImagesSection({ images, refresh }) {
     }
   };
 
-  const deleteImage = async (imageUrl) => {
-    if (!window.confirm("Remove this image?")) return;
+  const deleteImage = (imageUrl) => {
+    setRemoveImageUrl(imageUrl);
+  };
+
+  const confirmRemoveImage = async () => {
     try {
-      await API.post("/restaurants/remove-image", { imageUrl });
+      await API.post("/restaurants/remove-image", { imageUrl: removeImageUrl });
       refresh();
     } catch (err) {
       console.log(err);
+    } finally {
+      setRemoveImageUrl(null);
     }
   };
 
@@ -617,6 +765,17 @@ function ImagesSection({ images, refresh }) {
           </div>
         ))}
       </div>
+
+      {removeImageUrl && (
+        <ConfirmModal
+          title="Remove Image?"
+          message="Are you sure you want to remove this image from your restaurant gallery?"
+          confirmText="Remove Image"
+          cancelText="Cancel"
+          onConfirm={confirmRemoveImage}
+          onCancel={() => setRemoveImageUrl(null)}
+        />
+      )}
     </div>
   );
 }
@@ -730,47 +889,58 @@ function BookingsSection({ bookings, refresh }) {
    ORDERS SECTION (UPDATED WITH DELIVERY FLOW)
 ================================================================ */
 function OrdersSection({ orders, agents, refreshOrders, refreshAgents }) {
-  const [selectedAgent, setSelectedAgent] = useState({});
+  // Reference for previous orders count to trigger audio
+  const prevOrdersCountRef = React.useRef(orders.length);
 
-  const handleConfirm = async (orderId) => {
-    try {
-      await API.put(`/orders/${orderId}/confirm`);
-      refreshOrders();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to confirm");
+  React.useEffect(() => {
+    if (orders.length > prevOrdersCountRef.current) {
+      const newOrders = orders.filter(o => o.status === "Placed");
+      if (newOrders.length > 0) {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          
+          oscillator.type = "sine";
+          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+          oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
+          
+          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.5);
+        } catch(e) { console.log("Audio not supported or blocked"); }
+      }
+    }
+    prevOrdersCountRef.current = orders.length;
+  }, [orders]);
+
+  const getPriority = (status) => {
+    switch(status) {
+       case "Placed": return 1;
+       case "Confirmed":
+       case "Preparing": return 2;
+       case "Ready": 
+       case "Assigned":
+       case "Out for Delivery": return 3;
+       case "Delivered":
+       case "Cancelled": return 4;
+       default: return 5;
     }
   };
 
-  const handleAssignAgent = async (orderId) => {
-    const agentId = selectedAgent[orderId];
-    if (!agentId) return alert("Please select a delivery agent");
-    try {
-      await API.put(`/orders/${orderId}/assign-agent`, { agentId });
-      refreshOrders();
-      refreshAgents();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to assign agent");
-    }
-  };
+  const sortedOrders = [...orders].sort((a, b) => {
+    const priorityA = getPriority(a.status);
+    const priorityB = getPriority(b.status);
+    if (priorityA !== priorityB) return priorityA - priorityB;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
-  const handleDelivered = async (orderId) => {
-    try {
-      await API.put(`/orders/${orderId}/delivered`);
-      refreshOrders();
-      refreshAgents();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to mark delivered");
-    }
-  };
-
-  const availableAgents = agents.filter(a => a.status === "Available");
-
-  const statusColors = {
-    Placed: "#f59e0b",
-    Confirmed: "#3b82f6",
-    Assigned: "#8b5cf6",
-    Delivered: "#16a34a",
-  };
+   const availableAgents = agents.filter(a => a.status === "Available");
 
   return (
     <div className="orders-section">
@@ -783,80 +953,14 @@ function OrdersSection({ orders, agents, refreshOrders, refreshAgents }) {
         </div>
       ) : (
         <div className="orders-grid">
-          {orders.map((order) => (
-            <div key={order._id} className="order-card" style={{ borderLeft: `4px solid ${statusColors[order.status] || "#94a3b8"}` }}>
-              <div className="order-header">
-                <span className="order-id">#{order._id.slice(-6).toUpperCase()}</span>
-                <span style={{
-                  background: statusColors[order.status] || "#94a3b8",
-                  color: "#fff",
-                  padding: "4px 12px",
-                  borderRadius: "20px",
-                  fontSize: "12px",
-                  fontWeight: "700",
-                }}>{order.status}</span>
-              </div>
-
-              <div className="order-body">
-                <p><strong>Items:</strong> {order.items?.length || 0} items</p>
-                <p><strong>Total:</strong> ₹{order.totalAmount || 0}</p>
-                <p><strong>Payment:</strong> {order.paymentStatus}</p>
-                {order.deliveryAddress && (
-                  <p style={{ fontSize: "12px", color: "#64748b" }}>📍 {order.deliveryAddress.substring(0, 60)}...</p>
-                )}
-                <p className="order-time">
-                  {new Date(order.createdAt).toLocaleString("en-IN", {
-                    day: "numeric", month: "short", year: "numeric",
-                    hour: "2-digit", minute: "2-digit",
-                  })}
-                </p>
-              </div>
-
-              {/* Delivery Agent Info (if assigned) */}
-              {order.deliveryAgent?.name && (
-                <div style={{ background: "#f5f3ff", padding: "10px 14px", borderRadius: "10px", marginTop: "10px", fontSize: "13px" }}>
-                  <div style={{ fontWeight: "700", color: "#7c3aed", marginBottom: "4px" }}>🚴 Delivery Agent</div>
-                  <div>{order.deliveryAgent.name} • {order.deliveryAgent.phone}</div>
-                  <div style={{ color: "#64748b" }}>{order.deliveryAgent.vehicleType} — {order.deliveryAgent.vehicleNumber}</div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                {order.status === "Placed" && order.paymentStatus === "Paid" && (
-                  <button
-                    onClick={() => handleConfirm(order._id)}
-                    style={{ padding: "10px", borderRadius: "10px", border: "none", background: "#3b82f6", color: "#fff", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}
-                  >✅ Confirm Order</button>
-                )}
-
-                {order.status === "Confirmed" && (
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <select
-                      value={selectedAgent[order._id] || ""}
-                      onChange={(e) => setSelectedAgent({ ...selectedAgent, [order._id]: e.target.value })}
-                      style={{ flex: 1, padding: "10px 12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", fontSize: "13px", fontWeight: "600" }}
-                    >
-                      <option value="">Select Agent...</option>
-                      {availableAgents.map(a => (
-                        <option key={a._id} value={a._id}>{a.name} ({a.vehicleType})</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => handleAssignAgent(order._id)}
-                      style={{ padding: "10px 16px", borderRadius: "10px", border: "none", background: "#8b5cf6", color: "#fff", fontWeight: "700", cursor: "pointer", fontSize: "13px", whiteSpace: "nowrap" }}
-                    >Assign</button>
-                  </div>
-                )}
-
-                {order.status === "Assigned" && (
-                  <button
-                    onClick={() => handleDelivered(order._id)}
-                    style={{ padding: "10px", borderRadius: "10px", border: "none", background: "#16a34a", color: "#fff", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}
-                  >📬 Mark as Delivered</button>
-                )}
-              </div>
-            </div>
+          {sortedOrders.map((order) => (
+             <OrderCard 
+               key={order._id} 
+               order={order} 
+               availableAgents={availableAgents} 
+               refreshOrders={refreshOrders} 
+               refreshAgents={refreshAgents} 
+             />
           ))}
         </div>
       )}
@@ -875,6 +979,7 @@ function DeliveryAgentsSection({ agents, refresh }) {
   const [vehicleType, setVehicleType] = useState("Bike");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [deleteAgentId, setDeleteAgentId] = useState(null);
 
   const resetForm = () => {
     setName(""); setAgentId(""); setPhone(""); setPassword(""); setVehicleType("Bike"); setVehicleNumber(""); setEditingId(null);
@@ -904,13 +1009,18 @@ function DeliveryAgentsSection({ agents, refresh }) {
     setVehicleNumber(agent.vehicleNumber);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this delivery agent?")) return;
+  const handleDelete = (id) => {
+    setDeleteAgentId(id);
+  };
+
+  const confirmDeleteAgent = async () => {
     try {
-      await API.delete(`/delivery-agents/agent/${id}`);
+      await API.delete(`/delivery-agents/agent/${deleteAgentId}`);
       refresh();
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete");
+    } finally {
+      setDeleteAgentId(null);
     }
   };
 
@@ -1037,6 +1147,7 @@ function TablesSection({ totalTables, refresh }) {
   const [savingAddress, setSavingAddress] = useState(false);
   const [addressMsg, setAddressMsg] = useState("");
   const [locLoading, setLocLoading] = useState(false);
+  const [mismatchConfirm, setMismatchConfirm] = useState(null);
 
   const handleGetLocation = async () => {
     if (!navigator.geolocation) {
@@ -1155,21 +1266,27 @@ function TablesSection({ totalTables, refresh }) {
         const distance = R * c;
 
         if (distance > 1.5) { // 1.5km tolerance
-          const proceed = window.confirm(`⚠️ Location Mismatch: The address provided is about ${distance.toFixed(1)}km away from the coordinates entered. Are you sure you want to save these coordinates?`);
-          if (!proceed) {
-             setSavingAddress(false);
-             setAddressMsg("❌ Save cancelled. Please verify your address and coordinates.");
-             return;
-          }
+          setMismatchConfirm(distance);
+          return;
         }
       }
 
+      await completeAddressSave();
+    } catch (err) {
+      setAddressMsg("❌ " + (err.response?.data?.message || "Failed to geocode/save address"));
+      setSavingAddress(false);
+    }
+  };
+
+  const completeAddressSave = async () => {
+    try {
       await API.put("/restaurants/my/address", { address, lat: coordinates.lat, lon: coordinates.lon });
       setAddressMsg("✅ Address and coordinates saved successfully!");
     } catch (err) {
       setAddressMsg("❌ " + (err.response?.data?.message || "Failed to save address"));
     } finally {
       setSavingAddress(false);
+      setMismatchConfirm(null);
     }
   };
 
@@ -1358,6 +1475,22 @@ function TablesSection({ totalTables, refresh }) {
           </div>
         ))}
       </div>
+
+      {mismatchConfirm && (
+        <ConfirmModal
+          title="⚠️ Location Mismatch"
+          message={`The text address provided is about ${mismatchConfirm.toFixed(1)}km away from the manual map coordinates you entered. Are you sure you want to save these coordinates?`}
+          confirmText="Yes, Save Anyway"
+          cancelText="No, Let Me Fix It"
+          confirmColor="#f59e0b" // Orange/Amber color for warning
+          onConfirm={completeAddressSave}
+          onCancel={() => {
+            setSavingAddress(false);
+            setAddressMsg("❌ Save cancelled. Please verify your address and coordinates.");
+            setMismatchConfirm(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -78,8 +78,8 @@ export default function Navbar() {
 
       <div className="nav-links">
         <a href="/" className={isHome ? "active" : ""}>Home</a>
-        <a href="#">About Us</a>
-        <a href="#">Contact Us</a>
+        <a href="/about" className={location.pathname === "/about" ? "active" : ""}>About Us</a>
+        <a href="/contact" className={location.pathname === "/contact" ? "active" : ""}>Contact Us</a>
       </div>
 
       <div className="nav-actions">

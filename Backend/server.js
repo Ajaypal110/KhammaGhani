@@ -14,9 +14,13 @@ import restaurantDashboardRoutes from "./routes/restaurantDashboardRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import deliveryAgentRoutes from "./routes/deliveryAgentRoutes.js";
 import agentPortalRoutes from "./routes/agentPortalRoutes.js";
+import seedAdmin from "./utils/adminSeeder.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
-connectDB();
+connectDB().then(() => {
+  seedAdmin();
+});
 
 const app = express();
 
@@ -35,6 +39,7 @@ app.use("/api/restaurant", restaurantDashboardRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/delivery-agents", deliveryAgentRoutes);
 app.use("/api/agent-portal", agentPortalRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("Khamagani API is running...");

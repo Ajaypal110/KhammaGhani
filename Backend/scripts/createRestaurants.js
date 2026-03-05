@@ -39,14 +39,14 @@ const restaurants = [
     name: "Khammaghani Jodhpur",
     email: "jodhpur@khammaghani.com",
     password: "Khamma@jodhpur123",
-    restaurantId: "DELHI_01",
+    restaurantId: "JODHPUR_01",
   },
   {
     name: "Khammaghani Goa",
     email: "goa@khammaghani.com",
     password: "Khamma@goa123",
     restaurantId: "GOA_01",
-  },{
+  }, {
     name: "Khammaghani Banglore",
     email: "banglore@khammaghani.com",
     password: "Khamma@banglore123",
@@ -63,7 +63,7 @@ const restaurants = [
     email: "noida@khammaghani.com",
     password: "Khamma@Noida123",
     restaurantId: "NOIDA_01",
-  },{
+  }, {
     name: "Khammaghani Hyderabad",
     email: "hyedrabad@khammaghani.com",
     password: "Khamma@Hyedrabad123",
@@ -80,7 +80,7 @@ const restaurants = [
     email: "kashmir@khammaghani.com",
     password: "Khamma@Kashmir123",
     restaurantId: "KASHMIR_01",
-  },{
+  }, {
     name: "Khammaghani Sikkim",
     email: "sikkim@khammaghani.com",
     password: "Khamma@Sikkim123",
@@ -92,7 +92,7 @@ const restaurants = [
     password: "Khamma@Darjling123",
     restaurantId: "DARJLING_01",
   },
-   {
+  {
     name: "Khammaghani Bhopal",
     email: "bhopal@khammaghani.com",
     password: "Khamma@Bhopal123",

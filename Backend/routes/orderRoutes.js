@@ -10,7 +10,6 @@ import {
     updateOrderStatus,
     confirmOrder,
     assignDeliveryAgent,
-    markOrderDelivered,
     getDeliveryInfo
 } from "../controllers/orderController.js";
 
@@ -29,6 +28,5 @@ router.post("/verify-payment/:id", protect, verifyPaymentFood);
 // Delivery agent assignment routes
 router.put("/:id/confirm", protect, confirmOrder);
 router.put("/:id/assign-agent", protect, assignDeliveryAgent);
-router.put("/:id/delivered", protect, markOrderDelivered);
 
 export default router;

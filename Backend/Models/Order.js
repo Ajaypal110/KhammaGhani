@@ -21,11 +21,13 @@ const orderSchema = new mongoose.Schema(
     gst: { type: Number, default: 0 },
     deliveryFee: { type: Number, default: 0 },
     platformFee: { type: Number, default: 5 }, // Added Platform Fee
+    codFee: { type: Number, default: 0 },
     deliveryAddress: { type: String },
     deliveryDistance: { type: Number }, // Renamed from distance for clarity
     status: { type: String, default: "Placed" },
     paymentStatus: { type: String, default: "Pending" },
     paymentMethod: { type: String, default: "Razorpay" },
+    cashCollected: { type: Boolean, default: false },
     paymentId: String,
     receiptId: String,
     razorpayOrderId: String,

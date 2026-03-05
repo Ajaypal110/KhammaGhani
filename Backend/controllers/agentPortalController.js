@@ -73,9 +73,35 @@ export const getAgentProfile = async (req, res) => {
             return order; // If accepted/picked, show everything
         });
 
+        // Find completed orders within the last 24 hours
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const completedOrders = await Order.find({
+            "deliveryAgent.agentId": req.agent._id,
+            agentStatus: "delivered",
+            updatedAt: { $gte: twentyFourHoursAgo }
+        })
+            .populate("restaurant", "name address phone")
+            .populate("user", "name phone")
+            .lean()
+            .sort({ updatedAt: -1 }); // Newest completed first
+
+        // Calculate Earnings Summary (From completedOrders)
+        const earningsSummary = completedOrders.reduce((acc, order) => {
+            acc.todayEarnings += order.totalAmount;
+            acc.todayDeliveries += 1;
+            if (order.paymentMethod === "Cash on Delivery" || order.paymentMethod === "COD") {
+                acc.cashCollected += order.totalAmount;
+            } else {
+                acc.onlinePayments += order.totalAmount;
+            }
+            return acc;
+        }, { todayEarnings: 0, todayDeliveries: 0, cashCollected: 0, onlinePayments: 0 });
+
         res.json({
             agent,
-            activeOrders: secureOrders
+            activeOrders: secureOrders,
+            completedOrders,
+            earningsSummary
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -131,6 +157,19 @@ export const updateOrderStatus = async (req, res) => {
             if (order.agentStatus !== "picked") return res.status(400).json({ message: "Can only deliver picked orders" });
             order.agentStatus = "delivered";
             order.status = "Delivered";
+
+            agent.status = "Available";
+            agent.currentOrderId = null;
+        }
+        else if (action === "collect_cod") {
+            // New action block specific to Cash on Delivery
+            if (order.agentStatus !== "picked") return res.status(400).json({ message: "Can only collect cash for picked orders" });
+            if (order.paymentMethod !== "Cash on Delivery") return res.status(400).json({ message: "Order is not COD" });
+
+            order.agentStatus = "delivered";
+            order.status = "Delivered";
+            order.cashCollected = true;
+            order.paymentStatus = "Paid"; // Mark as paid
 
             agent.status = "Available";
             agent.currentOrderId = null;

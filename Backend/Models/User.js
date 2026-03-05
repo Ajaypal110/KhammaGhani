@@ -6,10 +6,16 @@ const userSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: true,
       unique: true,   // 🔥 MUST
       lowercase: true,
       trim: true,
+      sparse: true, // Allow null/missing emails for Admin accounts
+    },
+
+    adminId: {
+      type: String,
+      unique: true,
+      sparse: true, // Only for admin
     },
 
 

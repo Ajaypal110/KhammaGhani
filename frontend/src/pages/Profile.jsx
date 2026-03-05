@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from "react";
+import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import Loader from "../components/Loader";
 import "../styles/profile.css";
+import ConfirmModal from "../components/ConfirmModal";
 
 /* ================================================================
    CROP MODAL — Instagram-style circular crop with zoom + drag
@@ -160,7 +163,10 @@ function CropModal({ imageSrc, onCrop, onCancel }) {
    PROFILE PAGE
 ================================================================ */
 export default function Profile() {
+  const navigate = useNavigate();
+  const { addToCart, clearCart } = useCart();
   const [activeTab, setActiveTab] = useState("profile");
+  const [cancelBookingId, setCancelBookingId] = useState(null);
   const [user, setUser] = useState({ name: "", email: "", phone: "", dob: "" });
   const [bookings, setBookings] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -270,21 +276,48 @@ export default function Profile() {
   const fetchOrders = async () => {
     try {
       const { data } = await API.get("/orders/myorders");
-      setOrders(data);
+      // Sort the latest orders first based on the createdAt date string
+      const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setOrders(sortedData);
     } catch (err) {
       console.log("Orders fetch error:", err);
     }
   };
 
+  // REORDER FUNCTIONALITY
+  const handleReorder = (order) => {
+    if (window.confirm("This will clear your current cart and add these items. Proceed?")) {
+      clearCart();
+      order.items.forEach((item) => {
+        addToCart(
+          { ...item.menuId, price: item.price }, 
+          order.restaurant._id, 
+          item.variant, 
+          item.qty, 
+          item.addOns, 
+          item.spiceLevel, 
+          item.instructions
+        );
+      });
+      navigate("/cart");
+    }
+  };
+
   // CANCEL BOOKING
-  const cancelBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+  const cancelBooking = (bookingId) => {
+    setCancelBookingId(bookingId);
+  };
+
+  const confirmCancelBooking = async () => {
+    if (!cancelBookingId) return;
     try {
-      await API.put(`/reservations/my/${bookingId}/cancel`);
+      await API.put(`/reservations/my/${cancelBookingId}/cancel`);
       fetchBookings();
       showMsg("Booking cancelled successfully");
     } catch (err) {
       showMsg(err.response?.data?.message || "Failed to cancel booking", "error");
+    } finally {
+      setCancelBookingId(null);
     }
   };
 
@@ -347,6 +380,56 @@ export default function Profile() {
     } catch (err) {
       showMsg(err.response?.data?.message || "Payment failed", "error");
       setPayingBooking(null);
+    }
+  };
+
+  // PAY FOR ORDER (RAZORPAY)
+  const payForOrder = async (orderId) => {
+    try {
+      // Step 1: Create Razorpay order
+      const { data: rzpData } = await API.post(`/orders/razorpay-order/${orderId}`);
+
+      // Step 2: Open Razorpay popup
+      const options = {
+        key: rzpData.keyId,
+        amount: rzpData.amount,
+        currency: rzpData.currency,
+        name: rzpData.restaurantName,
+        description: "Food Delivery Payment",
+        order_id: rzpData.orderId,
+        theme: { color: "#ff6b00" },
+        handler: async (response) => {
+          try {
+            await API.post(`/orders/verify-payment/${orderId}`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            showMsg("Payment Successful! Order Confirmed.");
+            fetchOrders();
+          } catch (err) {
+            showMsg("Payment verification failed.", "error");
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            showMsg("Payment Cancelled.", "error");
+          },
+        },
+      };
+
+      if (!window.Razorpay) {
+        showMsg("Payment system not loaded. Please refresh the page.", "error");
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        showMsg(`Payment failed: ${response.error.description || 'Unknown error'}`, "error");
+      });
+      rzp.open();
+    } catch (err) {
+      showMsg(err.response?.data?.message || "Payment initiation failed", "error");
     }
   };
 
@@ -860,105 +943,120 @@ export default function Profile() {
               <p className="empty-msg">No orders yet. Discover restaurants and order food!</p>
             ) : (
               <div className="bookings-list">
-                {orders.map((o) => (
-                  <div key={o._id} className="booking-card">
-                    <div className="booking-card-header">
-                      <h3>{o.restaurant?.name || "Restaurant"}</h3>
-                      <span className={`booking-status status-${o.status?.toLowerCase()}`}>
-                        {o.status}
-                      </span>
-                    </div>
-                    <div className="booking-card-body">
-                      {o.items?.map((item, idx) => (
-                        <div key={idx} className="booking-detail full-width" style={{ borderBottom: "1px dashed #eee", paddingBottom: "8px", marginBottom: "8px" }}>
-                          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                            {item.menuId?.image && (
-                              <img src={item.menuId.image} alt="dish" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover" }} />
-                            )}
-                            <div>
-                              <strong>{item.menuId?.name || "Dish"}</strong>
-                              {item.variant && (
-                                <span style={{ fontSize: 11, background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: "10px", marginLeft: "8px", fontWeight: "700" }}>
-                                  {item.variant}
-                                </span>
-                              )}
-                              <span> x {item.qty}</span>
-                              <div style={{ fontSize: 12, color: "#666" }}>₹{item.menuId?.price || 0} / each</div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      <div className="booking-detail">
-                        <span className="detail-label">📍 Distance</span>
-                        <span className="detail-value">{o.deliveryDistance !== undefined ? `${o.deliveryDistance.toFixed(1)} km` : "N/A"}</span>
+                {orders.map((o) => {
+                  
+                  // Dynamic status color mapping
+                  let statusColorClass = "status-default";
+                  if (o.status === "Placed" || o.status === "Confirmed") statusColorClass = "status-placed";
+                  if (o.status === "Preparing" || o.status === "Assigned") statusColorClass = "status-preparing";
+                  if (o.status === "Out for Delivery") statusColorClass = "status-out-for-delivery";
+                  if (o.status === "Delivered") statusColorClass = "status-delivered";
+                  if (o.status === "Cancelled") statusColorClass = "status-cancelled";
+
+                  return (
+                  <div key={o._id} className="order-card-modern">
+                    <div className="order-card-header">
+                      <div className="order-rest-info">
+                        <h3>{o.restaurant?.name || "Restaurant"}</h3>
+                        <p className="order-rest-city">{o.deliveryAddress ? o.deliveryAddress.split(",").pop().trim() : "Local"}</p>
                       </div>
-                      <div className="booking-detail">
-                        <span className="detail-label">🚚 Delivery Fee</span>
-                        <span className="detail-value">{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</span>
-                      </div>
-                      <div className="booking-detail">
-                        <span className="detail-label">🎫 Platform Fee</span>
-                        <span className="detail-value">₹{o.platformFee || 0}</span>
-                      </div>
-                      <div className="booking-detail">
-                        <span className="detail-label">💰 Final Total</span>
-                        <span className={`detail-value payment-badge ${o.paymentStatus === "Paid" ? "paid" : "unpaid"}`}>
-                          {o.paymentStatus === "Paid" ? "✓ Paid" : "Unpaid"}
-                          {o.totalAmount ? ` (₹${o.totalAmount})` : ""}
+                      <div className="order-status-wrapper">
+                        <span className={`status-badge ${statusColorClass}`}>
+                          {o.status}
                         </span>
                       </div>
-                      {o.paymentStatus === "Paid" && o.receiptId && (
-                        <div className="booking-detail">
-                          <span className="detail-label">🧾 Receipt</span>
-                          <span className="detail-value" style={{ fontFamily: "monospace", fontSize: 12 }}>{o.receiptId}</span>
+                    </div>
+
+                    <div className="order-card-body">
+                      <div className="order-items-summary">
+                        {o.items?.map((item, idx) => (
+                           <span key={idx} className="item-text">
+                             {item.qty} x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}
+                             {idx < o.items.length - 1 ? ", " : ""}
+                           </span>
+                        ))}
+                      </div>
+
+                      <div className="order-meta-grid">
+                        <div className="meta-item">
+                          <span className="meta-label">Order ID</span>
+                          <span className="meta-val">#{o._id.slice(-6).toUpperCase()}</span>
                         </div>
-                      )}
+                        <div className="meta-item">
+                          <span className="meta-label">Date & Time</span>
+                          <span className="meta-val">
+                            {new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })} at {new Date(o.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <div className="meta-item">
+                          <span className="meta-label">Total Amount</span>
+                          <span className="meta-val highlight">₹{o.totalAmount}</span>
+                        </div>
+                        <div className="meta-item">
+                          <span className="meta-label">Payment</span>
+                          <span className="meta-val">
+                             {o.paymentMethod === "Cash on Delivery" 
+                              ? (o.cashCollected || o.paymentStatus === "Paid" ? "COD – Paid ✅" : "COD – Pending ⚠️")
+                              : o.paymentStatus}
+                          </span>
+                        </div>
+                      </div>
 
                       {/* Delivery Agent Info */}
-                      {o.deliveryAgent?.name && (
-                        <div className="booking-detail full-width" style={{ background: "#f5f3ff", padding: "12px 16px", borderRadius: "10px", marginTop: "8px" }}>
-                          <div style={{ fontWeight: "700", color: "#7c3aed", marginBottom: "6px", fontSize: "14px" }}>🚴 Delivery Agent</div>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", fontSize: "13px", color: "#374151" }}>
-                            <div><strong>Name:</strong> {o.deliveryAgent.name}</div>
-                            <div><strong>Phone:</strong> {o.deliveryAgent.phone}</div>
-                            <div><strong>Vehicle:</strong> {o.deliveryAgent.vehicleType}</div>
+                      {o.deliveryAgent?.name && o.status !== "Delivered" && (
+                        <div className="agent-info-box">
+                          <div className="agent-title">🚴 Delivery Partner Assigned</div>
+                          <div className="agent-details">
+                            {o.deliveryAgent.name} • {o.deliveryAgent.phone} • {o.deliveryAgent.vehicleNumber}
                           </div>
                         </div>
                       )}
                     </div>
-                    <div className="booking-card-footer">
-                      <span>
-                        Placed on {new Date(o.createdAt).toLocaleDateString("en-IN", {
-                          day: "numeric", month: "short", year: "numeric",
-                        })}
-                      </span>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {o.paymentStatus === "Paid" && (
+
+                    <div className="order-card-footer">
+                      <div className="footer-actions-left">
+                        {o.paymentStatus !== "Paid" && o.status !== "Delivered" && o.paymentMethod !== "Cash on Delivery" && (
                           <button
-                            className="view-receipt-btn"
-                            onClick={() => setShowReceipt(showReceipt === o._id ? null : o._id)}
+                            className="btn-pay-online"
+                            onClick={() => payForOrder(o._id)}
                           >
-                            🧾 {showReceipt === o._id ? "Hide" : "View"} Receipt
+                            💳 Pay Now
                           </button>
                         )}
+                        <button
+                          className="btn-text-only"
+                          onClick={() => setShowReceipt(showReceipt === o._id ? null : o._id)}
+                        >
+                          {showReceipt === o._id ? "Hide Receipt" : "View Receipt"}
+                        </button>
+                      </div>
+
+                      <div className="footer-actions-right">
+                        {/* Track Order feature */}
+                        {o.status !== "Delivered" && o.status !== "Cancelled" && (
+                           <button 
+                             className="btn-track"
+                             onClick={() => navigate(`/track/${o._id}`)}
+                           >
+                             📍 Track Order
+                           </button>
+                        )}
+
+                        <button 
+                          className="btn-reorder"
+                          onClick={() => handleReorder(o)}
+                        >
+                          ↻ Reorder
+                        </button>
+
                         {/* REVIEW BUTTON FOR ORDERS */}
                         {o.status === "Delivered" && !o.isReviewed && (
-                           <div style={{display: "flex", gap: "6px"}}>
-                             <button
-                                className="pay-now-btn" style={{background: "#eab308"}}
-                                onClick={() => openReviewModal("Restaurant", o.restaurant?._id, o.restaurant?.name, "Order", o._id)}
-                              >
-                                ⭐ Rate Restaurant
-                              </button>
-                              {o.items?.length > 0 && o.items[0].menuId && (
-                                <button
-                                  className="view-receipt-btn" style={{background: "#fffbeb", color: "#d97706", borderColor: "#fde68a"}}
-                                  onClick={() => openReviewModal("Menu", o.items[0].menuId._id, o.items[0].menuId.name, "Order", o._id)}
-                                >
-                                  ⭐ Rate Dish
-                                </button>
-                              )}
-                           </div>
+                            <button
+                              className="btn-rate"
+                              onClick={() => openReviewModal("Restaurant", o.restaurant?._id, o.restaurant?.name, "Order", o._id)}
+                            >
+                              ⭐ Rate
+                            </button>
                         )}
                       </div>
                     </div>
@@ -979,27 +1077,35 @@ export default function Profile() {
                               {o.items?.map((item, idx) => (
                                 <div key={idx} className="receipt-row" style={{ border: "none" }}>
                                   <span>{item.qty}x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}</span>
-                                  <strong>₹{item.qty * (item.menuId?.price || 0)}</strong>
+                                  <strong>₹{item.qty * (item.price || 0)}</strong>
                                 </div>
                               ))}
                             </div>
 
                             <div className="receipt-row"><span>Delivery Address</span><strong style={{ textAlign: "right", maxWidth: "60%" }}>{o.deliveryAddress}</strong></div>
-                            <div className="receipt-row"><span>Delivery Distance</span><strong>{o.deliveryDistance !== undefined ? `${o.deliveryDistance.toFixed(1)} km` : "N/A"}</strong></div>
+                            <div className="receipt-row"><span>Delivery Distance</span><strong>{o.deliveryDistance != null ? `${Number(o.deliveryDistance).toFixed(1)} km` : "N/A"}</strong></div>
                             
                             {o.discount > 0 && <div className="receipt-row"><span>Discount</span><strong style={{color: "#16a34a"}}>-₹{o.discount}</strong></div>}
                             <div className="receipt-row"><span>Delivery Fee</span><strong>{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</strong></div>
                             <div className="receipt-row"><span>Platform Fee</span><strong>₹{o.platformFee || 0}</strong></div>
+                            {o.codFee > 0 && <div className="receipt-row"><span>COD Fee</span><strong>₹{o.codFee}</strong></div>}
                             {o.gst > 0 && <div className="receipt-row"><span>GST (18%)</span><strong>₹{o.gst}</strong></div>}
                             
                             <div className="receipt-row"><span>Method</span><strong>{o.paymentMethod}</strong></div>
                             <div className="receipt-row"><span>Payment ID</span><strong style={{ fontFamily: 'monospace', fontSize: 12 }}>{o.paymentId}</strong></div>
-                            <div className="receipt-row total-row"><span>Final Total Paid</span><strong>₹{o.totalAmount}</strong></div>
+                            <div className="receipt-row total-row"><span>Final Total Due</span><strong>₹{o.totalAmount}</strong></div>
                           </div>
-                          <div className="receipt-footer">
-                            <span className="paid-stamp">✓ PAID</span>
-                            <span className="receipt-date">{new Date(o.paidAt || o.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
-                          </div>
+                          
+                          {o.paymentStatus === "Paid" ? (
+                            <div className="receipt-footer">
+                              <span className="paid-stamp">✓ PAID</span>
+                              <span className="receipt-date">{new Date(o.paidAt || o.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                            </div>
+                          ) : (
+                            <div className="receipt-footer">
+                              <span className="paid-stamp" style={{ background: "#fffbeb", color: "#d97706" }}>⚠️ UNPAID (COD)</span>
+                            </div>
+                          )}
                         </div>
                         <button className="print-receipt-btn" onClick={() => {
                           const el = document.getElementById(`receipt-${o._id}`);
@@ -1011,7 +1117,7 @@ export default function Profile() {
                       </div>
                     )}
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </div>
@@ -1067,6 +1173,18 @@ export default function Profile() {
           <h2>Coming Soon 🚧</h2>
         )}
       </div>
+
+      {cancelBookingId && (
+        <ConfirmModal
+          title="Cancel Booking?"
+          message="Are you sure you want to cancel this reservation? This action cannot be undone."
+          confirmText="Yes, Cancel Booking"
+          cancelText="No, Keep It"
+          confirmColor="#ef4444"
+          onConfirm={confirmCancelBooking}
+          onCancel={() => setCancelBookingId(null)}
+        />
+      )}
     </div>
   );
 }

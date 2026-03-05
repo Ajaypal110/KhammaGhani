@@ -1,194 +1,280 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { 
+    MdMoped, 
+    MdLocationOn, 
+    MdNavigation, 
+    MdCheckCircle, 
+    MdCancel, 
+    MdTimer, 
+    MdAttachMoney, 
+    MdPerson, 
+    MdPhone,
+    MdMoreVert,
+    MdOutlineRadioButtonChecked,
+    MdHistory
+} from "react-icons/md";
+import "../styles/agentDashboard.css";
 
-export default function AgentDashboard() {
-  const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+// 1. Status Badge Component
+const StatusBadge = ({ status }) => {
+    const getStyles = () => {
+        switch (status.toLowerCase()) {
+            case "assigned": return { bg: "#eff6ff", text: "#3b82f6" };
+            case "accepted": return { bg: "#fef3c7", text: "#d97706" };
+            case "picked": return { bg: "#fff7ed", text: "#ea580c" };
+            case "delivered": return { bg: "#f0fdf4", text: "#16a34a" };
+            default: return { bg: "#f1f5f9", text: "#64748b" };
+        }
+    };
+    const styles = getStyles();
+    return (
+        <span className="status-badge" style={{ backgroundColor: styles.bg, color: styles.text }}>
+            {status}
+        </span>
+    );
+};
 
-  const fetchData = async () => {
-    try {
-      const { data } = await API.get("/agent-portal/me");
-      setProfile(data.agent);
-      setOrders(data.activeOrders);
-    } catch (err) {
-      console.error(err);
-      if (err.response?.status === 401) {
-        handleLogout();
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("agentToken");
-    localStorage.removeItem("agentName");
-    navigate("/agent/login");
-  };
-
-  const toggleStatus = async () => {
-    try {
-      await API.put("/agent-portal/status");
-      fetchData(); // Refresh to get new status
-    } catch (err) {
-      alert(err.response?.data?.message || "Error changing status");
-    }
-  };
-
-  const updateOrderStatus = async (orderId, action) => {
-    try {
-      await API.put(`/agent-portal/order/${orderId}/status`, { action });
-      fetchData(); // Refresh UI
-    } catch (err) {
-      alert(err.response?.data?.message || "Error updating status");
-    }
-  };
-
-  const getGoogleMapsLink = (address) => {
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
-  };
-
-  if (loading) {
-    return <div style={{ padding: "40px", textAlign: "center", fontSize: "18px", color: "#64748b" }}>Loading Agent Portal...</div>;
-  }
-
-  return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px", fontFamily: "system-ui, sans-serif" }}>
-      {/* Header Profile Section */}
-      <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <div>
-          <h2 style={{ margin: "0 0 4px", fontSize: "22px", color: "#1e293b" }}>Hello, {profile?.name}</h2>
-          <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>{profile?.vehicleType} • {profile?.vehicleNumber}</p>
+// 2. Earnings Summary Component
+const EarningsSummary = ({ summary }) => (
+    <div className="earnings-grid">
+        <div className="earning-card">
+            <span className="earning-label">Today's Earnings</span>
+            <span className="earning-value total">₹{summary?.todayEarnings || 0}</span>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
-          <button onClick={handleLogout} style={{ border: "none", background: "transparent", color: "#ef4444", fontWeight: "600", cursor: "pointer", padding: 0 }}>Logout</button>
-          
-          <button 
-            onClick={toggleStatus}
-            style={{
-              background: profile?.status === "Available" ? "#10b981" : profile?.status === "Busy" ? "#f59e0b" : "#ef4444",
-              color: "#fff", border: "none", padding: "8px 16px", borderRadius: "20px", fontWeight: "bold", cursor: profile?.status === "Busy" ? "not-allowed" : "pointer",
-              display: "flex", alignItems: "center", gap: "6px"
-            }}
-            disabled={profile?.status === "Busy"}
-          >
-            <span style={{ display: "inline-block", width: "8px", height: "8px", background: "#fff", borderRadius: "50%" }}></span>
-            {profile?.status}
-          </button>
+        <div className="earning-card">
+            <span className="earning-label">Deliveries</span>
+            <span className="earning-value">{summary?.todayDeliveries || 0}</span>
         </div>
-      </div>
-
-      <h3 style={{ margin: "0 0 16px", color: "#334155" }}>Active Deliveries ({orders.length})</h3>
-
-      {orders.length === 0 ? (
-        <div style={{ background: "#f8fafc", padding: "40px", borderRadius: "16px", textAlign: "center", color: "#64748b", border: "2px dashed #e2e8f0" }}>
-          <div style={{ fontSize: "40px", marginBottom: "10px" }}>😴</div>
-          <p style={{ margin: 0, fontWeight: "500" }}>No active orders assigned to you right now.</p>
+        <div className="earning-card">
+            <span className="earning-label">Cash Collected</span>
+            <span className="earning-value">₹{summary?.cashCollected || 0}</span>
         </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {orders.map(order => (
-            <div key={order._id} style={{ background: "#fff", borderRadius: "16px", overflow: "hidden", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
-              {/* Order Header */}
-              <div style={{ background: order.agentStatus === "assigned" ? "#fef3c7" : "#ecfdf5", padding: "16px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontWeight: "700", color: order.agentStatus === "assigned" ? "#b45309" : "#047857", textTransform: "uppercase", fontSize: "12px", letterSpacing: "1px", marginBottom: "4px" }}>
-                    STATUS: {order.agentStatus}
-                  </div>
-                  <div style={{ fontSize: "13px", color: "#64748b" }}>Order #{order._id.slice(-6).toUpperCase()}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "18px", fontWeight: "800", color: "#1e293b" }}>₹{order.totalAmount}</div>
-                  <div style={{ fontSize: "12px", fontWeight: "600", color: order.paymentStatus === "Paid" ? "#10b981" : "#ef4444" }}>
-                    {order.paymentStatus === "Paid" ? "✅ ONLINE PAID" : "⚠️ CASH ON DELIVERY"}
-                  </div>
-                </div>
-              </div>
-
-              {/* Locations Data */}
-              <div style={{ padding: "20px" }}>
-                {/* Pickup */}
-                <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "#3b82f6", border: "3px solid #bfdbfe" }}></div>
-                    <div style={{ width: "2px", height: "40px", background: "#e2e8f0", margin: "4px 0" }}></div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", marginBottom: "4px" }}>Pickup Point</div>
-                    <div style={{ fontWeight: "600", fontSize: "16px", color: "#1e293b" }}>{order.restaurant?.name}</div>
-                    <div style={{ fontSize: "14px", color: "#475569" }}>{order.restaurant?.address || "Address not provided"}</div>
-                  </div>
-                </div>
-
-                {/* Dropoff */}
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "4px" }}>
-                    <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "#ef4444", border: "3px solid #fecaca" }}></div>
-                  </div>
-                  <div style={{ width: "100%" }}>
-                    <div style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", marginBottom: "4px" }}>Delivery Point</div>
-                    
-                    {order.agentStatus === "assigned" ? (
-                       <div style={{ background: "#f1f5f9", padding: "12px", borderRadius: "8px", border: "1px dashed #cbd5e1" }}>
-                         <div style={{ fontWeight: "600", color: "#334155", marginBottom: "4px" }}>Customer info hidden for privacy.</div>
-                         <div style={{ color: "#64748b", fontSize: "14px" }}>📍 Area Approx: <span style={{fontWeight: "600"}}>{order.deliveryAddress}</span></div>
-                         <div style={{ color: "#f59e0b", fontSize: "12px", marginTop: "8px", fontWeight: "600" }}>Accept the order to reveal exact address and phone number.</div>
-                       </div>
-                    ) : (
-                      <>
-                        <div style={{ fontWeight: "600", fontSize: "16px", color: "#1e293b" }}>{order.user?.name}</div>
-                        <div style={{ fontSize: "14px", color: "#475569", marginBottom: "8px" }}>{order.deliveryAddress}</div>
-                        <a href={`tel:${order.user?.phone}`} style={{ display: "inline-block", background: "#f0fdf4", color: "#16a34a", padding: "6px 12px", borderRadius: "6px", textDecoration: "none", fontWeight: "600", fontSize: "13px" }}>
-                          📞 {order.user?.phone}
-                        </a>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{ padding: "16px 20px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", display: "flex", gap: "12px" }}>
-                {/* Navigation Button (Only if Accepted or Picked) */}
-                {(order.agentStatus === "accepted" || order.agentStatus === "picked") && (
-                  <a 
-                    href={getGoogleMapsLink(order.agentStatus === "accepted" ? order.restaurant?.address : order.deliveryAddress)} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{ flex: 1, textAlign: "center", background: "#fff", border: "1.5px solid #cbd5e1", padding: "12px", borderRadius: "10px", color: "#334155", fontWeight: "600", textDecoration: "none" }}
-                  >
-                    🗺️ Navigate to {order.agentStatus === "accepted" ? "Restaurant" : "Customer"}
-                  </a>
-                )}
-                
-                {/* Status Update Flow Button */}
-                {order.agentStatus === "assigned" && (
-                  <button onClick={() => updateOrderStatus(order._id, "accept")} style={{ flex: 1, background: "#ff6b00", color: "#fff", border: "none", padding: "12px", borderRadius: "10px", fontWeight: "bold", fontSize: "15px", cursor: "pointer" }}>
-                    Accept Order
-                  </button>
-                )}
-                {order.agentStatus === "accepted" && (
-                  <button onClick={() => updateOrderStatus(order._id, "pick")} style={{ flex: 1, background: "#3b82f6", color: "#fff", border: "none", padding: "12px", borderRadius: "10px", fontWeight: "bold", fontSize: "15px", cursor: "pointer" }}>
-                    Mark as Picked Up
-                  </button>
-                )}
-                {order.agentStatus === "picked" && (
-                  <button onClick={() => updateOrderStatus(order._id, "deliver")} style={{ flex: 1, background: "#10b981", color: "#fff", border: "none", padding: "12px", borderRadius: "10px", fontWeight: "bold", fontSize: "15px", cursor: "pointer" }}>
-                    ✅ Mark Delivered
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+        <div className="earning-card">
+            <span className="earning-label">Online Payments</span>
+            <span className="earning-value">₹{summary?.onlinePayments || 0}</span>
         </div>
-      )}
     </div>
-  );
+);
+
+// 3. Individual Order Card Component
+const OrderCard = ({ order, updateStatus }) => {
+    const isAssigned = order.agentStatus === "assigned";
+    const isAccepted = order.agentStatus === "accepted";
+    const isPicked = order.agentStatus === "picked";
+
+    const getNavUrl = () => {
+        const dest = isAccepted ? order.restaurant?.address : order.deliveryAddress;
+        return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`;
+    };
+
+    return (
+        <div className="order-card">
+            <div className="order-card-header">
+                <div>
+                    <span className="order-id">#{order._id.slice(-6).toUpperCase()}</span>
+                    <StatusBadge status={order.agentStatus} />
+                </div>
+                <div className="payment-info">
+                    <div className="payment-amount">₹{order.totalAmount}</div>
+                    <div className="payment-method" style={{ color: order.paymentStatus === "Paid" ? "#10b981" : "#ef4444" }}>
+                        {order.paymentStatus === "Paid" ? "ONLINE PAID" : "CASH ON DELIVERY"}
+                    </div>
+                </div>
+            </div>
+
+            <div className="order-body">
+                <div className="location-item">
+                    <div className="location-connector">
+                        <div className="loc-dot pickup"></div>
+                        <div className="loc-line"></div>
+                    </div>
+                    <div className="loc-details">
+                        <div className="loc-label">Pickup from</div>
+                        <div className="loc-name">{order.restaurant?.name}</div>
+                        <div className="loc-addr">{order.restaurant?.address}</div>
+                    </div>
+                </div>
+
+                <div className="location-item">
+                    <div className="location-connector">
+                        <div className="loc-dot drop"></div>
+                    </div>
+                    <div className="loc-details" style={{ paddingBottom: 0 }}>
+                        <div className="loc-label">Delivery to</div>
+                        {isAssigned ? (
+                            <div className="privacy-banner">
+                                Accept the order to reveal customer details and exact location.
+                            </div>
+                        ) : (
+                            <>
+                                <div className="loc-name">{order.user?.name}</div>
+                                <div className="loc-addr">{order.deliveryAddress}</div>
+                                <div style={{ marginTop: 10 }}>
+                                    <a href={`tel:${order.user?.phone}`} className="nav-btn" style={{ display: 'inline-flex', padding: '6px 12px' }}>
+                                        <MdPhone /> Call Customer
+                                    </a>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <div className="items-list">
+                    {order.items?.map((item, i) => (
+                        <div key={i} className="item-row">
+                            <span>{item.name} x {item.quantity}</span>
+                            <span>₹{item.price * item.quantity}</span>
+                        </div>
+                    ))}
+                </div>
+                
+                {order.paymentMethod === "Cash on Delivery" && order.agentStatus !== "delivered" && (
+                    <div style={{ marginTop: 15, background: '#fff7ed', padding: 12, borderRadius: 10, color: '#9a3412', fontWeight: 800, fontSize: 13, textAlign: 'center', border: '1px solid #ffedd5' }}>
+                        COLLECT ₹{order.totalAmount} FROM CUSTOMER
+                    </div>
+                )}
+            </div>
+
+            <div className="order-actions">
+                {(isAccepted || isPicked) && (
+                    <a href={getNavUrl()} target="_blank" rel="noreferrer" className="nav-btn">
+                        <MdNavigation /> Navigate to {isAccepted ? "Restaurant" : "Customer"}
+                    </a>
+                )}
+
+                {isAssigned && (
+                    <button className="action-btn btn-accept" onClick={() => updateStatus(order._id, "accept")}>
+                        Accept Order
+                    </button>
+                )}
+                {isAccepted && (
+                    <button className="action-btn btn-pick" onClick={() => updateStatus(order._id, "pick")}>
+                        Mark as Picked Up
+                    </button>
+                )}
+                {isPicked && (
+                    <button className="action-btn btn-deliver" onClick={() => updateStatus(order._id, order.paymentMethod === "Cash on Delivery" ? "collect_cod" : "deliver")}>
+                        {order.paymentMethod === "Cash on Delivery" ? "✅ Cash Collected & Delivered" : "✅ Mark Delivered"}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// 4. Main Dashboard Page
+export default function AgentDashboard() {
+    const navigate = useNavigate();
+    const [profile, setProfile] = useState(null);
+    const [activeOrders, setActiveOrders] = useState([]);
+    const [completedOrders, setCompletedOrders] = useState([]);
+    const [summary, setSummary] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchData = async () => {
+        try {
+            const { data } = await API.get("/agent-portal/me");
+            setProfile(data.agent);
+            setActiveOrders(data.activeOrders);
+            setCompletedOrders(data.completedOrders || []);
+            setSummary(data.earningsSummary);
+        } catch (err) {
+            console.error(err);
+            if (err.response?.status === 401) navigate("/agent/login");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const toggleStatus = async () => {
+        try {
+            await API.put("/agent-portal/status");
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Error updating status");
+        }
+    };
+
+    const updateOrderStatus = async (id, action) => {
+        try {
+            await API.put(`/agent-portal/order/${id}/status`, { action });
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Status update failed");
+        }
+    };
+
+    if (loading) return <div className="admin-loading">Setting up your cockpit...</div>;
+
+    return (
+        <div className="agent-portal-container">
+            {/* Header */}
+            <header className="agent-header">
+                <div className="agent-info">
+                    <h2>Hi, {profile?.name}</h2>
+                    <p>{profile?.vehicleType} • {profile?.vehicleNumber}</p>
+                </div>
+                <div className="status-toggle-container">
+                    <button onClick={() => { localStorage.clear(); navigate("/agent/login"); }} style={{ border: 'none', background: 'none', color: '#ef4444', fontSize: 12, fontWeight: 700 }}>Logout</button>
+                    <button 
+                        className="status-btn"
+                        onClick={toggleStatus}
+                        disabled={profile?.status === "Busy"}
+                        style={{ background: profile?.status === "Available" ? "#10b981" : profile?.status === "Busy" ? "#f59e0b" : "#ef4444" }}
+                    >
+                        <div className="status-dot"></div>
+                        {profile?.status}
+                    </button>
+                </div>
+            </header>
+
+            {/* Daily Summary */}
+            <h3 className="section-title"><MdAttachMoney /> Today's Performance</h3>
+            <EarningsSummary summary={summary} />
+
+            {/* Active Orders */}
+            <h3 className="section-title"><MdMoped /> Assigned Orders ({activeOrders.length})</h3>
+            {activeOrders.length === 0 ? (
+                <div className="empty-state">
+                    <div className="empty-emoji">🍕</div>
+                    <p>No active orders. Stay online to get new assignments!</p>
+                </div>
+            ) : (
+                <div className="active-orders-list">
+                    {activeOrders.map(order => (
+                        <OrderCard key={order._id} order={order} updateStatus={updateOrderStatus} />
+                    ))}
+                </div>
+            )}
+
+            {/* History */}
+            {completedOrders.length > 0 && (
+                <>
+                    <h3 className="section-title"><MdHistory /> Delivered Today</h3>
+                    <div className="delivery-history">
+                        {completedOrders.map(order => (
+                            <div key={order._id} className="history-card">
+                                <div className="hist-info">
+                                    <h4>Order #{order._id.slice(-6).toUpperCase()}</h4>
+                                    <div className="hist-time">
+                                        {order.restaurant?.name} • {new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                                <div className="hist-amount">
+                                    ₹{order.totalAmount}
+                                    <div style={{ fontSize: 10, color: '#16a34a' }}>SUCCESS</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
 }

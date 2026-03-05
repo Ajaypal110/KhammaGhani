@@ -69,7 +69,7 @@ export default function Refund() {
           <br />
           <strong>Email:</strong> khammaghani14@gmail.com
           <br />
-          <strong>WhatsApp Support:</strong> +91 98765 43210 (Mon–Sun, 9 AM – 11 PM)
+          <strong>Address:</strong> Udaipur, Rajasthan, India
         </p>
       </div>
     </div>

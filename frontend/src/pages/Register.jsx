@@ -4,6 +4,8 @@ import API from "../api/axios";
 import "../styles/auth.css";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import PolicyModal from "../components/PolicyModal";
+import "../styles/policies.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,6 +17,8 @@ export default function Register() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [policyModal, setPolicyModal] = useState(null); // "terms" | "privacy" | null
 
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -25,6 +29,12 @@ export default function Register() {
   const registerHandler = async (e) => {
     e.preventDefault();
     setMessage("");
+
+    if (!policyAccepted) {
+      setMessage("Please accept the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+
     setLoading(true);
 
     if (!isValidEmail(email)) {
@@ -56,6 +66,11 @@ export default function Register() {
   ===================== */
   const googleRegisterHandler = async () => {
     setMessage("");
+
+    if (!policyAccepted) {
+      setMessage("Please accept the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -112,7 +127,21 @@ export default function Register() {
             required
           />
 
-          <button type="submit" disabled={loading}>
+          <label className="auth-policy-checkbox">
+            <input
+              type="checkbox"
+              checked={policyAccepted}
+              onChange={(e) => setPolicyAccepted(e.target.checked)}
+            />
+            <span>
+              I agree to the{" "}
+              <a href="#" onClick={(e) => { e.preventDefault(); setPolicyModal("terms"); }}>Terms & Conditions</a>{" "}
+              and{" "}
+              <a href="#" onClick={(e) => { e.preventDefault(); setPolicyModal("privacy"); }}>Privacy Policy</a>
+            </span>
+          </label>
+
+          <button type="submit" disabled={loading || !policyAccepted}>
             {loading ? "Registering..." : "Register"}
           </button>
 
@@ -135,6 +164,10 @@ export default function Register() {
           </div>
         </form>
       </div>
+
+      {policyModal && (
+        <PolicyModal type={policyModal} onClose={() => setPolicyModal(null)} />
+      )}
     </div>
   );
 }
