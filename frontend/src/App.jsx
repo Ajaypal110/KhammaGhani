@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-
+import { Analytics } from "@vercel/analytics/react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -31,6 +31,8 @@ import AdminPayments from "./pages/admin/AdminPayments";
 import AdminMenu from "./pages/admin/AdminMenu";
 import AdminRestaurantDetail from "./pages/admin/AdminRestaurantDetail";
 import AdminBookings from "./pages/admin/AdminBookings";
+import AdminCoupons from "./pages/admin/AdminCoupons";
+
 
 import Profile from "./pages/Profile";
 import OrderTracking from "./pages/OrderTracking";
@@ -107,6 +109,7 @@ function AppContent() {
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="bookings" element={<AdminBookings />} />
+                  <Route path="coupons" element={<AdminCoupons />} />
                   <Route path="*" element={<AdminOverview />} />
                 </Routes>
               </AdminLayout>
@@ -114,6 +117,7 @@ function AppContent() {
           } 
         />
       </Routes>
+      <Analytics/>
       {!shouldHideFooter && <Footer />}
     </>
   );

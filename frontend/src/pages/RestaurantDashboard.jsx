@@ -222,6 +222,12 @@ export default function RestaurantDashboard() {
               {activeTab === "agents" && (
                 <DeliveryAgentsSection agents={agents} refresh={fetchAgents} />
               )}
+              {activeTab === "analytics" && (
+                <AnalyticsSection />
+              )}
+              {activeTab === "settings" && (
+                <SettingsSection refreshProfile={fetchProfile} />
+              )}
             </>
           )}
         </main>
@@ -1491,6 +1497,180 @@ function TablesSection({ totalTables, refresh }) {
           }}
         />
       )}
+    </div>
+  );
+}
+
+/* ================================================================
+   ANALYTICS SECTION
+================================================================ */
+function AnalyticsSection() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const res = await API.get("/restaurants/my/analytics");
+        setData(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+
+  if (loading) return <Loader />;
+  if (!data) return <p>No analytics data available.</p>;
+
+  return (
+    <div className="analytics-section">
+      <h2 className="section-title">📈 Business Analytics</h2>
+      
+      <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginBottom: "30px" }}>
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9" }}>
+          <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginBottom: "8px" }}>MONTH REVENUE</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: "#16a34a" }}>₹{data.monthlyRevenue?.toLocaleString()}</div>
+        </div>
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9" }}>
+          <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginBottom: "8px" }}>MONTH ORDERS</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: "#1e293b" }}>{data.monthlyOrdersCount}</div>
+        </div>
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9" }}>
+          <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginBottom: "8px" }}>LIFETIME REV</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: "#1e293b" }}>₹{data.totalRevenue?.toLocaleString()}</div>
+        </div>
+        <div className="stat-card" style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9" }}>
+          <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginBottom: "8px" }}>TOTAL ORDERS</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: "#1e293b" }}>{data.totalOrders}</div>
+        </div>
+      </div>
+
+      <div className="analytics-box" style={{ background: "#fff", padding: "30px", borderRadius: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9" }}>
+        <h3 style={{ marginBottom: "20px", fontSize: "18px", fontWeight: "800" }}>🏆 Top Selling Items</h3>
+        {data.topItems?.length === 0 ? (
+          <p style={{ color: "#64748b" }}>No sales data for items yet.</p>
+        ) : (
+          <div className="top-items-list">
+            {data.topItems.map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px", background: "#f8fafc", borderRadius: "12px", marginBottom: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#ff6b00", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "bold" }}>{i+1}</span>
+                  <span style={{ fontWeight: "700", color: "#1e293b" }}>{item.name}</span>
+                </div>
+                <span style={{ fontWeight: "800", color: "#64748b" }}>{item.count} Sold</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ marginTop: "30px", background: "#fff7f2", padding: "20px", borderRadius: "16px", border: "1px solid #ffedd5" }}>
+        <p style={{ color: "#c2410c", fontSize: "14px", fontWeight: "600" }}>
+           💡 <strong>Pro Tip:</strong> Your top selling items are the ones most customers love. Consider highlighting them in your menu or offering special discounts to boost sales further!
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   SETTINGS SECTION
+================================================================ */
+function SettingsSection({ refreshProfile }) {
+  const [profile, setProfile] = useState({ name: "", phone: "", profileImage: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const { data } = await API.get("/restaurants/my/profile");
+        setProfile({
+          name: data.name || "",
+          phone: data.phone || "",
+          profileImage: data.profileImage || ""
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfileData();
+  }, []);
+
+  const handleUpdate = async () => {
+    setSaving(true);
+    setMsg("");
+    try {
+      await API.put("/restaurants/my/profile", profile);
+      setMsg("✅ Profile updated successfully!");
+      refreshProfile(); // Refresh parent state
+    } catch (err) {
+      setMsg("❌ Failed to update profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <Loader />;
+
+  return (
+    <div className="settings-section">
+      <h2 className="section-title">⚙️ General Settings</h2>
+
+      <div className="settings-card" style={{ background: "#fff", padding: "30px", borderRadius: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9", maxWidth: "600px" }}>
+        <div className="form-group" style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#475569", marginBottom: "8px" }}>Restaurant Name</label>
+          <input 
+            type="text" 
+            value={profile.name} 
+            onChange={e => setProfile({...profile, name: e.target.value})}
+            style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", outline: "none", fontSize: "15px" }}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#475569", marginBottom: "8px" }}>Contact Phone</label>
+          <input 
+            type="text" 
+            value={profile.phone} 
+            onChange={e => setProfile({...profile, phone: e.target.value})}
+            style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", outline: "none", fontSize: "15px" }}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: "24px" }}>
+          <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#475569", marginBottom: "8px" }}>Profile Image URL (Logo)</label>
+          <input 
+            type="text" 
+            value={profile.profileImage} 
+            onChange={e => setProfile({...profile, profileImage: e.target.value})}
+            placeholder="https://..."
+            style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", outline: "none", fontSize: "15px" }}
+          />
+        </div>
+
+        {profile.profileImage && (
+          <div style={{ marginBottom: "24px", textAlign: "center" }}>
+            <img src={profile.profileImage} alt="Preview" style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", border: "4px solid #f1f5f9" }} />
+          </div>
+        )}
+
+        <button 
+          onClick={handleUpdate} 
+          disabled={saving}
+          style={{ width: "100%", padding: "14px", background: "#ff6b00", color: "#fff", border: "none", borderRadius: "12px", fontWeight: "800", fontSize: "16px", cursor: "pointer", opacity: saving ? 0.7 : 1 }}
+        >
+          {saving ? "Saving Changes..." : "Update Profile"}
+        </button>
+
+        {msg && <p style={{ marginTop: "16px", textAlign: "center", fontWeight: "600", color: msg.includes("✅") ? "#16a34a" : "#ef4444" }}>{msg}</p>}
+      </div>
     </div>
   );
 }

@@ -33,6 +33,12 @@ export default function Cart() {
   const [paymentMethod, setPaymentMethod] = useState("Online");
   const [showCODConfirm, setShowCODConfirm] = useState(false);
   const [deleteAddressId, setDeleteAddressId] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [isTotalOverride, setIsTotalOverride] = useState(false);
+  const [overrideAmount, setOverrideAmount] = useState(0);
+
+
 
   // Address Form State
   const [showAddrForm, setShowAddrForm] = useState(false);
@@ -49,30 +55,46 @@ export default function Cart() {
   const isDeliveryTooFar = distanceKm !== null && distanceKm > 20;
 
 
-  const handleApplyCoupon = (code) => {
-    if (code === "FIRST10") {
-      setDiscountAmount(Math.round(subtotal * 0.10));
-      setCouponCode(code);
-      alert("Coupon APPLIED: 10% Off your first order!");
-    } else if (code === "GET100" && subtotal > 1000) {
-      setDiscountAmount(100);
-      setCouponCode(code);
-      alert("Coupon APPLIED: ₹100 Off!");
-    } else if (code === "GET100") {
-      alert("Cart subtotal must be greater than ₹1000 to apply GET100.");
-    } else {
-      alert("Invalid Coupon Code");
+  const handleApplyCoupon = async (code) => {
+    const codeToApply = code || couponInput;
+    if (!codeToApply) return;
+
+    setCouponLoading(true);
+    try {
+      const { data } = await API.post("/coupons/validate", { 
+        code: codeToApply, 
+        subtotal 
+      });
+      setDiscountAmount(data.discount);
+      setCouponCode(data.code);
+      if (data.isTotalOverride) {
+        setIsTotalOverride(true);
+        setOverrideAmount(data.overrideAmount);
+      } else {
+        setIsTotalOverride(false);
+      }
+      setCouponInput("");
+      alert(data.message);
+
+    } catch (err) {
+      alert(err.response?.data?.message || "Invalid Coupon Code");
+    } finally {
+      setCouponLoading(false);
     }
   };
+
 
   const handleRemoveCoupon = () => {
     setDiscountAmount(0);
     setCouponCode("");
+    setIsTotalOverride(false);
   };
+
 
   const gstAmount = Math.round((subtotal - discountAmount) * 0.18);
   const codFee = paymentMethod === "COD" ? 20 : 0;
-  const totalAmount = Math.max(0, subtotal - discountAmount + deliveryFee + gstAmount + platformFee + codFee);
+  const totalAmount = isTotalOverride ? overrideAmount : Math.max(0, subtotal - discountAmount + deliveryFee + gstAmount + platformFee + codFee);
+
 
   // Fetch addresses and restaurant
   const fetchAddresses = async () => {
@@ -380,8 +402,10 @@ export default function Cart() {
         deliveryAddress: address,
         deliveryDistance: distanceKm,
         restaurantId,
-        paymentMethod
+        paymentMethod,
+        couponCode: couponCode || null
       });
+
 
       // Bypase Razorpay if COD is selected
       if (paymentMethod === "COD") {
@@ -728,7 +752,34 @@ export default function Cart() {
           <div className="cart-card">
             <h3>🎁 Offers & Benefits</h3>
             
+            <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+              <input 
+                type="text" 
+                placeholder="Enter Coupon Code"
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", fontSize: "14px" }}
+              />
+              <button 
+                onClick={() => handleApplyCoupon()}
+                disabled={couponLoading || !couponInput}
+                style={{ 
+                  padding: "0 20px", 
+                  background: "#ff6b00", 
+                  color: "#fff", 
+                  border: "none", 
+                  borderRadius: "10px", 
+                  fontWeight: "700", 
+                  cursor: "pointer",
+                  opacity: (couponLoading || !couponInput) ? 0.6 : 1
+                }}
+              >
+                {couponLoading ? "..." : "Apply"}
+              </button>
+            </div>
+
             <div className={`offer-card-small ${couponCode === "FIRST10" ? "applied" : ""}`}>
+
               <div>
                 <span className="offer-label">FIRST10</span>
                 <div className="offer-title">10% OFF on first order</div>
@@ -820,6 +871,15 @@ export default function Cart() {
             <div className="bill-row total">
               <span>Final Total Amount</span>
               <span>₹{totalAmount}</span>
+            </div>
+
+            <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", fontSize: "11px", color: "#64748b", margin: "16px 0" }}>
+              <p style={{ margin: "0 0 4px", fontWeight: "700", color: "#1e293b" }}>🛡️ Cancellation & Refund Policy</p>
+              <ul style={{ margin: 0, paddingLeft: "16px" }}>
+                <li>100% refund within <strong>2 minutes</strong> of ordering.</li>
+                <li>10% fee (90% refund) if cancelled <strong>after 2 minutes</strong>.</li>
+                <li>No refund if the food has been prepared or is out for delivery.</li>
+              </ul>
             </div>
 
             <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", margin: "16px 0", fontSize: "13px", color: "#64748b", lineHeight: "1.5" }}>

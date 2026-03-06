@@ -13,6 +13,14 @@ const orderSchema = new mongoose.Schema(
         menuId: { type: mongoose.Schema.Types.ObjectId, ref: "Menu" },
         qty: Number,
         variant: String,
+        addOns: [
+          {
+            name: String,
+            price: Number,
+          },
+        ],
+        spiceLevel: String,
+        instructions: String,
       },
     ],
     totalAmount: Number,
@@ -45,6 +53,10 @@ const orderSchema = new mongoose.Schema(
       enum: ["unassigned", "assigned", "accepted", "picked", "delivered"],
       default: "unassigned",
     },
+    cancellationReason: String,
+    cancellationTime: Date,
+    refundAmount: Number,
+    cancellationFee: Number,
   },
   { timestamps: true }
 );

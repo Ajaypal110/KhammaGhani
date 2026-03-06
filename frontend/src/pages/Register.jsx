@@ -79,13 +79,15 @@ export default function Register() {
       const { data } = await API.post("/auth/google-login", {
         email: user.email,
         name: user.displayName,
+        profileImage: user.photoURL,
       });
 
       localStorage.setItem("token", data.token);
-      localStorage.removeItem("role");
+      localStorage.setItem("role", data.role || "user");
+      localStorage.setItem("userName", data.name || user.displayName);
       navigate("/");
-    } catch {
-      setMessage("Google sign-in failed");
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Google sign-in failed");
     }
   };
 

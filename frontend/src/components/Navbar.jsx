@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FiShoppingCart, FiUser, FiLogOut, FiSearch } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
@@ -13,6 +13,9 @@ export default function Navbar() {
   const [restaurants, setRestaurants] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [user, setUser] = useState(null);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   const { cartItems } = useCart();
   const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
@@ -52,13 +55,21 @@ export default function Navbar() {
   /* ================= LOGOUT ================= */
   const logoutHandler = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setUser(null);
     setShowProfile(false);
+    setIsMenuOpen(false);
     navigate("/login");
   };
 
   const goProfile = () => {
     setShowProfile(false);
+    setIsMenuOpen(false);
     navigate("/profile");
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   /* Only show transparent/absolute nature if we're on the homepage hero. 
@@ -67,112 +78,110 @@ export default function Navbar() {
 
   return (
     <nav 
-      className="navbar" 
+      className={`navbar ${isMenuOpen ? 'mobile-menu-open' : ''}`}
       style={isHome ? {} : { position: "sticky", borderBottom: "5px solid #ff6b00" }}
     >
-      <div className="brand" onClick={() => navigate("/")}>
-        <div className="brand-icon" style={{background: "#fff", color: "#112918"}}>KG</div>
-        <span className="brand-main" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: "-1px", fontSize: "26px", color: "#fff"}}>Khamma</span>
-        <span className="brand-accent" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.5px", fontSize: "26px", color: "#ff6b00", marginLeft: 0}}>Ghani</span>
-      </div>
+      <div className="navbar-container">
+        <div className="brand" onClick={() => { navigate("/"); setIsMenuOpen(false); }}>
+          <div className="brand-icon" style={{background: "#fff", color: "#112918"}}>KG</div>
+          <span className="brand-main" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: "-1px", fontSize: "26px", color: "#fff"}}>Khamma</span>
+          <span className="brand-accent" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.5px", fontSize: "26px", color: "#ff6b00", marginLeft: 0}}>Ghani</span>
+        </div>
 
-      <div className="nav-links">
-        <a href="/" className={isHome ? "active" : ""}>Home</a>
-        <a href="/about" className={location.pathname === "/about" ? "active" : ""}>About Us</a>
-        <a href="/contact" className={location.pathname === "/contact" ? "active" : ""}>Contact Us</a>
-      </div>
-
-      <div className="nav-actions">
-        {!isLoggedIn && (
-          <>
-            <button onClick={() => navigate("/login")}>Login</button>
-            <button
-              className="restaurant-btn-nav"
-              onClick={() => navigate("/restaurant/login")}
-            >
-              Restaurant Login
-            </button>
-          </>
-        )}
-
-        {isLoggedIn && (
-          <div className="nav-icons" style={{display: "flex", alignItems: "center", gap: "24px"}}>
-            
-            {/* PERSISTENT SEARCH BAR */}
-            <div className="nav-search-wrapper" style={{ position: "relative" }}>
-              <div style={{
-                display: "flex", alignItems: "center", background: "rgba(255,255,255,0.1)",
-                borderRadius: "30px", padding: "6px 16px", border: "1px solid rgba(255,255,255,0.2)",
-                transition: "all 0.3s"
-              }}>
-                <FiSearch style={{ color: "#fff", marginRight: "8px", fontSize: "16px" }} />
-                <input 
-                  type="text" 
-                  placeholder="Search restaurants & dishes..." 
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  style={{
-                    background: "transparent", border: "none", color: "#fff", 
-                    outline: "none", width: "220px", fontSize: "14px", fontFamily: "inherit"
-                  }}
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} style={{background: "transparent", border: "none", color: "#fff", cursor: "pointer", padding: "0 4px"}}>✕</button>
-                )}
-              </div>
-            </div>
-
-            <div className="cart-icon-wrapper" style={{ position: "relative", cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => navigate("/cart")}>
-              <FiShoppingCart className="nav-icon" />
-              {cartCount > 0 && (
-                <span style={{
-                  position: "absolute",
-                  top: "-8px",
-                  right: "-12px",
-                  background: "#ff6b00",
-                  color: "white",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                  borderRadius: "50%",
-                  padding: "2px 6px",
-                }}>
-                  {cartCount}
-                </span>
-              )}
-            </div>
-
-            <div className="profile-box">
-              <div 
-                onClick={() => setShowProfile((prev) => !prev)} 
-                style={{ 
-                  width: "36px", height: "36px", borderRadius: "50%", 
-                  background: user?.profileImage ? "transparent" : "#ff6b00", 
-                  color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", overflow: "hidden", border: "2px solid rgba(255,107,0,0.5)",
-                  fontWeight: "bold", fontSize: "14px"
-                }}
-              >
-                {user?.profileImage ? (
-                  <img src={user.profileImage} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  user ? getInitials(user.name) : <FiUser />
-                )}
-              </div>
-
-              {showProfile && (
-                <div className="profile-dropdown">
-                  <div onClick={goProfile}>
-                    <FiUser /> Profile
-                  </div>
-                  <div onClick={logoutHandler} className="logout">
-                    <FiLogOut /> Logout
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* Desktop Navigation Content */}
+        <div className={`nav-content ${isMenuOpen ? 'show' : ''}`}>
+          <div className="nav-links">
+            <Link to="/" className={isHome ? "active" : ""} onClick={() => setIsMenuOpen(false)}>Home</Link>
+            <Link to="/about" className={location.pathname === "/about" ? "active" : ""} onClick={() => setIsMenuOpen(false)}>About Us</Link>
+            <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""} onClick={() => setIsMenuOpen(false)}>Contact Us</Link>
           </div>
-        )}
+
+          <div className="nav-actions">
+            {!isLoggedIn && (
+              <div className="auth-btns">
+                <button onClick={() => { navigate("/login"); setIsMenuOpen(false); }}>Login</button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Section (Cart & Mobile Toggle) */}
+        <div className="nav-right-persistent">
+          {isLoggedIn && (
+            <div className="icon-group">
+              {/* Desktop Search */}
+              <div className="nav-search-wrapper desktop-only">
+                <div className="search-bar-inner">
+                  <FiSearch className="search-icon-svg" style={{color: "#fff"}} />
+                  <input 
+                    type="text" 
+                    placeholder="Search restaurants & dishes..." 
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button className="clear-search" onClick={() => setSearchQuery("")}>✕</button>
+                  )}
+                </div>
+              </div>
+
+              <div className="cart-icon-wrapper" onClick={() => { navigate("/cart"); setIsMenuOpen(false); }}>
+                <FiShoppingCart className="nav-icon" />
+                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+              </div>
+
+              <div className="profile-box">
+                <div 
+                  onClick={() => setShowProfile((prev) => !prev)} 
+                  className="profile-avatar"
+                >
+                  {user?.profileImage ? (
+                    <img src={user.profileImage} alt="Profile" />
+                  ) : (
+                    user ? getInitials(user.name) : <FiUser />
+                  )}
+                </div>
+
+                {showProfile && (
+                  <div className="profile-dropdown">
+                    <div onClick={goProfile}>
+                      <FiUser /> Profile
+                    </div>
+                    <div onClick={logoutHandler} className="logout">
+                      <FiLogOut /> Logout
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Hamburger Icon */}
+          <div className="nav-hamburger" onClick={toggleMenu}>
+            <div className={`bar ${isMenuOpen ? 'open' : ''}`}></div>
+            <div className={`bar ${isMenuOpen ? 'open' : ''}`}></div>
+            <div className={`bar ${isMenuOpen ? 'open' : ''}`}></div>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Search Bar Section */}
+      {isLoggedIn && (
+        <div className="mobile-search-section">
+          <div className="search-bar-inner">
+            <FiSearch className="search-icon-svg" />
+            <input 
+              type="text" 
+              placeholder="Search food, restaurants..." 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button className="clear-search" onClick={() => setSearchQuery("")}>✕</button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ================= SEARCH DROPDOWN ================= */}
       {showSearch && searchQuery.length > 0 && (

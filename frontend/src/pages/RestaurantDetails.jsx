@@ -7,6 +7,7 @@ import { useCart } from "../context/CartContext";
 import DietaryIcon from "../components/DietaryIcon";
 import VariationModal from "../components/VariationModal";
 import { FiHeart } from "react-icons/fi";
+import SEO from "../components/SEO";
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -46,7 +47,7 @@ export default function RestaurantDetails() {
     { name: "All", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800" },
     { name: "Starters", image: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&q=80&w=800" },
     { name: "Main Course", image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800" },
-    { name: "Rajasthani", image: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Dal_bati_churma.jpg" },
+    { name: "Rajasthani", image: "https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg?auto=compress&cs=tinysrgb&w=400", emoji: "🍛" },
     { name: "Chinese", image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&q=80&w=800" },
     { name: "Thai", image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=800" },
     { name: "Desserts", image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=80&w=800" },
@@ -289,9 +290,42 @@ export default function RestaurantDetails() {
 
   const totalTables = restaurant.totalTables || 10;
 
+  const restaurantSchema = {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": restaurant.name,
+    "image": restaurant.restaurantImages?.[0] || "",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": restaurant.address || "",
+      "addressLocality": "Udaipur",
+      "addressRegion": "Rajasthan",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": restaurant.location?.coordinates?.[1] || "",
+      "longitude": restaurant.location?.coordinates?.[0] || ""
+    },
+    "url": `https://khammaghani.online/restaurant/${id}`,
+    "telephone": restaurant.phone || "",
+    "servesCuisine": restaurant.cuisines || ["Indian"],
+    "openingHours": "Mo-Su 11:00-23:00",
+    "acceptsReservations": "True"
+  };
+
   return (
     <div className="restaurant-page">
+      <SEO 
+        title={`${restaurant.name} - Order Online & Table Booking`}
+        description={`Order delicious food from ${restaurant.name} at ${restaurant.address}. Best ${restaurant.cuisines?.join(", ")} in Udaipur. Fast delivery and table reservations available.`}
+        keywords={`${restaurant.name}, food delivery Udaipur, ${restaurant.cuisines?.join(", ")}, book table Udaipur`}
+        image={restaurant.restaurantImages?.[0]}
+        url={`/restaurant/${id}`}
+        schema={restaurantSchema}
+      />
       {/* ===== BACK BUTTON ===== */}
+
       <button className="back-btn" onClick={() => navigate("/")}>
         ← Back to Home
       </button>
@@ -342,7 +376,7 @@ export default function RestaurantDetails() {
                  <div className="hero-gallery-slider" ref={sliderRef} onScroll={handleScroll}>
                    {galleryImages.map((img, index) => (
                      <div key={index} className="gallery-slide">
-                       <img src={img} alt={`Gallery ${index + 1}`} />
+                       <img src={img} alt={`${restaurant.name} interior and food gallery ${index + 1}`} />
                      </div>
                    ))}
                  </div>
@@ -388,7 +422,14 @@ export default function RestaurantDetails() {
                 onClick={() => setSelectedCategory(cat.name)}
               >
                 <div className="category-card-icon">
-                  <img src={cat.image} alt={cat.name} />
+                  <img 
+                    src={cat.image} 
+                    alt={cat.name} 
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span style="font-size:32px">${cat.emoji || '🍽️'}</span>`;
+                    }}
+                  />
                 </div>
                 <span className="category-card-name">{cat.name}</span>
               </div>
@@ -409,7 +450,7 @@ export default function RestaurantDetails() {
                 return (
                   <div key={item._id} className="res-card">
                     <div className="res-card-img-box" onClick={() => navigate(`/dish/${item._id}`)}>
-                      <img src={item.image} alt={item.name} />
+                    <img src={item.image} alt={item.name} loading="lazy" />
                       <button 
                         className="fav-heart-btn"
                         onClick={(e) => handleToggleFavorite(e, item._id)}
@@ -528,7 +569,7 @@ export default function RestaurantDetails() {
                  
                  <div className="review-author">
                    {review.user?.profileImage ? (
-                      <img src={review.user.profileImage} alt="User" className="review-author-img" />
+                      <img src={review.user.profileImage} alt={`${review.user.name}'s profile`} className="review-author-img" />
                    ) : (
                       <div className="review-author-fallback">
                         {review.user?.name?.charAt(0).toUpperCase() || "U"}

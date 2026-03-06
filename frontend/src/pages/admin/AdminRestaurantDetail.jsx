@@ -45,45 +45,48 @@ export default function AdminRestaurantDetail() {
                 </div>
             </header>
 
-            <div className="stats-grid">
-                <div className="stat-card">
+            <div className="stats-grid premium-grid">
+                <div className="stat-card premium-stat">
                     <div className="stat-info">
-                        <h4>Total Revenue</h4>
-                        <div className="stat-value">₹{stats.totalRevenue?.toLocaleString()}</div>
+                        <h4>Total Franchise Revenue</h4>
+                        <div className="stat-value text-success">₹{stats.totalRevenue?.toLocaleString()}</div>
+                        <span className="sub-description">Combined Gross Earnings</span>
                     </div>
-                    <MdAttachMoney style={{ color: '#10b981', fontSize: 32 }} />
                 </div>
-                <div className="stat-card">
+                <div className="stat-card premium-stat">
                     <div className="stat-info">
-                        <h4>Online Earnings</h4>
-                        <div className="stat-value">₹{stats.onlineRevenue?.toLocaleString()}</div>
+                        <h4>Digital Settlements</h4>
+                        <div className="stat-value text-primary">₹{stats.onlineRevenue?.toLocaleString()}</div>
+                        <span className="sub-description">Razorpay / Online Paid</span>
                     </div>
-                    <MdCheckCircle style={{ color: '#3b82f6', fontSize: 32 }} />
                 </div>
-                <div className="stat-card">
+                <div className="stat-card premium-stat">
                     <div className="stat-info">
-                        <h4>COD Earnings</h4>
-                        <div className="stat-value">₹{stats.codRevenue?.toLocaleString()}</div>
+                        <h4>Field Collections</h4>
+                        <div className="stat-value text-warning">₹{stats.codRevenue?.toLocaleString()}</div>
+                        <span className="sub-description">COD / Cash Delivered</span>
                     </div>
-                    <MdShoppingBag style={{ color: '#f59e0b', fontSize: 32 }} />
                 </div>
-                <div className="stat-card">
+                <div className="stat-card premium-stat">
                     <div className="stat-info">
-                        <h4>Total Orders</h4>
+                        <h4>Total Volume</h4>
                         <div className="stat-value">{stats.totalOrders}</div>
+                        <span className="sub-description">Processed Orders</span>
                     </div>
-                    <MdShoppingBag style={{ color: '#ff6b00', fontSize: 32 }} />
                 </div>
             </div>
 
             <div className="admin-table-container mt-8">
                 <div className="table-header">
-                    <h3>Orders Breakdown</h3>
+                    <div className="header-title-group">
+                        <h3>Franchise Order History</h3>
+                        <p className="sub-description">Live transaction log for this branch.</p>
+                    </div>
                     <div className="search-box">
                         <MdSearch className="search-icon" />
                         <input 
                             type="text" 
-                            placeholder="Search Order ID..." 
+                            placeholder="Find by ID..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -92,23 +95,34 @@ export default function AdminRestaurantDetail() {
                 <table className="admin-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Method</th>
-                            <th>Status</th>
-                            <th>Date</th>
+                            <th>Transaction</th>
+                            <th>Customer Profile</th>
+                            <th>Bill Amount</th>
+                            <th>Channel</th>
+                            <th>Lifecycle</th>
+                            <th>Timestamp</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredOrders.map(order => (
                             <tr key={order._id}>
-                                <td className="font-mono text-xs">#{order._id.slice(-8).toUpperCase()}</td>
-                                <td>{order.user?.name}</td>
-                                <td className="font-bold">₹{order.totalAmount}</td>
-                                <td>{order.paymentMethod}</td>
+                                <td className="font-mono text-xs font-bold">#{order._id.slice(-8).toUpperCase()}</td>
                                 <td>
-                                    <span className="status-badge" style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>
+                                    <div className="customer-cell">
+                                        <div className="main-title">{order.user?.name}</div>
+                                        <div className="sub-description">{order.user?.email}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="revenue-value">₹{order.totalAmount}</div>
+                                </td>
+                                <td>
+                                    <span className={`split-item ${order.paymentMethod === "Razorpay" ? "online" : "cod"}`}>
+                                        {order.paymentMethod === "Razorpay" ? "DIGITAL" : "CASH"}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span className="premium-status" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
                                         {order.status}
                                     </span>
                                 </td>

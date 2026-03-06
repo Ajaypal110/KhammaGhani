@@ -324,3 +324,192 @@
     cursor: pointer;
     margin-right: 4px;
 }
+
+/* Restaurants List Premium Styling */
+.restaurant-cell {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.res-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #ff6b0015, #ff6b0030);
+    border: 2px solid #ff6b0020;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-primary);
+    font-weight: 800;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.08);
+}
+
+.sub-description {
+    display: block;
+    font-size: 11px;
+    color: var(--admin-text-muted);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.main-title {
+    font-weight: 700;
+    color: var(--admin-text-main);
+}
+
+.location-cell .city-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.count-badge {
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    color: var(--admin-text-main);
+    display: inline-block;
+}
+
+.revenue-value {
+    font-weight: 800;
+    color: #10b981;
+    font-size: 15px;
+}
+
+.revenue-split-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.split-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    min-width: 100px;
+}
+
+.split-item.online {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.split-item.cod {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.premium-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.premium-status.active {
+    background: #dcfce7;
+    color: #16a34a;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.1);
+}
+
+.premium-status.active .status-indicator {
+    background: #16a34a;
+}
+
+.premium-status.disabled {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.premium-status.disabled .status-indicator {
+    background: #ef4444;
+}
+
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.action-row {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn-outline {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-btn-outline:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+    background: #fff7f2;
+}
+
+.icon-btn-outline.danger:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+.admin-table tbody tr {
+    transition: all 0.2s;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+}
+
+.mt-8 {
+    margin-top: 32px;
+}
+
+.back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 16px;
+    color: var(--admin-text-main);
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: #f8fafc;
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}

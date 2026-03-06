@@ -9,10 +9,11 @@ import {
     MdRestaurantMenu, 
     MdPayments, 
     MdInsights, 
-    MdSettings, 
     MdLogout,
-    MdEvent
+    MdEvent,
+    MdRedeem
 } from "react-icons/md";
+
 import "../../styles/adminDashboard.css";
 
 const SidebarItem = ({ icon: Icon, label, path, active }) => (
@@ -42,8 +43,9 @@ export default function AdminLayout({ children }) {
         { icon: MdPayments, label: "Payments", path: "/admin/payments" },
         { icon: MdInsights, label: "Analytics", path: "/admin/analytics" },
         { icon: MdEvent, label: "Table Bookings", path: "/admin/bookings" },
-        { icon: MdSettings, label: "Settings", path: "/admin/settings" },
+        { icon: MdRedeem, label: "Coupons", path: "/admin/coupons" },
     ];
+
 
     return (
         <div className="admin-container">

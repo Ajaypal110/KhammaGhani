@@ -164,7 +164,7 @@ export const resetPassword = async (req, res) => {
 ========================= */
 export const googleLogin = async (req, res) => {
   try {
-    const { email, name } = req.body;
+    const { email, name, profileImage } = req.body;
 
     if (!email) {
       return res.status(400).json({ message: "Email required" });
@@ -183,25 +183,37 @@ export const googleLogin = async (req, res) => {
       user = await User.create({
         name,
         email,
+        profileImage,
         provider: "google",
         role: "user",
         isEmailVerified: true,
       });
     } else {
       // Same email → same account
+      let isModified = false;
       if (user.provider === "password") {
         user.provider = "google";
         user.isEmailVerified = true;
+        isModified = true;
+      }
+      if (profileImage && !user.profileImage) {
+        user.profileImage = profileImage;
+        isModified = true;
+      }
+      if (isModified) {
         await user.save();
       }
     }
 
     res.json({
       _id: user._id,
+      name: user.name,
+      role: user.role,
+      profileImage: user.profileImage,
       token: generateToken(user._id),
     });
-  } catch {
-    res.status(500).json({ message: "Google login failed" });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Google login failed" });
   }
 };
 export const restaurantLogin = async (req, res) => {

@@ -57,16 +57,21 @@ export const getAgentProfile = async (req, res) => {
             agentStatus: { $in: ["assigned", "accepted", "picked"] }
         })
             .populate("restaurant", "name address phone")
+            .populate("items.menuId", "name image price")
             .populate("user", "name phone") // We will manually trim this below if not accepted
             .lean();
 
-        // CUSTOMER PRIVACY FILTER
-        // If agent hasn't clicked "Accept" yet, hide the customer's exact details
         const secureOrders = activeOrders.map(order => {
-            if (order.agentStatus === "assigned") {
+            const currentStatus = order.agentStatus?.toLowerCase() || "";
+            if (currentStatus === "assigned") {
+                const addrParts = order.deliveryAddress?.split(",") || [];
+                const blurredAddr = addrParts.length > 2
+                    ? addrParts.slice(-2).join(", ").trim()
+                    : order.deliveryAddress || "Location Details Restricted";
+
                 return {
                     ...order,
-                    deliveryAddress: order.deliveryAddress.split(",").slice(-2).join(",").trim(), // Show only city/pincode approx
+                    deliveryAddress: blurredAddr,
                     user: { name: "Customer Details Hidden" }
                 };
             }
@@ -81,6 +86,7 @@ export const getAgentProfile = async (req, res) => {
             updatedAt: { $gte: twentyFourHoursAgo }
         })
             .populate("restaurant", "name address phone")
+            .populate("items.menuId", "name image price")
             .populate("user", "name phone")
             .lean()
             .sort({ updatedAt: -1 }); // Newest completed first
@@ -141,20 +147,26 @@ export const updateOrderStatus = async (req, res) => {
 
         const agent = await DeliveryAgent.findById(req.agent._id);
 
-        // Strict Sequence Checking
+        // Strict Sequence Checking (Case Insensitive)
+        const currentAgentStatus = order.agentStatus?.toLowerCase() || "";
+
         if (action === "accept") {
-            if (order.agentStatus !== "assigned") return res.status(400).json({ message: "Can only accept assigned orders" });
+            if (currentAgentStatus !== "assigned") {
+                console.log(`[AgentPortal] Rejecting accept for order ${orderId}: current status is ${currentAgentStatus}`);
+                return res.status(400).json({ message: "Can only accept assigned orders" });
+            }
             order.agentStatus = "accepted";
             agent.status = "Busy";
             agent.currentOrderId = order._id;
+            console.log(`[AgentPortal] Order ${orderId} ACCEPTED by agent ${req.agent._id}`);
         }
         else if (action === "pick") {
-            if (order.agentStatus !== "accepted") return res.status(400).json({ message: "Can only pick accepted orders" });
+            if (currentAgentStatus !== "accepted") return res.status(400).json({ message: "Can only pick accepted orders" });
             order.agentStatus = "picked";
             order.status = "Out for Delivery"; // Sync frontend overarching status
         }
         else if (action === "deliver") {
-            if (order.agentStatus !== "picked") return res.status(400).json({ message: "Can only deliver picked orders" });
+            if (currentAgentStatus !== "picked") return res.status(400).json({ message: "Can only deliver picked orders" });
             order.agentStatus = "delivered";
             order.status = "Delivered";
 
@@ -163,7 +175,7 @@ export const updateOrderStatus = async (req, res) => {
         }
         else if (action === "collect_cod") {
             // New action block specific to Cash on Delivery
-            if (order.agentStatus !== "picked") return res.status(400).json({ message: "Can only collect cash for picked orders" });
+            if (currentAgentStatus !== "picked") return res.status(400).json({ message: "Can only collect cash for picked orders" });
             if (order.paymentMethod !== "Cash on Delivery") return res.status(400).json({ message: "Order is not COD" });
 
             order.agentStatus = "delivered";
@@ -181,6 +193,7 @@ export const updateOrderStatus = async (req, res) => {
         await order.save();
         await agent.save();
 
+        console.log(`[AgentPortal] Successfully updated order ${orderId} to ${order.agentStatus}`);
         res.json({ message: `Order marked as ${order.agentStatus}`, order });
     } catch (error) {
         res.status(500).json({ message: error.message });

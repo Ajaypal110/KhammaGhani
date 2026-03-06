@@ -57,42 +57,68 @@ export default function AdminRestaurants() {
                 <table className="admin-table">
                     <thead>
                         <tr>
-                            <th>Restaurant</th>
+                            <th>Restaurant Profile</th>
                             <th>Location</th>
-                            <th>Orders</th>
-                            <th>Revenue</th>
-                            <th>Online/COD</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Performance</th>
+                            <th>Revenue (Total)</th>
+                            <th>Payment Channels</th>
+                            <th>Franchise Status</th>
+                            <th>Control</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filtered.map((res) => (
                             <tr key={res._id}>
                                 <td>
-                                    <div className="cell-main">
-                                        <span className="main-title">{res.name}</span>
-                                        <span className="sub-title">ID: {res.restaurantId}</span>
-                                    </div>
-                                </td>
-                                <td>{res.city}</td>
-                                <td className="font-bold">{res.totalOrders}</td>
-                                <td className="font-bold text-success">₹{res.totalRevenue?.toLocaleString()}</td>
-                                <td>
-                                    <div className="split-cell">
-                                        <span className="text-primary">₹{res.onlineRevenue?.toLocaleString()}</span>
-                                        <span className="text-warning">₹{res.codRevenue?.toLocaleString()}</span>
+                                    <div className="restaurant-cell">
+                                        <div className="res-avatar">
+                                            {res.name?.[0].toUpperCase()}
+                                        </div>
+                                        <div className="cell-main">
+                                            <span className="main-title">{res.name}</span>
+                                            <span className="sub-description">Franchise ID: {res.restaurantId}</span>
+                                        </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span className="status-badge" style={{ backgroundColor: res.status === "Active" ? "#10b98115" : "#ef444415", color: res.status === "Active" ? "#10b981" : "#ef4444" }}>
+                                    <div className="location-cell">
+                                        <div className="city-name">{res.city}</div>
+                                        <div className="sub-description">{res.phone}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="stats-mini-cell">
+                                        <span className="count-badge">{res.totalOrders}</span>
+                                        <span className="sub-description">Lifetime Orders</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="revenue-main-cell">
+                                        <span className="revenue-value">₹{res.totalRevenue?.toLocaleString()}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="revenue-split-visual">
+                                        <div className="split-item online">
+                                            <span className="split-label">ONLINE</span>
+                                            <span className="split-amount">₹{res.onlineRevenue?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="split-item cod">
+                                            <span className="split-label">COD</span>
+                                            <span className="split-amount">₹{res.codRevenue?.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span className={`premium-status ${res.status === "Active" ? "active" : "disabled"}`}>
+                                        <div className="status-indicator"></div>
                                         {res.status || "Active"}
                                     </span>
                                 </td>
                                 <td>
-                                    <div className="action-group">
-                                        <button className="action-btn" title="View Financial Details" onClick={() => navigate(`/admin/restaurants/${res._id}`)}><MdEdit /></button>
-                                        <button className="action-btn text-danger" title="Disable Franchise"><MdBlock /></button>
+                                    <div className="action-row">
+                                        <button className="icon-btn-outline" title="Analytics & Settings" onClick={() => navigate(`/admin/restaurants/${res._id}`)}><MdEdit /></button>
+                                        <button className="icon-btn-outline danger" title="Deactivate Franchise"><MdBlock /></button>
                                     </div>
                                 </td>
                             </tr>

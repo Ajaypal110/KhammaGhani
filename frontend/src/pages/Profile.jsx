@@ -167,6 +167,8 @@ export default function Profile() {
   const { addToCart, clearCart } = useCart();
   const [activeTab, setActiveTab] = useState("profile");
   const [cancelBookingId, setCancelBookingId] = useState(null);
+  const [cancelOrderId, setCancelOrderId] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
   const [user, setUser] = useState({ name: "", email: "", phone: "", dob: "" });
   const [bookings, setBookings] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -289,8 +291,11 @@ export default function Profile() {
     if (window.confirm("This will clear your current cart and add these items. Proceed?")) {
       clearCart();
       order.items.forEach((item) => {
+        let itemPrice = 0;
+        if (item.price) itemPrice = item.price;
+        else if (item.menuId && item.menuId.price) itemPrice = item.menuId.price;
         addToCart(
-          { ...item.menuId, price: item.price }, 
+          { ...item.menuId, price: itemPrice }, 
           order.restaurant._id, 
           item.variant, 
           item.qty, 
@@ -318,6 +323,21 @@ export default function Profile() {
       showMsg(err.response?.data?.message || "Failed to cancel booking", "error");
     } finally {
       setCancelBookingId(null);
+    }
+  };
+
+  // CANCEL ORDER
+  const handleCancelOrder = async () => {
+    if (!cancelOrderId) return;
+    try {
+      await API.put(`/orders/${cancelOrderId}/cancel`, { reason: cancelReason });
+      fetchOrders();
+      showMsg("Order cancelled successfully");
+    } catch (err) {
+      showMsg(err.response?.data?.message || "Failed to cancel order", "error");
+    } finally {
+      setCancelOrderId(null);
+      setCancelReason("");
     }
   };
 
@@ -1049,6 +1069,16 @@ export default function Profile() {
                           ↻ Reorder
                         </button>
 
+                        {(o.status === "Placed" || o.status === "Confirmed" || o.status === "Preparing") && (
+                          <button 
+                            className="btn-track"
+                            style={{ background: "#ef4444", borderColor: "#ef4444" }}
+                            onClick={() => setCancelOrderId(o._id)}
+                          >
+                            ✕ Cancel
+                          </button>
+                        )}
+
                         {/* REVIEW BUTTON FOR ORDERS */}
                         {o.status === "Delivered" && !o.isReviewed && (
                             <button
@@ -1183,6 +1213,33 @@ export default function Profile() {
           confirmColor="#ef4444"
           onConfirm={confirmCancelBooking}
           onCancel={() => setCancelBookingId(null)}
+        />
+      )}
+
+      {cancelOrderId && (
+        <ConfirmModal
+          title="Cancel Order?"
+          message={
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <p style={{ margin: 0 }}>
+                Are you sure you want to cancel this order?<br /><br />
+                • Within 2 mins: <strong>100% Refund</strong><br />
+                • After 2 mins: <strong>90% Refund (10% Fee)</strong><br />
+                • No refund if food is already prepared or out for delivery.
+              </p>
+              <textarea 
+                placeholder="Reason for cancellation (optional)"
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1", minHeight: "60px", fontSize: "14px", fontFamily: "inherit" }}
+              />
+            </div>
+          }
+          confirmText="Yes, Cancel Order"
+          cancelText="No, Keep It"
+          confirmColor="#ef4444"
+          onConfirm={handleCancelOrder}
+          onCancel={() => { setCancelOrderId(null); setCancelReason(""); }}
         />
       )}
     </div>

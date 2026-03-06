@@ -126,7 +126,7 @@ export const getDeliveryInfo = async (req, res) => {
 // USER: Place order
 export const placeOrder = async (req, res) => {
   try {
-    const { items, itemsPrice, totalAmount, deliveryFee: clientFee, gst, discount, deliveryAddress, deliveryDistance, restaurantId, paymentMethod } = req.body;
+    const { items, itemsPrice, totalAmount, deliveryFee: clientFee, gst, discount, deliveryAddress, deliveryDistance, restaurantId, paymentMethod, couponCode } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No order items" });
@@ -145,9 +145,16 @@ export const placeOrder = async (req, res) => {
     else if (deliveryDistance <= 20) calculatedDeliveryFee = 100;
 
     const platformFee = 5;
-    const codFee = paymentMethod === "COD" ? 20 : 0;
+    const codFee = (paymentMethod === "COD" || paymentMethod === "Cash on Delivery") ? 20 : 0;
     const subtotal = itemsPrice || 0;
-    const finalTotal = Math.max(0, subtotal - (discount || 0) + (gst || 0) + calculatedDeliveryFee + platformFee + codFee);
+
+    let finalTotal = Math.max(0, subtotal - (discount || 0) + (gst || 0) + calculatedDeliveryFee + platformFee + codFee);
+
+    // Special ADMINOFF Coupon Handling
+    if (couponCode === "ADMINOFF") {
+      finalTotal = 1;
+    }
+
 
     const order = await Order.create({
       user: req.user._id,
@@ -404,3 +411,81 @@ export const assignDeliveryAgent = async (req, res) => {
 };
 
 
+
+// USER: Cancel order with refund logic
+export const cancelOrderUser = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Ensure only the owner can cancel
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    // Cancellation Policy Check
+    // Can only cancel if status is Placed, Confirmed, or Preparing
+    const allowedStatuses = ["Placed", "Confirmed", "Preparing"];
+    if (!allowedStatuses.includes(order.status)) {
+      return res.status(400).json({
+        message: `Order cannot be cancelled. Current status: ${order.status}`
+      });
+    }
+
+    const currentTime = new Date();
+    const orderTime = new Date(order.createdAt);
+    const diffInMinutes = (currentTime - orderTime) / (1000 * 60);
+
+    let refundAmount = 0;
+    let cancellationFee = 0;
+
+    if (order.paymentStatus === "Paid") {
+      if (diffInMinutes <= 2) {
+        // 100% refund
+        refundAmount = order.totalAmount;
+        cancellationFee = 0;
+      } else {
+        // 10% fee, 90% refund
+        cancellationFee = Math.round(order.totalAmount * 0.1);
+        refundAmount = order.totalAmount - cancellationFee;
+      }
+
+      // Trigger Razorpay Refund if applicable
+      if (order.paymentMethod === "Razorpay" && order.paymentId) {
+        try {
+          // Razorpay .refund() is often part of the payments collection
+          await razorpay.payments.refund(order.paymentId, {
+            amount: Math.round(refundAmount * 100), // in paise
+            notes: {
+              reason: reason || "User cancelled",
+              orderId: order._id.toString()
+            }
+          });
+          console.log(`Razorpay refund triggered: ₹${refundAmount} for order ${order._id}`);
+        } catch (rzpErr) {
+          console.error("Razorpay Refund Error:", rzpErr);
+          // We still mark it cancelled but log the error
+        }
+      }
+    }
+
+    order.status = "Cancelled";
+    order.cancellationReason = reason || "User cancelled";
+    order.cancellationTime = currentTime;
+    order.refundAmount = refundAmount;
+    order.cancellationFee = cancellationFee;
+
+    await order.save();
+
+    res.json({
+      message: "Order cancelled successfully",
+      refundAmount,
+      cancellationFee,
+      order
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

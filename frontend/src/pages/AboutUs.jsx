@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import "../styles/aboutUs.css";
+import SEO from "../components/SEO";
 
 const franchiseCities = [
   { name: "Jaipur", emoji: "🏰" },
@@ -34,6 +35,12 @@ export default function AboutUs() {
 
   return (
     <div className="about-page">
+      <SEO 
+        title="About KhammaGhani - Our Story & Mission"
+        description="Learn about KhammaGhani's journey, our mission to deliver authentic Rajasthani flavors across India, and our official franchise network."
+        keywords="about KhammaGhani, Rajasthani food culture, KhammaGhani story, food delivery mission"
+        url="/about"
+      />
       {/* =================== HERO =================== */}
       <section className="about-hero">
         <div className="about-hero-content">

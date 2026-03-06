@@ -49,15 +49,43 @@ export default function OrderCard({ order, availableAgents, refreshOrders, refre
 
       {/* Order Items */}
       <div className="order-items" style={{ marginBottom: "16px" }}>
-        <div style={{ fontSize: "12px", textTransform: "uppercase", fontWeight: "700", color: "#94a3b8", marginBottom: "6px" }}>
+        <div style={{ fontSize: "12px", textTransform: "uppercase", fontWeight: "700", color: "#94a3b8", marginBottom: "8px" }}>
           📝 Order Details ({order.items?.length || 0} items)
         </div>
-        <div style={{ fontSize: "13px", color: "#334155", fontWeight: "500", lineHeight: "1.5" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {order.items?.map((item, idx) => (
-            <span key={idx} style={{ display: "block", marginBottom: "4px" }}>
-              <span style={{ fontWeight: "700", color: "#0f172a" }}>{item.qty}x</span> {item.menuId?.name}
-              {item.variant ? ` (${item.variant})` : ""}
-            </span>
+            <div key={idx} style={{ display: "flex", gap: "10px", alignItems: "center", background: "#f8fafc", padding: "8px", borderRadius: "8px" }}>
+              <img 
+                src={item.menuId?.image || "https://via.placeholder.com/40"} 
+                alt={item.menuId?.name} 
+                style={{ width: "45px", height: "45px", borderRadius: "8px", objectFit: "cover", border: "1.5px solid #e2e8f0" }} 
+              />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b" }}>
+                  <span style={{ color: "#ff6b00" }}>{item.qty}x</span> {item.menuId?.name}
+                </div>
+                {item.variant && (
+                  <div style={{ fontSize: "11px", color: "#64748b", fontWeight: "600" }}>
+                    ⚖️ {item.variant}
+                  </div>
+                )}
+                {item.spiceLevel && item.spiceLevel !== "None" && (
+                  <div style={{ fontSize: "11px", color: "#ef4444", fontWeight: "600" }}>
+                    🔥 Spice: {item.spiceLevel}
+                  </div>
+                )}
+                {item.addOns?.length > 0 && (
+                  <div style={{ fontSize: "11px", color: "#10b981", fontWeight: "600", marginTop: "2px" }}>
+                    ➕ {item.addOns.map(a => a.name).join(", ")}
+                  </div>
+                )}
+                {item.instructions && (
+                  <div style={{ fontSize: "11px", color: "#64748b", fontStyle: "italic", marginTop: "4px", background: "#fff", padding: "4px", borderRadius: "4px", border: "1px dashed #cbd5e1" }}>
+                    📝 "{item.instructions}"
+                  </div>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       </div>

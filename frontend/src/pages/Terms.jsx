@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "../styles/policies.css";
+import SEO from "../components/SEO";
 
 export default function Terms() {
   useEffect(() => {
@@ -8,6 +9,12 @@ export default function Terms() {
 
   return (
     <div className="policy-container">
+      <SEO 
+        title="Terms and Conditions - KhammaGhani"
+        description="Read the terms and conditions for using KhammaGhani's food delivery platform, including user responsibilities and ordering policies."
+        keywords="terms and conditions, KhammaGhani terms, food delivery rules, user agreement"
+        url="/terms"
+      />
       <h1>Terms and Conditions</h1>
       
       <div className="policy-section">
@@ -52,9 +59,12 @@ export default function Terms() {
       </div>
 
       <div className="policy-section">
-        <h2>6. Cancellation Policy</h2>
+        <h2>6. Cancellation & Refund Policy</h2>
         <p>
-          Orders can only be cancelled within 2 minutes of placement. Once the restaurant begins preparing the food, cancellations will not be accepted, and no refunds will be issued for such requests.
+          - <strong>Within 2 Minutes:</strong> 100% full refund on cancellation.<br />
+          - <strong>After 2 Minutes:</strong> 10% cancellation fee applies; 90% will be refunded.<br />
+          - <strong>Prepared/In-Transit:</strong> No cancellation or refund once the order is prepared or out for delivery.<br />
+          - <strong>Restaurant Cancellation:</strong> 100% refund if the order is cancelled by the restaurant or failed payments.
         </p>
       </div>
 

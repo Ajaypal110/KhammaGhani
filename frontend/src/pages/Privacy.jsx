@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "../styles/policies.css";
+import SEO from "../components/SEO";
 
 export default function Privacy() {
   useEffect(() => {
@@ -8,6 +9,12 @@ export default function Privacy() {
 
   return (
     <div className="policy-container">
+      <SEO 
+        title="Privacy Policy - KhammaGhani"
+        description="Read KhammaGhani's privacy policy to understand how we collect, use, and protect your personal information and data safety."
+        keywords="privacy policy, data protection, KhammaGhani privacy, food delivery safety"
+        url="/privacy"
+      />
       <h1>Privacy Policy</h1>
       
       <div className="policy-section">

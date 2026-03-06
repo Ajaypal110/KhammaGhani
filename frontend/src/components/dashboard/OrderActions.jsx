@@ -62,15 +62,6 @@ export default function OrderActions({ order, refreshOrders, refreshAgents }) {
         </button>
       )}
 
-      {order.status === "Assigned" && (
-        <button
-          onClick={() => handleUpdateStatus("Delivered")}
-          disabled={loadingAction !== null}
-          style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "none", background: "#10b981", color: "#fff", fontWeight: "700", cursor: "pointer", fontSize: "13px", marginTop: "4px", opacity: loadingAction === "Delivered" ? 0.7 : 1 }}
-        >
-          {loadingAction === "Delivered" ? "⏳ Updating..." : "📬 Manual Force Deliver"}
-        </button>
-      )}
     </div>
   );
 }

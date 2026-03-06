@@ -8,9 +8,28 @@ import Loader from "../components/Loader";
 import { useCart } from "../context/CartContext";
 import DietaryIcon from "../components/DietaryIcon";
 import VariationModal from "../components/VariationModal";
+import SEO from "../components/SEO";
 
 export default function Home() {
   const navigate = useNavigate();
+
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "FoodEstablishment",
+    "name": "KhammaGhani",
+    "url": "https://khammaghani.online",
+    "logo": "https://khammaghani.online/logo.png",
+    "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800",
+    "description": "Experience authentic Rajasthani flavors and multi-cuisine delights at KhammaGhani. Order online for fast delivery.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Udaipur",
+      "addressRegion": "Rajasthan",
+      "addressCountry": "IN"
+    },
+    "servesCuisine": ["Rajasthani", "Chinese", "Thai", "North Indian"],
+    "priceRange": "₹₹"
+  };
 
   const [showProfile, setShowProfile] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
@@ -164,21 +183,30 @@ export default function Home() {
 
   return (
     <div className="home">
+      <SEO 
+        title="Authentic Rajasthani Food Delivery"
+        description="Order delicious food from KhammaGhani - Rajasthan's favorite food delivery platform. Authentic taste, fast delivery, and top-rated restaurants."
+        keywords="food delivery Udaipur, Rajasthani food, order food online, KhammaGhani, best restaurants Udaipur"
+        schema={homeSchema}
+      />
       {/* Navbar is now handled globally in App.jsx */}
+
 
       {/* ================= HERO SECTION ================= */}
       <section className="hero-wrapper">
-        <div className="hero-content">
-          <h1>Experience Adventure in Every Dish We Serve</h1>
-          <p>Order delicious, authentic Rajasthani food and more from top-rated restaurants near you. Fast delivery, unmatched taste.</p>
-          <div className="hero-buttons">
-            <button className="btn-primary" onClick={() => {
-              document.getElementById('restaurantsList').scrollIntoView({ behavior: 'smooth' });
-            }}>Order Now ➔</button>
+        <div className="hero-container">
+          <div className="hero-content">
+            <h1>Experience Adventure in Every Dish We Serve</h1>
+            <p>Order delicious, authentic Rajasthani food and more from top-rated restaurants near you. Fast delivery, unmatched taste.</p>
+            <div className="hero-buttons">
+              <button className="btn-primary" onClick={() => {
+                document.getElementById('restaurantsList').scrollIntoView({ behavior: 'smooth' });
+              }}>Order Now ➔</button>
+            </div>
           </div>
         </div>
 
-        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Food Plate" className="hero-food-plate" style={{borderRadius: "50%"}} />
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Delicious Food Plate - KhammaGhani" className="hero-food-plate" style={{borderRadius: "50%"}} />
 
         <div className="hero-wave">
           <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
@@ -201,8 +229,8 @@ export default function Home() {
               }}>Get Menu ➔</button>
             </div>
             <div className="featured-img-grid">
-              <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Cooking 1" />
-              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Cooking 2" />
+              <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Chef preparing authentic Rajasthani dish" />
+              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Freshly served gourmet meal" />
             </div>
           </section>
 
@@ -222,7 +250,7 @@ export default function Home() {
               </div>
 
               {/* Enhanced Categories Scroll */}
-              <div className="home-categories-scroll" style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "20px", marginBottom: "30px", scrollbarWidth: "none", paddingRight: "100px" }}>
+              <div className="home-categories-scroll" style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "20px", marginBottom: "30px", paddingRight: "100px" }}>
                 {categoriesWithImages.map(cat => (
                   <div 
                     key={cat.name}
@@ -232,7 +260,8 @@ export default function Home() {
                     <div className="category-card-icon">
                       <img 
                         src={cat.image} 
-                        alt={cat.name}
+                        alt={`${cat.name} food category`}
+                        loading="lazy"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.parentElement.innerHTML = `<span style="font-size:32px">${cat.emoji || '🍽️'}</span>`;
@@ -252,7 +281,7 @@ export default function Home() {
                   return (
                     <div key={item._id} className="res-card">
                       <div className="res-card-img-box" onClick={() => navigate(`/dish/${item._id}`)} style={{ position: "relative" }}>
-                        <img src={item.image} alt={item.name} />
+                        <img src={item.image} alt={item.name} loading="lazy" />
                         <button 
                           className="fav-heart-btn"
                           style={{ position: "absolute", top: "12px", right: "12px", background: "rgba(255,255,255,0.8)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 5 }}
@@ -362,7 +391,7 @@ export default function Home() {
                   >
                     <div className="res-card-img-box">
                       {res.restaurantImages && res.restaurantImages.length > 0 ? (
-                        <img src={res.restaurantImages[0]} alt={res.name} />
+                        <img src={res.restaurantImages[0]} alt={res.name} loading="lazy" />
                       ) : (
                         <div style={{width:'100%', height:'100%', background:'#f1f5f9', display:'flex', alignItems:'center', justifyContent:'center', fontSize: '40px'}}>🍽️</div>
                       )}

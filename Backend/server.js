@@ -16,6 +16,8 @@ import deliveryAgentRoutes from "./routes/deliveryAgentRoutes.js";
 import agentPortalRoutes from "./routes/agentPortalRoutes.js";
 import seedAdmin from "./utils/adminSeeder.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
+
 
 dotenv.config();
 connectDB().then(() => {
@@ -40,6 +42,8 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/delivery-agents", deliveryAgentRoutes);
 app.use("/api/agent-portal", agentPortalRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/coupons", couponRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("Khamagani API is running...");

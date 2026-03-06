@@ -10,7 +10,8 @@ import {
     updateOrderStatus,
     confirmOrder,
     assignDeliveryAgent,
-    getDeliveryInfo
+    getDeliveryInfo,
+    cancelOrderUser
 } from "../controllers/orderController.js";
 
 const router = express.Router();
@@ -28,5 +29,6 @@ router.post("/verify-payment/:id", protect, verifyPaymentFood);
 // Delivery agent assignment routes
 router.put("/:id/confirm", protect, confirmOrder);
 router.put("/:id/assign-agent", protect, assignDeliveryAgent);
+router.put("/:id/cancel", protect, cancelOrderUser);
 
 export default router;

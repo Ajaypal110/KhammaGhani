@@ -20,7 +20,8 @@ import "../styles/agentDashboard.css";
 // 1. Status Badge Component
 const StatusBadge = ({ status }) => {
     const getStyles = () => {
-        switch (status.toLowerCase()) {
+        const s = status?.toLowerCase() || "";
+        switch (s) {
             case "assigned": return { bg: "#eff6ff", text: "#3b82f6" };
             case "accepted": return { bg: "#fef3c7", text: "#d97706" };
             case "picked": return { bg: "#fff7ed", text: "#ea580c" };
@@ -60,9 +61,10 @@ const EarningsSummary = ({ summary }) => (
 
 // 3. Individual Order Card Component
 const OrderCard = ({ order, updateStatus }) => {
-    const isAssigned = order.agentStatus === "assigned";
-    const isAccepted = order.agentStatus === "accepted";
-    const isPicked = order.agentStatus === "picked";
+    const agentStatus = order.agentStatus?.toLowerCase() || "";
+    const isAssigned = agentStatus === "assigned";
+    const isAccepted = agentStatus === "accepted";
+    const isPicked = agentStatus === "picked";
 
     const getNavUrl = () => {
         const dest = isAccepted ? order.restaurant?.address : order.deliveryAddress;
@@ -124,8 +126,8 @@ const OrderCard = ({ order, updateStatus }) => {
                 <div className="items-list">
                     {order.items?.map((item, i) => (
                         <div key={i} className="item-row">
-                            <span>{item.name} x {item.quantity}</span>
-                            <span>₹{item.price * item.quantity}</span>
+                            <span>{item.menuId?.name || "Unknown Item"} x {item.qty}</span>
+                            <span>₹{(item.menuId?.price || 0) * (item.qty || 0)}</span>
                         </div>
                     ))}
                 </div>
@@ -140,23 +142,26 @@ const OrderCard = ({ order, updateStatus }) => {
             <div className="order-actions">
                 {(isAccepted || isPicked) && (
                     <a href={getNavUrl()} target="_blank" rel="noreferrer" className="nav-btn">
-                        <MdNavigation /> Navigate to {isAccepted ? "Restaurant" : "Customer"}
+                        <MdNavigation style={{ fill: '#3b82f6' }} /> <span>Navigate to {isAccepted ? "Restaurant" : "Customer"}</span>
                     </a>
                 )}
 
                 {isAssigned && (
-                    <button className="action-btn btn-accept" onClick={() => updateStatus(order._id, "accept")}>
-                        Accept Order
+                    <button className="action-btn btn-accept" onClick={() => updateStatus(order?._id, "accept")}>
+                        <MdCheckCircle style={{ fontSize: '18px', marginRight: '8px', fill: '#ffffff' }} />
+                        <span>Confirm & Accept Order</span>
                     </button>
                 )}
                 {isAccepted && (
-                    <button className="action-btn btn-pick" onClick={() => updateStatus(order._id, "pick")}>
-                        Mark as Picked Up
+                    <button className="action-btn btn-pick" onClick={() => updateStatus(order?._id, "pick")}>
+                        <MdMoped style={{ fontSize: '18px', marginRight: '8px', fill: '#ffffff' }} />
+                        <span>Mark as Picked Up</span>
                     </button>
                 )}
                 {isPicked && (
-                    <button className="action-btn btn-deliver" onClick={() => updateStatus(order._id, order.paymentMethod === "Cash on Delivery" ? "collect_cod" : "deliver")}>
-                        {order.paymentMethod === "Cash on Delivery" ? "✅ Cash Collected & Delivered" : "✅ Mark Delivered"}
+                    <button className="action-btn btn-deliver" onClick={() => updateStatus(order?._id, order?.paymentMethod === "Cash on Delivery" ? "collect_cod" : "deliver")}>
+                        <MdCheckCircle style={{ fontSize: '18px', marginRight: '8px', fill: '#ffffff' }} />
+                        <span>{order?.paymentMethod === "Cash on Delivery" ? "Cash Collected & Delivered" : "Mark Delivered"}</span>
                     </button>
                 )}
             </div>
@@ -221,7 +226,9 @@ export default function AgentDashboard() {
                     <p>{profile?.vehicleType} • {profile?.vehicleNumber}</p>
                 </div>
                 <div className="status-toggle-container">
-                    <button onClick={() => { localStorage.clear(); navigate("/agent/login"); }} style={{ border: 'none', background: 'none', color: '#ef4444', fontSize: 12, fontWeight: 700 }}>Logout</button>
+                    <button className="logout-btn-agent" onClick={() => { localStorage.clear(); navigate("/login"); }}>
+                        <MdCancel /> Logout
+                    </button>
                     <button 
                         className="status-btn"
                         onClick={toggleStatus}

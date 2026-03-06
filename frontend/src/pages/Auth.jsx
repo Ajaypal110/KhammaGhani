@@ -22,16 +22,23 @@ export default function Auth() {
   };
 
   const googleSignIn = async () => {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
 
-    const res = await API.post("/auth/google-login", {
-      email: user.email,
-      name: user.displayName,
-    });
+      const res = await API.post("/auth/google-login", {
+        email: user.email,
+        name: user.displayName,
+        profileImage: user.photoURL,
+      });
 
-    localStorage.setItem("token", res.data.token);
-    alert("Google login success");
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role || "user");
+      localStorage.setItem("userName", res.data.name || user.displayName);
+      alert("Google login success");
+    } catch (err) {
+      alert(err.response?.data?.message || "Google login failed");
+    }
   };
 
   return (

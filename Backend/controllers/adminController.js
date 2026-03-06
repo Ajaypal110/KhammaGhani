@@ -28,8 +28,8 @@ export const getDashboardStats = async (req, res) => {
                 $group: {
                     _id: null,
                     onlinePaid: { $sum: { $cond: [{ $and: [{ $eq: ["$paymentStatus", "Paid"] }, { $eq: ["$paymentMethod", "Razorpay"] }] }, "$totalAmount", 0] } },
-                    codDelivered: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "Delivered"] }, { $eq: ["$paymentMethod", "COD"] }] }, "$totalAmount", 0] } },
-                    pendingCod: { $sum: { $cond: [{ $and: [{ $ne: ["$status", "Delivered"] }, { $eq: ["$paymentMethod", "COD"] }] }, "$totalAmount", 0] } }
+                    codDelivered: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "Delivered"] }, { $in: ["$paymentMethod", ["COD", "Cash on Delivery"]] }] }, "$totalAmount", 0] } },
+                    pendingCod: { $sum: { $cond: [{ $and: [{ $ne: ["$status", "Delivered"] }, { $in: ["$paymentMethod", ["COD", "Cash on Delivery"]] }] }, "$totalAmount", 0] } }
                 }
             }
         ]);
@@ -100,7 +100,7 @@ export const getAllRestaurantsAdmin = async (req, res) => {
                             $map: {
                                 input: "$orders",
                                 as: "order",
-                                in: { $cond: [{ $or: [{ $and: [{ $eq: ["$$order.paymentStatus", "Paid"] }, { $eq: ["$$order.paymentMethod", "Razorpay"] }] }, { $and: [{ $eq: ["$$order.status", "Delivered"] }, { $eq: ["$$order.paymentMethod", "COD"] }] }] }, "$$order.totalAmount", 0] }
+                                in: { $cond: [{ $or: [{ $and: [{ $eq: ["$$order.paymentStatus", "Paid"] }, { $eq: ["$$order.paymentMethod", "Razorpay"] }] }, { $and: [{ $eq: ["$$order.status", "Delivered"] }, { $in: ["$$order.paymentMethod", ["COD", "Cash on Delivery"]] }] }] }, "$$order.totalAmount", 0] }
                             }
                         }
                     },
@@ -118,7 +118,7 @@ export const getAllRestaurantsAdmin = async (req, res) => {
                             $map: {
                                 input: "$orders",
                                 as: "order",
-                                in: { $cond: [{ $and: [{ $eq: ["$$order.status", "Delivered"] }, { $eq: ["$$order.paymentMethod", "COD"] }] }, "$$order.totalAmount", 0] }
+                                in: { $cond: [{ $and: [{ $eq: ["$$order.status", "Delivered"] }, { $in: ["$$order.paymentMethod", ["COD", "Cash on Delivery"]] }] }, "$$order.totalAmount", 0] }
                             }
                         }
                     }
@@ -231,9 +231,9 @@ export const getRestaurantDetailAdmin = async (req, res) => {
                 $group: {
                     _id: null,
                     totalOrders: { $sum: 1 },
-                    totalRevenue: { $sum: { $cond: [{ $or: [{ $and: [{ $eq: ["$paymentStatus", "Paid"] }, { $eq: ["$paymentMethod", "Razorpay"] }] }, { $and: [{ $eq: ["$status", "Delivered"] }, { $eq: ["$paymentMethod", "COD"] }] }] }, "$totalAmount", 0] } },
+                    totalRevenue: { $sum: { $cond: [{ $or: [{ $and: [{ $eq: ["$paymentStatus", "Paid"] }, { $eq: ["$paymentMethod", "Razorpay"] }] }, { $and: [{ $eq: ["$status", "Delivered"] }, { $in: ["$paymentMethod", ["COD", "Cash on Delivery"]] }] }] }, "$totalAmount", 0] } },
                     onlineRevenue: { $sum: { $cond: [{ $and: [{ $eq: ["$paymentStatus", "Paid"] }, { $eq: ["$paymentMethod", "Razorpay"] }] }, "$totalAmount", 0] } },
-                    codRevenue: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "Delivered"] }, { $eq: ["$paymentMethod", "COD"] }] }, "$totalAmount", 0] } }
+                    codRevenue: { $sum: { $cond: [{ $and: [{ $eq: ["$status", "Delivered"] }, { $in: ["$paymentMethod", ["COD", "Cash on Delivery"]] }] }, "$totalAmount", 0] } }
                 }
             }
         ]);

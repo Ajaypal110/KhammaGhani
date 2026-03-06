@@ -37,7 +37,9 @@ router.get("/orders", protect, async (req, res) => {
   try {
     const orders = await Order.find({
       restaurant: req.user._id,
-    });
+    })
+      .populate("items.menuId")
+      .populate("user", "name phone email");
 
     res.json(orders);
   } catch (err) {

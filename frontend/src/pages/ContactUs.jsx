@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/contactUs.css";
+import SEO from "../components/SEO";
 
 export default function ContactUs() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
@@ -61,6 +62,12 @@ export default function ContactUs() {
 
   return (
     <div className="contact-page">
+      <SEO 
+        title="Contact Us - KhammaGhani Support"
+        description="Need help with your order? Contact KhammaGhani customer support. Reach out to us for feedback, franchise inquiries, or support."
+        keywords="contact KhammaGhani, customer support, food delivery help, KhammaGhani phone number, restaurant support"
+        url="/contact"
+      />
       {/* =================== HERO =================== */}
       <section className="contact-hero">
         <div className="contact-hero-content">

@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import User from "../Models/User.js";
 import protect from "../Middleware/authMiddleware.js";
 import { upload } from "../Middleware/upload.js";
@@ -275,6 +276,85 @@ router.get("/:id/images", async (req, res) => {
       return res.status(404).json({ message: "Restaurant not found" });
     }
     res.json(restaurant.restaurantImages || []);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/* =========================
+   GET MY ANALYTICS (Dashboard)
+========================= */
+router.get("/my/analytics", protect, async (req, res) => {
+  try {
+    const restaurantId = req.user._id;
+
+    // Fetch all orders for this restaurant (excluding cancelled)
+    const orders = await mongoose.model("Order").find({
+      restaurant: restaurantId,
+      status: { $ne: "Cancelled" }
+    }).populate("items.menuId", "name");
+
+    const totalRevenue = orders.reduce((acc, o) => acc + (o.totalAmount || 0), 0);
+    const totalOrders = orders.length;
+
+    // Monthly Data (Current Month)
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const monthlyOrders = orders.filter(o => new Date(o.createdAt) >= startOfMonth);
+    const monthlyRevenue = monthlyOrders.reduce((acc, o) => acc + (o.totalAmount || 0), 0);
+    const monthlyOrdersCount = monthlyOrders.length;
+
+    // Top Selling Items Calculation
+    const itemMap = {};
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        const dishId = item.menuId?._id?.toString() || item.menuId?.toString() || "Unknown";
+        const dishName = item.menuId?.name || "Unknown Item";
+
+        if (!itemMap[dishId]) {
+          itemMap[dishId] = { count: 0, name: dishName };
+        }
+        itemMap[dishId].count += (item.qty || 1);
+      });
+    });
+
+    const topItems = Object.values(itemMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    res.json({
+      totalRevenue,
+      totalOrders,
+      monthlyRevenue,
+      monthlyOrdersCount,
+      topItems,
+      monthlyData: [], // Placeholder for chart data if needed later
+    });
+  } catch (error) {
+    console.error("Analytics error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/* =========================
+   UPDATE MY PROFILE (General)
+========================= */
+router.put("/my/profile", protect, async (req, res) => {
+  try {
+    const { name, phone, profileImage } = req.body;
+    const restaurant = await User.findById(req.user._id);
+
+    if (!restaurant || restaurant.role !== "restaurant") {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    if (name) restaurant.name = name;
+    if (phone) restaurant.phone = phone;
+    if (profileImage) restaurant.profileImage = profileImage;
+
+    await restaurant.save();
+    res.json({ message: "Profile updated successfully", restaurant });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

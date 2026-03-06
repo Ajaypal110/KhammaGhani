@@ -268,36 +268,64 @@
 }
 
 .action-btn {
-    width: 100%;
+    width: 100% !important;
+    /* Force full width within parent */
+    max-width: 100%;
     padding: 14px;
     border-radius: 12px;
     border: none;
     font-weight: 800;
     font-size: 15px;
-    color: #fff;
+    color: #ffffff !important;
     cursor: pointer;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.1s;
+    transition: all 0.2s ease;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    /* Add shadow for extra legibility */
 }
 
-.action-btn:active {
-    transform: scale(0.98);
+.action-btn span {
+    color: #ffffff !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-indent: 0 !important;
+}
+
+.action-btn svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    flex-shrink: 0;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .btn-accept {
-    background: var(--agent-primary);
+    background: #ff6b00 !important;
+    /* Hardcoded --agent-primary */
 }
 
 .btn-pick {
-    background: var(--agent-secondary);
+    background: #3b82f6 !important;
+    /* Hardcoded --agent-secondary */
 }
 
 .btn-deliver {
-    background: var(--agent-success);
+    background: #10b981 !important;
+    /* Hardcoded --agent-success */
 }
 
 .btn-cod {
-    background: var(--agent-warning);
+    background: #f59e0b !important;
+    /* Hardcoded --agent-warning */
 }
 
 /* History */
@@ -354,4 +382,24 @@
     font-weight: 600;
     border: 1px solid #ffedd5;
     margin-top: 8px;
+}
+
+.logout-btn-agent {
+    border: 1px solid #fee2e2;
+    background: #fef2f2;
+    color: var(--agent-danger);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logout-btn-agent:hover {
+    background: #fee2e2;
+    transform: translateY(-1px);
 }

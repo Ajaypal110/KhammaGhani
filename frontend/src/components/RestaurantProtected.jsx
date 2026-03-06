@@ -5,7 +5,7 @@ export default function RestaurantProtected({ children }) {
   const role = localStorage.getItem("role");
 
   if (!token || role !== "restaurant") {
-    return <Navigate to="/login" />;
+    return <Navigate to="/restaurant/login" replace />;
   }
 
   return children;

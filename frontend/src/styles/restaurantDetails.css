@@ -110,6 +110,13 @@
   max-width: 480px;
 }
 
+@media (max-width: 768px) {
+  .hero-light-desc {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+}
+
 .hero-light-meta {
   display: flex;
   gap: 16px;
@@ -278,6 +285,8 @@
 @media (max-width: 992px) {
   .hero-light-content {
     flex-direction: column-reverse;
+    gap: 20px;
+    padding-top: 40px;
   }
 
   .hero-light-image-area {
@@ -285,16 +294,38 @@
   }
 
   .hero-light-image-composition {
-    height: 400px;
+    height: 350px;
     margin: 0 auto;
   }
 
   .hero-light-text-area {
     max-width: 100%;
+    gap: 16px;
   }
 
   .hero-light-title-main {
-    font-size: 42px;
+    font-size: 36px;
+  }
+
+  .hero-light-title-sub {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-light-image-composition {
+    height: 250px;
+  }
+
+  .hero-light-img-sub1,
+  .hero-light-img-sub2 {
+    display: none;
+  }
+
+  .hero-light-img-main {
+    width: 100%;
+    border-radius: 20px;
   }
 }
 
@@ -327,8 +358,21 @@
 
 .restaurant-page .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .restaurant-page .menu-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .restaurant-page .menu-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
 }
 
 /* Rounded Clean White Cards (Synced with Home) */
@@ -598,6 +642,13 @@
 .form-row {
   display: flex;
   gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    flex-direction: column;
+    gap: 14px;
+  }
 }
 
 .form-row input {

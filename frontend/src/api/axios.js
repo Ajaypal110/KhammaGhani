@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "https://khammaghani.onrender.com";
+const API_BASE = "http://localhost:5000";
 
 const API = axios.create({
   baseURL: `${API_BASE}/api`,
