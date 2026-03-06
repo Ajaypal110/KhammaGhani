@@ -990,10 +990,33 @@ export default function Profile() {
                     <div className="order-card-body">
                       <div className="order-items-summary">
                         {o.items?.map((item, idx) => (
-                           <span key={idx} className="item-text">
-                             {item.qty} x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}
-                             {idx < o.items.length - 1 ? ", " : ""}
-                           </span>
+                           <div key={idx} className="order-item-detail" style={{ marginBottom: "8px", paddingBottom: "8px", borderBottom: idx < o.items.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                               <span className="item-text" style={{ fontWeight: "700", color: "#1e293b" }}>
+                                 {item.qty} x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}
+                               </span>
+                               <span style={{ fontWeight: "800", color: "#ff6b00" }}>₹{(item.price || 0) * item.qty}</span>
+                             </div>
+                             
+                             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "4px" }}>
+                               {item.spiceLevel && item.spiceLevel !== "None" && (
+                                 <span style={{ fontSize: "11px", color: "#ef4444", background: "#fef2f2", padding: "2px 8px", borderRadius: "10px", fontWeight: "700" }}>
+                                   🌶️ {item.spiceLevel}
+                                 </span>
+                               )}
+                               {item.addOns?.length > 0 && item.addOns.map((addon, aIdx) => (
+                                 <span key={aIdx} style={{ fontSize: "11px", color: "#16a34a", background: "#f0fdf4", padding: "2px 8px", borderRadius: "10px", fontWeight: "700" }}>
+                                   + {addon.name}
+                                 </span>
+                               ))}
+                             </div>
+
+                             {item.instructions && (
+                               <div style={{ fontSize: "11px", color: "#64748b", fontStyle: "italic", marginTop: "4px", padding: "4px 8px", background: "#f8fafc", borderRadius: "6px", border: "1px dashed #e2e8f0" }}>
+                                 " {item.instructions} "
+                               </div>
+                             )}
+                           </div>
                         ))}
                       </div>
 
@@ -1105,9 +1128,16 @@ export default function Profile() {
                             
                             <div style={{ margin: "16px 0", borderTop: "1px dashed #eee", borderBottom: "1px dashed #eee", padding: "12px 0" }}>
                               {o.items?.map((item, idx) => (
-                                <div key={idx} className="receipt-row" style={{ border: "none" }}>
-                                  <span>{item.qty}x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}</span>
-                                  <strong>₹{item.qty * (item.price || 0)}</strong>
+                                <div key={idx} style={{ marginBottom: "12px", borderBottom: idx < o.items.length - 1 ? "1px solid #f9f9f9" : "none", paddingBottom: idx < o.items.length - 1 ? "8px" : "0" }}>
+                                  <div className="receipt-row" style={{ border: "none", padding: 0 }}>
+                                    <span style={{ fontWeight: "700" }}>{item.qty}x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}</span>
+                                    <strong>₹{item.qty * (item.price || 0)}</strong>
+                                  </div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "2px" }}>
+                                    {item.spiceLevel && item.spiceLevel !== "None" && <span style={{ fontSize: "10px", color: "#ef4444" }}>🌶️ {item.spiceLevel}</span>}
+                                    {item.addOns?.map((a, i) => <span key={i} style={{ fontSize: "10px", color: "#16a34a" }}>+ {a.name}</span>)}
+                                  </div>
+                                  {item.instructions && <div style={{ fontSize: "10px", color: "#888", fontStyle: "italic", marginTop: "2px" }}>Note: "{item.instructions}"</div>}
                                 </div>
                               ))}
                             </div>

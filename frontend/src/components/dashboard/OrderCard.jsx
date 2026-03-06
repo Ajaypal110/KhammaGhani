@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderActions from "./OrderActions";
 import DeliveryAgentSelector from "./DeliveryAgentSelector";
 
 export default function OrderCard({ order, availableAgents, refreshOrders, refreshAgents }) {
+  const [showReceipt, setShowReceipt] = useState(false);
   const isNew = order.status === "Placed";
 
   return (
@@ -29,7 +30,15 @@ export default function OrderCard({ order, availableAgents, refreshOrders, refre
             })}
           </span>
         </div>
-        <OrderStatusBadge status={order.status} isNew={isNew} />
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button 
+            onClick={() => setShowReceipt(!showReceipt)}
+            style={{ padding: "6px 10px", borderRadius: "8px", border: "1.5px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: "12px", fontWeight: "700", color: "#64748b" }}
+          >
+            {showReceipt ? "✕ Close" : "🧾 Receipt"}
+          </button>
+          <OrderStatusBadge status={order.status} isNew={isNew} />
+        </div>
       </div>
 
       {/* Customer Info */}
@@ -65,18 +74,18 @@ export default function OrderCard({ order, availableAgents, refreshOrders, refre
                   <span style={{ color: "#ff6b00" }}>{item.qty}x</span> {item.menuId?.name}
                 </div>
                 {item.variant && (
-                  <div style={{ fontSize: "11px", color: "#64748b", fontWeight: "600" }}>
-                    ⚖️ {item.variant}
+                  <div style={{ fontSize: "11px", color: "#ff6b00", fontWeight: "700", background: "#fff7f2", padding: "2px 6px", borderRadius: "4px", display: "inline-block", marginTop: "2px" }}>
+                    ⚖️ Portion: {item.variant}
                   </div>
                 )}
                 {item.spiceLevel && item.spiceLevel !== "None" && (
-                  <div style={{ fontSize: "11px", color: "#ef4444", fontWeight: "600" }}>
+                  <div style={{ fontSize: "11px", color: "#ef4444", fontWeight: "700", marginTop: "2px" }}>
                     🔥 Spice: {item.spiceLevel}
                   </div>
                 )}
                 {item.addOns?.length > 0 && (
-                  <div style={{ fontSize: "11px", color: "#10b981", fontWeight: "600", marginTop: "2px" }}>
-                    ➕ {item.addOns.map(a => a.name).join(", ")}
+                  <div style={{ fontSize: "11px", color: "#10b981", fontWeight: "700", marginTop: "2px" }}>
+                    ➕ Extras: {item.addOns.map(a => a.name).join(", ")}
                   </div>
                 )}
                 {item.instructions && (
@@ -127,6 +136,73 @@ export default function OrderCard({ order, availableAgents, refreshOrders, refre
       <DeliveryAgentSelector order={order} availableAgents={availableAgents} refreshOrders={refreshOrders} refreshAgents={refreshAgents} />
       
       <OrderActions order={order} refreshOrders={refreshOrders} refreshAgents={refreshAgents} />
+
+      {/* INLINE RECEIPT FOR RESTAURANT */}
+      {showReceipt && (
+        <div className="inline-receipt" style={{ marginTop: "16px", borderTop: "2px dashed #eee", paddingTop: "16px" }}>
+          <div className="receipt-card" id={`receipt-res-${order._id}`} style={{ background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #eee" }}>
+            <div className="receipt-header" style={{ textAlign: "center", marginBottom: "15px", borderBottom: "1px dashed #eee", paddingBottom: "10px" }}>
+              <div style={{ fontSize: "18px", fontWeight: "900", color: "#ff6b00" }}>KHAMMA GHANI</div>
+              <div style={{ fontSize: "12px", color: "#888" }}>KITCHEN ORDER SUMMARY</div>
+              <div style={{ fontSize: "11px", color: "#aaa", marginTop: "4px" }}>Order #{order._id.slice(-6).toUpperCase()}</div>
+            </div>
+            
+            <div style={{ marginBottom: "15px", fontSize: "13px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ color: "#888" }}>Customer:</span>
+                <strong style={{ color: "#1e293b" }}>{order.user?.name || "Guest"}</strong>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ color: "#888" }}>Phone:</span>
+                <strong style={{ color: "#1e293b" }}>{order.user?.phone || "N/A"}</strong>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "#888" }}>Time:</span>
+                <strong style={{ color: "#1e293b" }}>{new Date(order.createdAt).toLocaleTimeString()}</strong>
+              </div>
+            </div>
+
+            <div style={{ borderTop: "1px solid #f5f5f5", borderBottom: "1px solid #f5f5f5", padding: "10px 0", marginBottom: "15px" }}>
+              {order.items?.map((item, idx) => (
+                <div key={idx} style={{ marginBottom: "12px", display: "flex", gap: "10px" }}>
+                  <img src={item.menuId?.image} alt="" style={{ width: "40px", height: "40px", borderRadius: "6px", objectFit: "cover" }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ fontWeight: "800", fontSize: "14px" }}>{item.qty} x {item.menuId?.name}</span>
+                    </div>
+                    {item.variant && <div style={{ fontSize: "11px", color: "#ff6b00", fontWeight: "700" }}>⚖️ {item.variant}</div>}
+                    {item.spiceLevel && item.spiceLevel !== "None" && <div style={{ fontSize: "11px", color: "#ef4444" }}>🌶️ {item.spiceLevel}</div>}
+                    {item.addOns?.length > 0 && <div style={{ fontSize: "11px", color: "#16a34a" }}>+ {item.addOns.map(a => a.name).join(", ")}</div>}
+                    {item.instructions && <div style={{ fontSize: "11px", color: "#64748b", fontStyle: "italic", background: "#f8fafc", padding: "4px", marginTop: "4px", borderRadius: "4px" }}>Note: "{item.instructions}"</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "16px", fontWeight: "900" }}>
+              <span>Total Bill:</span>
+              <span>₹{order.totalAmount}</span>
+            </div>
+            <div style={{ textAlign: "center", fontSize: "11px", color: "#64748b", marginTop: "10px", fontWeight: "700" }}>
+              {order.paymentMethod} - {order.paymentStatus}
+            </div>
+          </div>
+          
+          <button 
+            className="print-receipt-btn" 
+            style={{ width: "100%", marginTop: "10px", padding: "10px", background: "#1e293b", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer" }}
+            onClick={() => {
+              const el = document.getElementById(`receipt-res-${order._id}`);
+              const w = window.open("", "_blank");
+              w.document.write(`<html><head><title>Kitchen Order - ${order._id.slice(-6)}</title><style>body{font-family:Inter,sans-serif;padding:20px;color:#1a1a1a}.receipt-card{max-width:300px;margin:0 auto;border:1px solid #eee;padding:15px}img{display:none}</style></head><body>${el.innerHTML}</body></html>`);
+              w.document.close();
+              w.print();
+            }}
+          >
+            🖨️ Print Kitchen Bill
+          </button>
+        </div>
+      )}
     </div>
   );
 }

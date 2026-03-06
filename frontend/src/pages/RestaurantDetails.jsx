@@ -450,7 +450,14 @@ export default function RestaurantDetails() {
                 return (
                   <div key={item._id} className="res-card">
                     <div className="res-card-img-box" onClick={() => navigate(`/dish/${item._id}`)}>
-                    <img src={item.image} alt={item.name} loading="lazy" />
+                    <img 
+                      src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800"} 
+                      alt={item.name} 
+                      loading="lazy" 
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800";
+                      }}
+                    />
                       <button 
                         className="fav-heart-btn"
                         onClick={(e) => handleToggleFavorite(e, item._id)}

@@ -214,7 +214,13 @@ export default function DishDetails() {
            {/* LEFT: Image */}
            <div className="dish-image-side">
               <div className="image-frame">
-                 <img src={dish.image} alt={dish.name} />
+                 <img 
+                   src={dish.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800"} 
+                   alt={dish.name} 
+                   onError={(e) => {
+                     e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800";
+                   }}
+                 />
                  <button className="in-image-fav-btn" onClick={(e) => handleToggleFavorite(e, dish._id)}>
                    <FiHeart size={24} fill={isFavoritedMain ? "#ef4444" : "rgba(0,0,0,0.5)"} color={isFavoritedMain ? "#ef4444" : "#fff"} />
                  </button>
@@ -369,7 +375,14 @@ export default function DishDetails() {
                 return (
                   <div key={item._id} className="res-card related-card">
                     <div className="res-card-img-box" onClick={() => navigate(`/dish/${item._id}`)} style={{ position: "relative" }}>
-                      <img src={item.image} alt={item.name} loading="lazy" />
+                      <img 
+                        src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800"} 
+                        alt={item.name} 
+                        loading="lazy" 
+                        onError={(e) => {
+                          e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800";
+                        }}
+                      />
                       <button 
                         className="fav-heart-btn"
                         style={{ position: "absolute", top: "12px", right: "12px", background: "rgba(255,255,255,0.8)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 5 }}

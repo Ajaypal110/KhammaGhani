@@ -280,7 +280,14 @@ export default function Home() {
                   return (
                     <div key={item._id} className="res-card">
                       <div className="res-card-img-box" onClick={() => navigate(`/dish/${item._id}`)} style={{ position: "relative" }}>
-                        <img src={item.image} alt={item.name} loading="lazy" />
+                        <img 
+                          src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80"} 
+                          alt={item.name} 
+                          loading="lazy" 
+                          onError={(e) => {
+                            e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80";
+                          }}
+                        />
                         <button 
                           className="fav-heart-btn"
                           style={{ position: "absolute", top: "12px", right: "12px", background: "rgba(255,255,255,0.8)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 5 }}
