@@ -140,7 +140,9 @@ export default function Login() {
       localStorage.setItem("userName", data.name || user.displayName);
       navigate("/");
     } catch (err) {
-      setMessage(err.response?.data?.message || "Google login failed");
+      console.error("GOOGLE LOGIN FAIL 👉", err);
+      const errorMsg = err.response?.data?.message || err.message || "Google login failed";
+      setMessage(errorMsg);
     }
   };
 
