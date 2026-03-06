@@ -184,7 +184,6 @@ export default function Home() {
   return (
     <div className="home">
       <SEO 
-        title="Authentic Rajasthani Food Delivery"
         description="Order delicious food from KhammaGhani - Rajasthan's favorite food delivery platform. Authentic taste, fast delivery, and top-rated restaurants."
         keywords="food delivery Udaipur, Rajasthani food, order food online, KhammaGhani, best restaurants Udaipur"
         schema={homeSchema}

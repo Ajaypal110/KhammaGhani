@@ -2,7 +2,7 @@ import React from "react";
 import { Helmet } from "react-helmet-async";
 
 const SEO = ({ title, description, keywords, image, url, schema }) => {
-  const siteTitle = "KhammaGhani - Food Delivery Platform";
+  const siteTitle = "KhammaGhani - Restaurants";
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const siteUrl = "https://khammaghani.online";
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
