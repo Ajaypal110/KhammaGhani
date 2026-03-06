@@ -774,9 +774,6 @@
 /* =========================================
    RESTAURANT / MENU GRID (White Cards, Shadows) - Matched with Home.jsx
 ========================================= */
-.dish-details-page .res-card {
-    /* If there's any grid context added here later */
-}
 
 .res-card {
     background: #fff;
