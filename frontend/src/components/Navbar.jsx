@@ -68,6 +68,47 @@ export default function Navbar() {
     navigate("/profile");
   };
 
+  /* ================= PWA INSTALLATION ================= */
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+      // Update UI to notify the user they can add to home screen
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    } else {
+      console.log('User dismissed the install prompt');
+    }
+    
+    // We've used the prompt, and can't use it again, throw it away
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -97,6 +138,29 @@ export default function Navbar() {
           </div>
 
           <div className="nav-actions">
+            {isInstallable && (
+              <button 
+                onClick={handleInstallClick} 
+                style={{
+                  background: "linear-gradient(135deg, #16a34a, #15803d)",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  marginRight: "10px",
+                  boxShadow: "0 4px 6px rgba(22, 163, 74, 0.2)",
+                  transition: "all 0.3s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px"
+                }}
+              >
+                 Install App ⬇️
+              </button>
+            )}
             {!isLoggedIn && (
               <div className="auth-btns">
                 <button onClick={() => { navigate("/login"); setIsMenuOpen(false); }}>Login</button>
