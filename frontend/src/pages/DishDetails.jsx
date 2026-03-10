@@ -472,6 +472,26 @@ export default function DishDetails() {
 
       </div>
 
+      {/* =================================
+          STICKY BOTTOM BAR (Mobile Only)
+      ================================== */}
+      <div className="dish-bottom-bar mobile-only">
+        <div className="dish-bottom-price-info">
+          <span className="bottom-total-label">Total</span>
+          <span className="bottom-total-price">₹{totalPrice}</span>
+        </div>
+        <div className="dish-bottom-actions">
+          <div className="modern-qty-control outline-light">
+            <button className="qty-btn minus" onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
+            <span className="qty-val">{quantity}</span>
+            <button className="qty-btn plus" onClick={() => setQuantity(Math.min(20, quantity + 1))}>+</button>
+          </div>
+          <button className="modern-add-cart-btn huge hero-btn" onClick={handleAddToCart}>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+
       <VariationModal 
         isOpen={!!selectedItemForModal}
         onClose={() => setSelectedItemForModal(null)}
