@@ -4,6 +4,8 @@ import API from "../api/axios";
 import "../styles/auth.css";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import PolicyModal from "../components/PolicyModal";
+import "../styles/policies.css";
 
 
 export default function Login() {
@@ -19,6 +21,9 @@ export default function Login() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [policyModal, setPolicyModal] = useState(null); // "terms" | "privacy" | null
+
 
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -147,115 +152,127 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Login</h2>
+    <div className="zomato-auth-wrapper">
+      <div className="zomato-hero">
+        <h1 className="zomato-hero-title">#DISCOVER THE BEST FOOD<br/>NEAR YOU</h1>
+        <div className="zomato-brand-badge">Khammaghani</div>
+        <img 
+          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop" 
+          alt="Food Background" 
+          className="zomato-hero-img" 
+        />
+      </div>
 
-        {message && <p className="auth-message">{message}</p>}
+      <div className="zomato-auth-card">
+        <h2 className="zomato-card-title">Login</h2>
 
-        {/* ================= LOGIN ================= */}
+        {message && <p className="zomato-message">{message}</p>}
+
         {step === "login" && (
-          <form onSubmit={loginHandler}>
+          <form onSubmit={loginHandler} className="zomato-form">
             <input
-              type="text"
-              placeholder="Email, Agent ID, or Admin ID"
+              type="email" /* using email type for better mobile keyboard */
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="zomato-input"
               required
             />
 
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="zomato-input"
               required
             />
 
-            <div className="forgot-password">
+            <div className="zomato-forgot">
               <span onClick={() => setStep("forgot")}>
                 Forgot password?
               </span>
             </div>
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" className="zomato-btn-primary" disabled={loading}>
               {loading ? "Authenticating..." : "Login"}
             </button>
 
-            {/* GOOGLE LOGIN */}
+            <div className="zomato-divider">
+              <span>OR</span>
+            </div>
+
             <button
               type="button"
-              className="google-btn google-flex"
+              className="zomato-google-full-btn"
               onClick={googleLoginHandler}
             >
               <img
                 src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
                 alt="Google"
-                className="google-icon"
               />
               Continue with Google
             </button>
 
-            <div className="auth-link">
-              New user?{" "}
-              <span onClick={() => navigate("/register")}>Register</span>
+            <div className="zomato-register-link">
+              New user? <span onClick={() => navigate("/register")}>Sign Up</span>
             </div>
           </form>
         )}
 
-        {/* ================= FORGOT ================= */}
         {step === "forgot" && (
-          <>
+          <div className="zomato-form">
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="zomato-input"
               required
             />
-
-            <button onClick={sendOtpHandler} disabled={loading}>
+            <button className="zomato-btn-primary" onClick={sendOtpHandler} disabled={loading}>
               {loading ? "Sending OTP..." : "Send OTP"}
             </button>
-
-            <div className="auth-link">
+            <div className="zomato-register-link" style={{ marginTop: '16px' }}>
               <span onClick={() => setStep("login")}>Back to login</span>
             </div>
-          </>
+          </div>
         )}
 
-        {/* ================= OTP ================= */}
         {step === "otp" && (
-          <>
+          <div className="zomato-form">
             <input
               type="text"
               placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
+              className="zomato-input"
               required
             />
-
-            <button onClick={verifyOtpHandler}>Verify OTP</button>
-          </>
+            <button className="zomato-btn-primary" onClick={verifyOtpHandler}>Verify OTP</button>
+          </div>
         )}
 
-        {/* ================= RESET ================= */}
         {step === "reset" && (
-          <>
+          <div className="zomato-form">
             <input
               type="password"
               placeholder="New password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              className="zomato-input"
               required
             />
-
-            <button onClick={resetPasswordHandler}>
+            <button className="zomato-btn-primary" onClick={resetPasswordHandler}>
               Reset Password
             </button>
-          </>
+          </div>
         )}
       </div>
+
+      {policyModal && (
+        <PolicyModal type={policyModal} onClose={() => setPolicyModal(null)} />
+      )}
     </div>
   );
 }

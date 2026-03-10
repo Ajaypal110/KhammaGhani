@@ -92,25 +92,38 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Register</h2>
-        {message && <p className="auth-message">{message}</p>}
+    <div className="zomato-auth-wrapper">
+      <div className="zomato-hero">
+        <h1 className="zomato-hero-title">#DISCOVER THE BEST FOOD<br/>NEAR YOU</h1>
+        <div className="zomato-brand-badge">Khammaghani</div>
+        <img 
+          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop" 
+          alt="Food Background" 
+          className="zomato-hero-img" 
+        />
+      </div>
 
-        <form onSubmit={registerHandler}>
+      <div className="zomato-auth-card">
+        <h2 className="zomato-card-title">Sign Up</h2>
+
+        {message && <p className="zomato-message">{message}</p>}
+
+        <form onSubmit={registerHandler} className="zomato-form">
           <input
             type="text"
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="zomato-input"
             required
           />
 
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="zomato-input"
             required
           />
 
@@ -119,6 +132,7 @@ export default function Register() {
             placeholder="Mobile Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            className="zomato-input"
           />
 
           <input
@@ -126,10 +140,11 @@ export default function Register() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="zomato-input"
             required
           />
 
-          <label className="auth-policy-checkbox">
+          <label className="auth-policy-checkbox" style={{ marginTop: "4px" }}>
             <input
               type="checkbox"
               checked={policyAccepted}
@@ -143,27 +158,30 @@ export default function Register() {
             </span>
           </label>
 
-          <button type="submit" disabled={loading || !policyAccepted}>
-            {loading ? "Registering..." : "Register"}
+          <button type="submit" className="zomato-btn-primary" disabled={loading || !policyAccepted}>
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
+
+          <div className="zomato-divider">
+            <span>OR</span>
+          </div>
 
           <button
             type="button"
-            className="google-btn google-flex"
+            className="zomato-google-full-btn"
             onClick={googleRegisterHandler}
           >
             <img
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
               alt="Google"
-              className="google-icon"
             />
             Continue with Google
           </button>
 
-          <div className="auth-link">
-            Already have an account?{" "}
-            <span onClick={() => navigate("/login")}>Login</span>
+          <div className="zomato-register-link">
+            Already have an account? <span onClick={() => navigate("/login")}>Login</span>
           </div>
+
         </form>
       </div>
 

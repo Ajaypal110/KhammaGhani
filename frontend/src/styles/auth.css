@@ -256,11 +256,11 @@
   padding: 0 !important;
   cursor: pointer;
   flex-shrink: 0;
-  accent-color: #ff6b00;
+  accent-color: #E23744;
 }
 
 .auth-policy-checkbox a {
-  color: #ff6b00;
+  color: #E23744;
   text-decoration: none;
   font-weight: 600;
 }
@@ -269,9 +269,310 @@
   text-decoration: underline;
 }
 
-.auth-card button:disabled {
-  opacity: 0.5;
+/* ===================================================================
+   ZOMATO-STYLE LOGIN - BRANDED KHAMMAGHANI
+=================================================================== */
+
+.zomato-auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  align-items: center;
+}
+
+/* ---------------- HERO SECTION ---------------- */
+.zomato-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  margin-top: 50px;
+  z-index: 1;
+}
+
+.zomato-hero-title {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+}
+
+.zomato-brand-badge {
+  background: #E23744;
+  /* Zomato/KG Red */
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 24px;
+  transform: rotate(-2deg);
+  margin-bottom: 30px;
+  box-shadow: 0 6px 16px rgba(226, 55, 68, 0.4);
+  letter-spacing: -0.5px;
+}
+
+.zomato-hero-img {
+  width: 90%;
+  max-width: 380px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: -20px;
+  position: relative;
+  z-index: 2;
+  border-radius: 12px;
+}
+
+/* ---------------- LOGIN CARD ---------------- */
+.zomato-auth-card {
+  background: #fff;
+  width: 100%;
+  max-width: 420px;
+  padding: 30px 24px;
+  z-index: 10;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 28px 28px 0 0;
+  margin-top: auto;
+  /* Pushes card to bottom on mobile */
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.zomato-card-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.zomato-message {
+  text-align: center;
+  font-size: 14px;
+  color: #ef4444;
+  font-weight: 500;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border-radius: 12px;
+  border: 1px solid #fee2e2;
+  margin-bottom: 16px;
+}
+
+.zomato-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------------- INPUTS ---------------- */
+.zomato-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+  background: #fff;
+}
+
+.zomato-input:focus {
+  border-color: #E23744;
+}
+
+.zomato-input::placeholder {
+  color: #94a3b8;
+}
+
+.zomato-forgot {
+  text-align: right;
+  font-size: 13px;
+  margin-top: -4px;
+}
+
+.zomato-forgot span {
+  color: #E23744;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.zomato-forgot span:hover {
+  text-decoration: underline;
+}
+
+/* ---------------- BUTTONS ---------------- */
+.zomato-btn-primary {
+  width: 100%;
+  background: #E23744;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin-top: 4px;
+}
+
+.zomato-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.zomato-btn-primary:disabled {
+  opacity: 0.7;
   cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
+  transform: none;
+}
+
+/* ---------------- DIVIDER ---------------- */
+.zomato-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.zomato-divider::before,
+.zomato-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.zomato-divider span {
+  padding: 0 14px;
+}
+
+/* ---------------- GOOGLE BUTTON ---------------- */
+.zomato-google-full-btn {
+  width: 100%;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: inherit;
+  margin-bottom: 5px;
+}
+
+.zomato-google-full-btn img {
+  width: 22px;
+  height: 22px;
+}
+
+.zomato-google-full-btn:hover {
+  background: #fafafa;
+  border-color: #94a3b8;
+}
+
+.zomato-google-full-btn:active {
+  transform: scale(0.98);
+}
+
+/* ---------------- LINKS & FOOTER ---------------- */
+.zomato-register-link {
+  text-align: center;
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.zomato-register-link span {
+  color: #E23744;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.zomato-register-link span:hover {
+  text-decoration: underline;
+}
+
+.zomato-terms {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-top: 5px;
+}
+
+.zomato-terms span {
+  color: #64748b;
+}
+
+
+/* ===================================================================
+   DESKTOP RESPONSIVE ADJUSTMENTS
+=================================================================== */
+@media (min-width: 769px) {
+  .zomato-auth-wrapper {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    /* Center perfectly */
+    padding-top: 5vh;
+    background: #fdfdfd;
+    padding-left: 60px;
+    padding-right: 60px;
+    padding-bottom: 60px;
+    gap: 80px;
+  }
+
+  .zomato-hero {
+    display: flex;
+    flex: 1;
+    max-width: 500px;
+    margin-top: 0;
+    align-items: center;
+    /* Center horizontally */
+    text-align: left;
+  }
+
+  .zomato-hero-title {
+    color: #1c1c1c;
+    /* Dark text for light background */
+    text-align: center;
+  }
+
+  .zomato-hero-img {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 0;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  .zomato-auth-card {
+    border-radius: 20px;
+    margin: 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    flex: 1;
+    max-width: 420px;
+  }
 }
