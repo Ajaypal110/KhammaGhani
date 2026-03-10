@@ -140,23 +140,8 @@ export default function Navbar() {
           <div className="nav-actions">
             {isInstallable && (
               <button 
+                className="install-app-btn"
                 onClick={handleInstallClick} 
-                style={{
-                  background: "linear-gradient(135deg, #16a34a, #15803d)",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 16px",
-                  borderRadius: "20px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                  marginRight: "10px",
-                  boxShadow: "0 4px 6px rgba(22, 163, 74, 0.2)",
-                  transition: "all 0.3s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px"
-                }}
               >
                  Install App ⬇️
               </button>

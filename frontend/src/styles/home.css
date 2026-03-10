@@ -173,6 +173,35 @@
   border: 1px solid #ff6b00 !important;
 }
 
+.install-app-btn {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 10px;
+  box-shadow: 0 4px 6px rgba(22, 163, 74, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.install-app-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(22, 163, 74, 0.3);
+}
+
+/* Hide Install App button when app is running as PWA */
+@media all and (display-mode: standalone) {
+  .install-app-btn {
+    display: none !important;
+  }
+}
+
 .nav-icons {
   display: flex;
   align-items: center;
