@@ -340,3 +340,121 @@
     font-size: 24px;
     font-weight: 800;
 }
+
+/* ===================================================================
+   MOBILE RESPONSIVE ENHANCEMENTS — Cart Page
+=================================================================== */
+@media (max-width: 768px) {
+    .cart-container {
+        margin: 70px auto 100px;
+        padding: 0 14px;
+        gap: 16px;
+    }
+
+    .cart-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .cart-card h3 {
+        font-size: 16px;
+        margin-bottom: 14px;
+    }
+
+    .address-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .address-pill {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .cart-item-row {
+        padding-bottom: 14px;
+    }
+
+    .cart-item-img {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+    }
+
+    .cart-item-name {
+        font-size: 14px;
+    }
+
+    .cart-item-price {
+        font-size: 13px;
+    }
+
+    .cart-item-info {
+        gap: 12px;
+    }
+
+    .bill-row {
+        font-size: 13px;
+    }
+
+    .bill-row.total {
+        font-size: 16px;
+    }
+
+    .restaurant-branding h2 {
+        font-size: 18px;
+    }
+
+    .offer-card-small {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+}
+
+/* Sticky checkout button on mobile */
+@media (max-width: 600px) {
+    .checkout-btn {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        border-radius: 0;
+        padding: 16px;
+        font-size: 16px;
+        z-index: 100;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-container {
+        margin-bottom: 80px;
+    }
+}
+
+@media (max-width: 380px) {
+    .cart-container {
+        padding: 0 10px;
+    }
+
+    .cart-card {
+        padding: 12px;
+    }
+
+    .cart-item-img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .qty-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+
+    .qty-val {
+        font-size: 13px;
+        padding: 0 8px;
+    }
+}

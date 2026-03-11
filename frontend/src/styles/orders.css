@@ -1,0 +1,301 @@
+/* orders.css - Zomato Style My Orders */
+
+:root {
+    --zomato-red: #ff4d4f;
+    --zomato-bg: #f8f8f8;
+    --text-main: #1c1c1c;
+    --text-gray: #696969;
+    --border-light: #e8e8e8;
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.orders-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f4f6f8;
+}
+
+.white-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+/* Order List Styles */
+.order-card-zomato {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 20px;
+    padding: 16px;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.2s;
+}
+
+.order-card-zomato:hover {
+    transform: translateY(-2px);
+}
+
+.order-card-top {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--border-light);
+}
+
+.order-dish-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f0f0f0;
+}
+
+.order-rest-details {
+    flex: 1;
+}
+
+.order-rest-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.order-rest-loc {
+    font-size: 12px;
+    color: var(--text-gray);
+    margin: 2px 0;
+}
+
+.order-view-menu {
+    font-size: 12px;
+    color: var(--zomato-red);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.order-card-mid {
+    padding: 12px 0;
+}
+
+.order-item-list {
+    font-size: 13px;
+    color: var(--text-main);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-item-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.veg-icon {
+    color: #27ae60;
+    font-size: 12px;
+}
+
+.nonveg-icon {
+    color: #c0392b;
+    font-size: 12px;
+}
+
+.order-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+.order-info-text {
+    font-size: 12px;
+    color: var(--text-gray);
+}
+
+.order-total-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.order-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.reorder-btn {
+    background: #fff;
+    color: var(--zomato-red);
+    border: 1px solid var(--zomato-red) !important;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: fit-content;
+    transition: all 0.2s;
+}
+
+.reorder-btn:hover {
+    background: #fff5f5;
+}
+
+.reorder-btn.cancel {
+    color: #4a4a4a;
+    border: 1px solid #d1d1d1 !important;
+}
+
+.reorder-btn.cancel:hover {
+    background: #fdf2f2;
+    color: #ef4444;
+    border-color: #ef4444 !important;
+}
+
+/* Order Details Page Styles */
+.order-details-page {
+    background: #f4f6f8;
+    min-height: 100vh;
+    padding-bottom: 120px;
+}
+
+.order-status-banner {
+    background: #fff;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.wavy-footer {
+    height: 12px;
+    background-image: radial-gradient(circle at 6px 12px, #fff 6px, transparent 6px);
+    background-size: 12px 12px;
+    position: relative;
+    bottom: -1px;
+    filter: drop-shadow(0 2px 0 #e0f2fe);
+}
+
+.bill-summary-wrap {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.bill-content {
+    padding: 20px;
+}
+
+.struck-price {
+    color: #999;
+    text-decoration: line-through;
+    margin-right: 6px;
+}
+
+.copy-icon {
+    cursor: pointer;
+    color: #999;
+    margin-left: 6px;
+    transition: color 0.2s;
+}
+
+.copy-icon:hover {
+    color: #1c1c1c;
+}
+
+.status-icon-box {
+    background: #fdf2f2;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.order-details-section {
+    background: #fff;
+    margin-bottom: 8px;
+    padding: 20px;
+}
+
+.bill-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-gray);
+}
+
+.bill-summary-row.total {
+    border-top: 1px solid var(--border-light);
+    margin-top: 10px;
+    padding-top: 12px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 16px;
+}
+
+.bill-summary-row.discount {
+    color: #27ae60;
+}
+
+.details-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+}
+
+.footer-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+}
+
+.footer-btn.primary {
+    background: var(--zomato-red);
+    color: #fff;
+    border: none;
+}
+
+.footer-btn.secondary {
+    background: #fff;
+    color: var(--zomato-red);
+    border-color: var(--zomato-red);
+}
+
+@media (max-width: 600px) {
+    .orders-container {
+        padding: 10px;
+    }
+
+    .order-card-zomato {
+        padding: 12px;
+    }
+}

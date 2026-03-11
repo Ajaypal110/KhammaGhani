@@ -33,6 +33,9 @@ export default function DishDetails() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Add mobile view class to body to hide global navbar on mobile
+    document.body.classList.add("dish-mobile-view");
+    
     const fetchDish = async () => {
       try {
         const { data } = await API.get(`/menu/item/${id}`);
@@ -85,6 +88,10 @@ export default function DishDetails() {
       }
     };
     fetchUser();
+
+    return () => {
+      document.body.classList.remove("dish-mobile-view");
+    };
   }, [id]);
 
   if (!dish) return <div style={{ paddingTop: "100px" }}><Loader /></div>;
@@ -193,7 +200,7 @@ export default function DishDetails() {
       />
       {/* Top action header for native/mobile back feel */}
 
-      <div className="dish-page-header horizontal-header">
+      <div className="dish-page-header">
         <button className="dish-icon-btn shadow-btn" onClick={() => navigate(-1)}>
           <FiChevronLeft size={24} />
         </button>
@@ -227,17 +234,6 @@ export default function DishDetails() {
                  {isBestseller && <span className="bestseller-badge-floating">🔥 Bestseller</span>}
               </div>
               
-              {/* Description & Ingredients (Moved under image) */}
-              <div className="dish-description-box">
-                 <h2 className="section-title mt-24">About this dish</h2>
-                 <p className="dish-desc-text large-text">{dish.description}</p>
-                 {dish.contents && (
-                   <div className="dish-ingredients highlight-box">
-                     <span className="highlight-label">Ingredients:</span>
-                     <span>{dish.contents}</span>
-                   </div>
-                 )}
-              </div>
            </div>
 
            {/* RIGHT: Core Info & Booking */}
@@ -335,6 +331,18 @@ export default function DishDetails() {
                       Add to Cart
                     </button>
                  </div>
+              </div>
+
+              {/* Description & Ingredients (Moved to bottom of info side) */}
+              <div className="dish-description-box">
+                 <h2 className="section-title">About this dish</h2>
+                 <p className="dish-desc-text large-text">{dish.description}</p>
+                 {dish.contents && (
+                   <div className="dish-ingredients highlight-box">
+                     <span className="highlight-label">Ingredients:</span>
+                     <span>{dish.contents}</span>
+                   </div>
+                 )}
               </div>
 
            </div>

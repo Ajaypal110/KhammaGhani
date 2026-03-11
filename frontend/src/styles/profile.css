@@ -12,113 +12,266 @@
 }
 
 /* ===================================================================
-   SIDEBAR
+   SIDEBAR (Zomato-Style Vertical Menu)
 =================================================================== */
 .profile-sidebar {
-  width: 240px;
-  background: #fff;
-  padding: 32px 20px;
+  width: 320px;
+  background: #fafafa;
+  padding: 24px 20px;
   color: #333;
   min-height: 100vh;
   border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.profile-sidebar h3 {
-  margin-bottom: 28px;
-  font-size: 18px;
-  font-weight: 800;
-  color: #1a1a1a;
-  letter-spacing: -0.3px;
-  padding-left: 12px;
-}
-
-.profile-sidebar div {
-  padding: 12px 14px;
+/* User Card Header */
+.profile-user-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   cursor: pointer;
-  border-radius: 12px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #888;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #f1f5f9;
 }
 
-.profile-sidebar div:hover {
-  background: #fff7f0;
-  color: #ff6b00;
-  transform: translateX(4px);
+.profile-user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.profile-sidebar .active {
-  background: linear-gradient(135deg, #ff6b00, #ff8c33);
-  color: #fff;
+.profile-user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.profile-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar-placeholder-small {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #4338ca;
+  font-weight: 800;
+}
+
+.profile-user-info h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.edit-profile-link {
+  font-size: 13px;
+  color: #16a34a;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* ===================================================================
-   CONTENT
-=================================================================== */
-.profile-content {
-  flex: 1;
-  padding: 40px;
+.edit-profile-link span {
+  font-size: 16px;
 }
 
+/* Menu Sections */
+.profile-menu-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+}
+
+.section-title::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: #16a34a;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.profile-mobile-top-bar {
+  margin-bottom: 20px;
+}
+
+.zomato-back-arrow {
+  font-size: 24px;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+@media (min-width: 769px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 4px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1f2937;
+  background: transparent;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.menu-item.active {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.menu-icon {
+  margin-right: 14px;
+  font-size: 18px;
+  color: #64748b;
+  stroke-width: 2px;
+}
+
+.menu-item .arrow {
+  margin-left: auto;
+  color: #cbd5e1;
+  font-size: 18px;
+}
+
+.menu-item.active .arrow {
+  color: #94a3b8;
+}
+
+.menu-item.log-out {
+  color: #1f2937;
+}
+
+.menu-item.log-out .menu-icon,
+.menu-item.log-out .arrow {
+  color: #ef4444;
+}
+
+/* Base Content visibility for Mobile Setup */
+.mobile-content-header {
+  display: none;
+}
+
+/* Mobile Responsive Hide Classes */
 @media (max-width: 768px) {
+
+  /* Hide the global Navbar and Footer gracefully when inside Profile view */
+  body.profile-mobile-view nav.navbar,
+  body.profile-mobile-view footer {
+    display: none !important;
+  }
+
+  body.profile-mobile-view .mobile-search-section {
+    display: none !important;
+  }
+
   .profile-page {
     flex-direction: column;
+    background: #ffffff;
   }
 
   .profile-sidebar {
     width: 100%;
-    min-height: auto;
+    min-height: 100vh;
     border-right: none;
-    border-bottom: 1px solid #f0f0f0;
-    padding: 16px;
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    gap: 12px;
-    align-items: center;
-    scrollbar-width: none;
-    /* Firefox */
+    padding: 24px 20px;
+    background: #ffffff;
+    gap: 20px;
   }
 
-  .profile-sidebar::-webkit-scrollbar {
-    display: none;
-    /* Chrome/Safari */
+  .profile-user-card {
+    padding: 0 0 16px 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    border-bottom: 2px solid #f1f5f9;
   }
 
-  .profile-sidebar h3 {
-    margin-bottom: 0;
-    padding-left: 0;
-    margin-right: 16px;
+  .profile-user-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .menu-item {
+    padding: 18px 0;
     font-size: 16px;
   }
 
-  .profile-sidebar div {
-    margin-bottom: 0;
-    padding: 8px 16px;
-    white-space: nowrap;
+  .section-title {
+    font-size: 14px;
+    padding-left: 0;
+    margin-bottom: 4px;
+    margin-top: 10px;
   }
 
   .profile-content {
-    padding: 20px 16px;
+    padding: 16px 20px;
+    background: #ffffff;
+    min-height: 100vh;
   }
 
-  .profile-content h2 {
-    font-size: 22px;
+  /* When activeTab === "menu", hide content. When activeTab !== "menu", hide sidebar. */
+  .hide-on-mobile {
+    display: none !important;
   }
 
-  .profile-photo-section {
-    flex-direction: column;
-    text-align: center;
-    padding: 20px;
-    gap: 16px;
+  .mobile-content-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
   }
 
-  .change-photo-btn {
-    text-align: center;
+  .mobile-content-header .back-arrow {
+    font-size: 24px;
+    color: #1a1a1a;
   }
 }
 
@@ -279,25 +432,32 @@
 
 .avatar-loading {
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 20;
 }
 
 .spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #16a34a;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
     transform: rotate(360deg);
   }
 }
@@ -316,26 +476,26 @@
 }
 
 .photo-email {
-  font-size: 13px;
-  color: #aaa;
-  margin: 0 0 10px;
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 12px;
 }
 
 .change-photo-btn {
   background: none;
   border: none;
-  color: #ff6b00;
+  color: #16a34a;
   font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
   padding: 0;
+  cursor: pointer;
+  font-size: 14px;
   font-family: inherit;
   transition: color 0.2s;
   text-align: left;
 }
 
 .change-photo-btn:hover {
-  color: #e65c00;
+  color: #047857;
   text-decoration: underline;
 }
 
@@ -443,9 +603,9 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  background: linear-gradient(135deg, #16a34a, #34d399);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(255, 107, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
 }
 
 .crop-actions {
@@ -474,7 +634,7 @@
 .crop-confirm {
   flex: 1;
   padding: 12px;
-  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  background: linear-gradient(135deg, #16a34a, #34d399);
   border: none;
   border-radius: 14px;
   color: #fff;
@@ -487,7 +647,7 @@
 
 .crop-confirm:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.3);
 }
 
 /* ===================================================================
@@ -525,9 +685,9 @@
 }
 
 .profile-form input:focus {
-  border-color: #ff6b00;
+  border-color: #16a34a;
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.06);
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.06);
 }
 
 .profile-form input:disabled {
@@ -539,7 +699,7 @@
   width: 100%;
   padding: 13px;
   margin-top: 4px;
-  background: linear-gradient(135deg, #ff6b00, #ff8c33);
+  background: linear-gradient(135deg, #16a34a, #34d399);
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -552,7 +712,7 @@
 
 .profile-form button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
 }
 
 .profile-form button:disabled {
@@ -1203,5 +1363,162 @@
   .btn-pay-online {
     flex: 1;
     text-align: center;
+  }
+}
+
+/* ===================================================================
+   ENHANCED MOBILE — Zomato-Like Profile Experience
+=================================================================== */
+@media (max-width: 480px) {
+  .profile-sidebar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .profile-sidebar h3 {
+    font-size: 14px;
+    margin-right: 10px;
+  }
+
+  .profile-sidebar div {
+    padding: 7px 12px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .profile-content {
+    padding: 14px 12px;
+  }
+
+  .profile-content h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .profile-photo-section {
+    padding: 16px;
+    border-radius: 16px;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .profile-avatar-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-avatar,
+  .profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    font-size: 28px;
+  }
+
+  .photo-name {
+    font-size: 17px;
+  }
+
+  .photo-email {
+    font-size: 12px;
+  }
+
+  .profile-form {
+    max-width: 100%;
+  }
+
+  .profile-form input {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+
+  .booking-card-header {
+    padding: 14px 16px;
+  }
+
+  .booking-card-header h3 {
+    font-size: 15px;
+  }
+
+  .booking-card-body {
+    padding: 14px 16px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .booking-card-footer {
+    padding: 10px 16px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .detail-label {
+    font-size: 10px;
+  }
+
+  .detail-value {
+    font-size: 13px;
+  }
+
+  /* Order cards on mobile */
+  .order-card-body {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .order-item-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+  }
+
+  .order-card-header {
+    padding: 12px 14px;
+  }
+
+  .order-card-footer {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .btn-cancel,
+  .btn-track,
+  .btn-reorder,
+  .btn-rate,
+  .btn-pay-online {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .crop-modal {
+    padding: 20px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 380px) {
+  .profile-sidebar div {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .profile-photo-section {
+    padding: 12px;
+  }
+
+  .profile-avatar-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .profile-avatar,
+  .profile-avatar-placeholder {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+  }
+
+  .photo-name {
+    font-size: 15px;
   }
 }

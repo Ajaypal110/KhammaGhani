@@ -547,11 +547,12 @@
 
 @media (max-width: 768px) {
   .hero-content h1 {
-    font-size: 36px;
+    font-size: 28px;
+    margin-top: 20px;
   }
 
   .hero-wrapper {
-    padding: 120px 5% 80px;
+    padding: 220px 5% 80px;
   }
 }
 
@@ -1221,4 +1222,213 @@
 
 .home-category-card.active .category-card-name {
   color: #ff6b00;
+}
+
+/* ===================================================================
+   ENHANCED MOBILE RESPONSIVE — Zomato-Like Phone Experience
+=================================================================== */
+
+/* ------- VERY SMALL PHONES (< 380px) ------- */
+@media (max-width: 380px) {
+  .hero-content h1 {
+    font-size: 28px;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .categories-container {
+    padding: 20px 4%;
+  }
+
+  .category-card-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .category-card-name {
+    font-size: 11px;
+  }
+
+  .home-category-card {
+    min-width: 80px;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .restaurants-wrapper h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .app-promo-box {
+    padding: 24px;
+  }
+
+  .app-promo-box h3 {
+    font-size: 20px;
+  }
+
+  .reservation-box {
+    padding: 24px;
+  }
+}
+
+/* ------- MOBILE PHONES (< 600px) ------- */
+@media (max-width: 600px) {
+  .hero-wrapper {
+    padding: 100px 5% 60px;
+  }
+
+  .hero-content h1 {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .restaurants-wrapper {
+    padding: 30px 4%;
+  }
+
+  .restaurants-wrapper h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .section-tag {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  /* Zomato-style: Restaurant card as horizontal row on mobile */
+  .restaurant-grid,
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .res-card {
+    flex-direction: row;
+    padding: 12px;
+    border-radius: 16px;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .res-card-img-box {
+    width: 100px;
+    min-width: 100px;
+    height: 100px;
+    border-radius: 14px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .res-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .res-card-info h4 {
+    font-size: 15px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .res-card-info p {
+    font-size: 12px;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .res-meta {
+    margin-top: 4px;
+  }
+
+  .res-price {
+    font-size: 14px;
+  }
+
+  .res-stars {
+    font-size: 12px;
+  }
+
+  /* Better featured section on mobile */
+  .featured-section {
+    padding: 30px 4%;
+    gap: 24px;
+  }
+
+  .featured-text h2 {
+    font-size: 26px;
+  }
+
+  .featured-img-grid {
+    gap: 10px;
+  }
+
+  .featured-img-grid img:first-child {
+    height: 160px;
+    margin-top: 0;
+  }
+
+  .featured-img-grid img:last-child {
+    height: 180px;
+  }
+
+  /* Better reservation section */
+  .app-reservation-section {
+    padding: 40px 4%;
+    gap: 24px;
+  }
+
+  .app-promo-box h3 {
+    font-size: 22px;
+  }
+
+  .reservation-box h3 {
+    font-size: 20px;
+  }
+
+  /* Category scroll improvements */
+  .home-categories-scroll {
+    gap: 10px;
+    padding: 8px 0 20px;
+  }
+
+  .home-category-card {
+    min-width: 90px;
+    padding: 12px 8px;
+    border-radius: 14px;
+  }
+}
+
+/* ------- TABLET (601px - 900px) ------- */
+@media (min-width: 601px) and (max-width: 900px) {
+
+  .restaurant-grid,
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .res-card-img-box {
+    height: 150px;
+  }
 }

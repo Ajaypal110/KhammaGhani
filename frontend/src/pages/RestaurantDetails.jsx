@@ -448,16 +448,51 @@ export default function RestaurantDetails() {
                 const qty = cartItem ? cartItem.qty : 0;
 
                 return (
-                  <div key={item._id} className="res-card">
-                    <div className="res-card-img-box" onClick={() => navigate(`/dish/${item._id}`)}>
-                    <img 
-                      src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800"} 
-                      alt={item.name} 
-                      loading="lazy" 
-                      onError={(e) => {
-                        e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800";
-                      }}
-                    />
+                  <div key={item._id} className="res-card zomato-menu-card">
+                    {/* LEFT SIDE: Info */}
+                    <div className="res-card-info" onClick={() => navigate(`/dish/${item._id}`)}>
+                      <div className="dish-title-row" style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "4px" }}>
+                        <DietaryIcon isVeg={item.isVeg} size={14} style={{ marginTop: "4px" }} />
+                        <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#1e293b", lineHeight: "1.2" }}>{item.name}</h4>
+                      </div>
+                      
+                      <div className="res-price" style={{ fontWeight: "700", color: "#1e293b", fontSize: "15px", marginBottom: "6px" }}>
+                        ₹{item.price || (item.variations?.length > 0 ? item.variations[0].price : "0")}
+                      </div>
+                      
+                      <div className="res-stars" style={{ color: "#16a34a", fontSize: "12px", fontWeight: "700", marginBottom: "8px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                        ★ 4.8 <span style={{ color: "#64748b", fontWeight: "500", fontSize: "11px" }}>(120+)</span>
+                      </div>
+                      
+                      {item.description && (
+                        <p className="res-description" style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.4", margin: "0 0 8px 0", display: "-webkit-box", WebkitLineClamp: "2", WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {item.description}
+                        </p>
+                      )}
+                      
+                      {(item.variations?.length > 0 || item.contents) && (
+                        <div style={{ fontSize: "11px", color: "#64748b", background: "#f8fafc", padding: "4px 8px", borderRadius: "6px", display: "inline-block" }}>
+                          {item.category === "Thali" ? "📦 " : ["Beverages", "Desserts"].includes(item.category) ? "🥤 Sizes: " : "⚖️ Portions: "}
+                          {item.variations?.length > 0 
+                            ? item.variations.map(v => v.name).join(", ") 
+                            : item.contents}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* RIGHT SIDE: Image & Button */}
+                    <div className="res-card-img-box">
+                      <div className="img-frame" onClick={() => navigate(`/dish/${item._id}`)}>
+                        <img 
+                          src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800"} 
+                          alt={item.name} 
+                          loading="lazy" 
+                          onError={(e) => {
+                            e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800";
+                          }}
+                        />
+                      </div>
+                      
                       <button 
                         className="fav-heart-btn"
                         onClick={(e) => handleToggleFavorite(e, item._id)}
@@ -467,57 +502,35 @@ export default function RestaurantDetails() {
                           return (
                             <FiHeart 
                               fill={isLiked ? "#ef4444" : "none"} 
-                              color={isLiked ? "#ef4444" : "#64748b"} 
+                              color={isLiked ? "#ef4444" : "#fff"} 
+                              strokeWidth={isLiked ? 1 : 2.5}
                               size={18} 
                             />
                           );
                         })()}
                       </button>
-                    </div>
 
-                    <div className="res-card-info" onClick={() => navigate(`/dish/${item._id}`)}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
-                        <DietaryIcon isVeg={item.isVeg} size={14} />
-                        <h4 style={{ margin: 0 }}>{item.name}</h4>
-                      </div>
-                      <div className="res-stars" style={{ color: "#16a34a", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>
-                        ★ 4.8 <span style={{ color: "#94a3b8", fontWeight: "400" }}>(120+)</span>
-                      </div>
-                      
-                      {(item.variations?.length > 0 || item.contents) && (
-                        <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "8px", background: "#f8fafc", padding: "2px 6px", borderRadius: "4px", display: "inline-block" }}>
-                          {item.category === "Thali" ? "📦 " : ["Beverages", "Desserts"].includes(item.category) ? "🥤 Sizes: " : "⚖️ Portions: "}
-                          {item.variations?.length > 0 
-                            ? item.variations.map(v => v.name).join(", ") 
-                            : item.contents}
-                        </div>
-                      )}
-
-                      <div className="res-meta mt-2" style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span className="res-price">₹ {item.price || (item.variations?.length > 0 ? item.variations[0].price : "0")}</span>
-                        
-                        <div onClick={(e) => e.stopPropagation()}>
-                          {qty > 0 && !(item.variations?.length > 0 || item.category === "Roti") ? (
-                             <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#f1f5f9", borderRadius: "8px", padding: "4px 8px" }}>
-                               <button style={{ border: "none", background: "none", cursor: "pointer", color: "#64748b", fontWeight: "bold" }} onClick={() => removeFromCart(item._id)}>−</button>
-                               <span style={{ fontWeight: "600", fontSize: "14px" }}>{qty}</span>
-                               <button style={{ border: "none", background: "none", cursor: "pointer", color: "#ff6b00", fontWeight: "bold" }} onClick={() => addToCart(item, item.restaurant || id)}>+</button>
-                             </div>
-                           ) : (
-                             <button 
-                               style={{ background: "#ff6b00", color: "#fff", border: "none", borderRadius: "8px", padding: "6px 16px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
-                               onClick={() => {
-                                 if (item.variations?.length > 0 || item.category === "Roti") {
-                                   setSelectedItemForModal(item);
-                                 } else {
-                                   addToCart(item, item.restaurant || id);
-                                 }
-                               }}
-                             >
-                               ADD
-                             </button>
-                           )}
-                        </div>
+                      <div className="add-btn-wrapper" onClick={(e) => e.stopPropagation()}>
+                        {qty > 0 && !(item.variations?.length > 0 || item.category === "Roti") ? (
+                           <div className="zomato-qty-control">
+                             <button className="zomato-qty-btn" onClick={() => removeFromCart(item._id)}>−</button>
+                             <span className="zomato-qty-val">{qty}</span>
+                             <button className="zomato-qty-btn" onClick={() => addToCart(item, item.restaurant || id)}>+</button>
+                           </div>
+                         ) : (
+                           <button 
+                             className="zomato-add-btn"
+                             onClick={() => {
+                               if (item.variations?.length > 0 || item.category === "Roti") {
+                                 setSelectedItemForModal(item);
+                               } else {
+                                 addToCart(item, item.restaurant || id);
+                               }
+                             }}
+                           >
+                             ADD <span className="add-plus">+</span>
+                           </button>
+                         )}
                       </div>
                     </div>
                   </div>

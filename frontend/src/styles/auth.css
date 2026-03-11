@@ -1,7 +1,475 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ===================================================================
-   AUTH CONTAINER
+   KG AUTH PAGE — Zomato-Inspired Mobile-First Design
+=================================================================== */
+
+.kg-auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ===================================================================
+   HERO SECTION — Full bleed image with dark overlay + text
+=================================================================== */
+.kg-auth-hero {
+  position: relative;
+  width: 100%;
+  height: 55vh;
+  min-height: 300px;
+  max-height: 420px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kg-auth-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0.8) 100%);
+  z-index: 2;
+}
+
+.kg-auth-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.kg-auth-hero-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 20px;
+  animation: kgFadeIn 0.6s ease;
+}
+
+.kg-auth-hero-title {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.kg-auth-brand-badge {
+  display: inline-block;
+  background: #E23744;
+  color: #fff;
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 20px;
+  transform: rotate(-2deg);
+  box-shadow: 0 4px 12px rgba(226, 55, 68, 0.4);
+  letter-spacing: -0.5px;
+}
+
+@keyframes kgFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================================================
+   AUTH CARD — Slides up from bottom on mobile
+=================================================================== */
+.kg-auth-card {
+  background: #fff;
+  width: 100%;
+  padding: 28px 24px 32px;
+  border-radius: 24px 24px 0 0;
+  margin-top: -20px;
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: kgSlideUp 0.5s ease;
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes kgSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kg-auth-card-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+/* ===================================================================
+   AUTH FORM
+=================================================================== */
+.kg-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ===================================================================
+   INPUT GROUP — Icon + Input like Zomato
+=================================================================== */
+.kg-input-group {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+
+.kg-input-group:focus-within {
+  border-color: #E23744;
+  box-shadow: 0 0 0 3px rgba(226, 55, 68, 0.08);
+}
+
+.kg-input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  color: #94a3b8;
+  border-right: 1.5px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.kg-input-group:focus-within .kg-input-icon {
+  color: #E23744;
+  border-right-color: #E23744;
+}
+
+.kg-input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  padding: 13px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  font-family: inherit;
+  background: transparent;
+  box-shadow: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  width: 100%;
+}
+
+.kg-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ===================================================================
+   FORGOT ROW
+=================================================================== */
+.kg-forgot-row {
+  text-align: right;
+  margin-top: -6px;
+  font-size: 13px;
+}
+
+.kg-forgot-row span {
+  color: #E23744;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.kg-forgot-row span:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* ===================================================================
+   PRIMARY BUTTON — Zomato's rounded red CTA
+=================================================================== */
+.kg-btn-primary {
+  width: 100%;
+  background: #E23744;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+  margin-top: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kg-btn-primary:hover {
+  background: #cb2d3e;
+}
+
+.kg-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.kg-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===================================================================
+   DIVIDER
+=================================================================== */
+.kg-auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 4px 0;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.kg-auth-divider::before,
+.kg-auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.kg-auth-divider span {
+  padding: 0 16px;
+}
+
+/* ===================================================================
+   SOCIAL BUTTONS ROW — Circular icons like Zomato
+=================================================================== */
+.kg-social-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.kg-social-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kg-social-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.kg-social-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.kg-social-btn:active {
+  transform: scale(0.95);
+}
+
+/* ===================================================================
+   FOOTER TEXT & LINKS
+=================================================================== */
+.kg-auth-footer-text {
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.kg-auth-footer-text span {
+  color: #64748b;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.kg-auth-footer-text span:hover {
+  color: #E23744;
+}
+
+.kg-register-link {
+  text-align: center;
+  font-size: 15px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.kg-register-link span {
+  color: #E23744;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kg-register-link span:hover {
+  text-decoration: underline;
+}
+
+/* ===================================================================
+   MESSAGE / ERROR
+=================================================================== */
+.kg-auth-message {
+  text-align: center;
+  font-size: 14px;
+  color: #ef4444;
+  font-weight: 500;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border-radius: 12px;
+  border: 1px solid #fee2e2;
+  margin-bottom: 4px;
+}
+
+/* ===================================================================
+   VERY SMALL SCREENS (< 360px)
+=================================================================== */
+@media (max-width: 360px) {
+  .kg-auth-hero-title {
+    font-size: 22px;
+  }
+
+  .kg-auth-brand-badge {
+    font-size: 16px;
+    padding: 5px 14px;
+  }
+
+  .kg-auth-card {
+    padding: 22px 16px 28px;
+  }
+
+  .kg-btn-primary {
+    font-size: 15px;
+    padding: 13px;
+  }
+}
+
+/* ===================================================================
+   DESKTOP (> 768px) — Side by side layout
+=================================================================== */
+@media (min-width: 769px) {
+  .kg-auth-page {
+    flex-direction: row;
+    background: #fdfdfd;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 60px;
+    gap: 60px;
+  }
+
+  .kg-auth-hero {
+    flex: 1;
+    max-width: 520px;
+    height: 520px;
+    max-height: 600px;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  .kg-auth-hero-title {
+    font-size: 36px;
+  }
+
+  .kg-auth-brand-badge {
+    font-size: 24px;
+    padding: 8px 24px;
+  }
+
+  .kg-auth-card {
+    flex: none;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 24px;
+    margin-top: 0;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e2e8f0;
+    padding: 36px 32px;
+  }
+
+  .kg-auth-card-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .kg-btn-primary {
+    padding: 14px;
+    border-radius: 12px;
+  }
+}
+
+/* ===================================================================
+   LARGE DESKTOP (> 1200px)
+=================================================================== */
+@media (min-width: 1200px) {
+  .kg-auth-page {
+    gap: 80px;
+    padding: 60px 80px;
+  }
+
+  .kg-auth-hero {
+    max-width: 600px;
+    height: 580px;
+  }
+
+  .kg-auth-hero-title {
+    font-size: 42px;
+  }
+}
+
+
+/* ===================================================================
+   LEGACY CLASSES — kept for Register page compatibility
 =================================================================== */
 .auth-container {
   min-height: 100vh;
@@ -48,9 +516,6 @@
   }
 }
 
-/* ===================================================================
-   AUTH CARD
-=================================================================== */
 .auth-card {
   width: 100%;
   max-width: 420px;
@@ -134,9 +599,6 @@
   transform: translateY(0);
 }
 
-/* ===================================================================
-   GOOGLE BUTTON
-=================================================================== */
 .google-btn {
   margin-top: 12px;
   background: #fff !important;
@@ -164,9 +626,6 @@
   height: 20px;
 }
 
-/* ===================================================================
-   LINKS & MISC
-=================================================================== */
 .auth-link {
   margin-top: 20px;
   text-align: center;
@@ -203,9 +662,6 @@
   color: #e65c00;
 }
 
-/* ===================================================================
-   RESTAURANT LOGIN BUTTON
-=================================================================== */
 .restaurant-btn {
   margin-top: 12px;
   background: #fff !important;
@@ -219,9 +675,6 @@
   box-shadow: 0 8px 25px rgba(255, 107, 0, 0.15) !important;
 }
 
-/* ===================================================================
-   AUTH MESSAGE
-=================================================================== */
 .auth-message {
   margin-bottom: 16px;
   text-align: center;
@@ -234,9 +687,6 @@
   border: 1px solid #fee2e2;
 }
 
-/* ===================================================================
-   POLICY CHECKBOX
-=================================================================== */
 .auth-policy-checkbox {
   display: flex;
   align-items: flex-start;
@@ -269,10 +719,10 @@
   text-decoration: underline;
 }
 
-/* ===================================================================
-   ZOMATO-STYLE LOGIN - BRANDED KHAMMAGHANI
-=================================================================== */
 
+/* ===================================================================
+   ZOMATO-STYLE — Legacy classes kept for Register page
+=================================================================== */
 .zomato-auth-wrapper {
   min-height: 100vh;
   display: flex;
@@ -285,7 +735,6 @@
   align-items: center;
 }
 
-/* ---------------- HERO SECTION ---------------- */
 .zomato-hero {
   display: flex;
   flex-direction: column;
@@ -307,7 +756,6 @@
 
 .zomato-brand-badge {
   background: #E23744;
-  /* Zomato/KG Red */
   color: #fff;
   padding: 8px 20px;
   border-radius: 6px;
@@ -330,7 +778,6 @@
   border-radius: 12px;
 }
 
-/* ---------------- LOGIN CARD ---------------- */
 .zomato-auth-card {
   background: #fff;
   width: 100%;
@@ -342,7 +789,6 @@
   flex-direction: column;
   border-radius: 28px 28px 0 0;
   margin-top: auto;
-  /* Pushes card to bottom on mobile */
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
 }
 
@@ -374,7 +820,6 @@
   gap: 12px;
 }
 
-/* ---------------- INPUTS ---------------- */
 .zomato-input {
   width: 100%;
   padding: 12px 16px;
@@ -414,7 +859,6 @@
   text-decoration: underline;
 }
 
-/* ---------------- BUTTONS ---------------- */
 .zomato-btn-primary {
   width: 100%;
   background: #E23744;
@@ -440,7 +884,6 @@
   transform: none;
 }
 
-/* ---------------- DIVIDER ---------------- */
 .zomato-divider {
   display: flex;
   align-items: center;
@@ -462,7 +905,6 @@
   padding: 0 14px;
 }
 
-/* ---------------- GOOGLE BUTTON ---------------- */
 .zomato-google-full-btn {
   width: 100%;
   background: #fff;
@@ -496,7 +938,6 @@
   transform: scale(0.98);
 }
 
-/* ---------------- LINKS & FOOTER ---------------- */
 .zomato-register-link {
   text-align: center;
   font-size: 15px;
@@ -528,14 +969,13 @@
 
 
 /* ===================================================================
-   DESKTOP RESPONSIVE ADJUSTMENTS
+   DESKTOP RESPONSIVE — Zomato Legacy
 =================================================================== */
 @media (min-width: 769px) {
   .zomato-auth-wrapper {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    /* Center perfectly */
     padding-top: 5vh;
     background: #fdfdfd;
     padding-left: 60px;
@@ -550,13 +990,11 @@
     max-width: 500px;
     margin-top: 0;
     align-items: center;
-    /* Center horizontally */
     text-align: left;
   }
 
   .zomato-hero-title {
     color: #1c1c1c;
-    /* Dark text for light background */
     text-align: center;
   }
 

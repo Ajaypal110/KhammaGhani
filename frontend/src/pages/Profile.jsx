@@ -5,6 +5,9 @@ import API from "../api/axios";
 import Loader from "../components/Loader";
 import "../styles/profile.css";
 import ConfirmModal from "../components/ConfirmModal";
+import "../styles/orders.css";
+import { IoEllipsisVertical, IoChevronForward, IoChevronBack } from "react-icons/io5";
+import { FiShoppingBag, FiMapPin, FiHeart, FiLock, FiLogOut, FiCalendar } from "react-icons/fi";
 
 /* ================================================================
    CROP MODAL — Instagram-style circular crop with zoom + drag
@@ -165,7 +168,7 @@ function CropModal({ imageSrc, onCrop, onCancel }) {
 export default function Profile() {
   const navigate = useNavigate();
   const { addToCart, clearCart } = useCart();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(window.innerWidth <= 768 ? "menu" : "profile");
   const [cancelBookingId, setCancelBookingId] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
@@ -249,6 +252,9 @@ export default function Profile() {
 
   // FETCH USER DETAILS
   useEffect(() => {
+    // Add class for handling global mobile styling (hiding navbar/footer only on mobile)
+    document.body.classList.add("profile-mobile-view");
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -262,6 +268,10 @@ export default function Profile() {
       }
     };
     fetchData();
+
+    return () => {
+      document.body.classList.remove("profile-mobile-view");
+    };
   }, []);
 
   // FETCH MY BOOKINGS
@@ -647,43 +657,72 @@ export default function Profile() {
         </div>
       )}
 
-      {/* SIDEBAR */}
-      <div className="profile-sidebar">
-        <h3>My Account</h3>
-        <div
-          className={activeTab === "profile" ? "active" : ""}
-          onClick={() => setActiveTab("profile")}
-        >
-          👤 Profile
+      {/* SIDEBAR (Zomato-Style Menu) */}
+      <div className={`profile-sidebar ${activeTab !== "menu" ? "hide-on-mobile" : ""}`}>
+        {/* Mobile App Header - Back to Home (Zomato style) */}
+        <div className="profile-mobile-top-bar hide-on-desktop">
+          <IoChevronBack className="zomato-back-arrow" onClick={() => navigate("/")} />
         </div>
-        <div
-          className={activeTab === "bookings" ? "active" : ""}
-          onClick={() => { setActiveTab("bookings"); fetchBookings(); }}
-        >
-          📅 My Bookings
+
+        {/* User Card */}
+        <div className="profile-user-card" onClick={() => setActiveTab("profile")}>
+          <div className="profile-user-avatar">
+            {user.profileImage ? (
+              <img src={user.profileImage} alt="Profile" />
+            ) : (
+              <div className="profile-avatar-placeholder-small">
+                {user.name ? user.name.charAt(0).toUpperCase() : "?"}
+              </div>
+            )}
+          </div>
+          <div className="profile-user-info">
+            <h4>{user.name || "Your Name"}</h4>
+            <span className="edit-profile-link">Edit profile <IoChevronForward style={{fontSize:"14px", marginTop:"1px"}}/></span>
+          </div>
         </div>
-        <div
-          className={activeTab === "orders" ? "active" : ""}
-          onClick={() => { setActiveTab("orders"); fetchOrders(); }}
-        >
-          📦 My Orders
+
+        {/* Section: Food delivery */}
+        <div className="profile-menu-section">
+          <div className="section-title">Food delivery</div>
+          <div className={`menu-item ${activeTab === "orders" ? "active" : ""}`} onClick={() => { setActiveTab("orders"); fetchOrders(); }}>
+             <FiShoppingBag className="menu-icon" /> Your orders <IoChevronForward className="arrow" />
+          </div>
+          <div className={`menu-item ${activeTab === "addresses" ? "active" : ""}`} onClick={() => setActiveTab("addresses")}>
+             <FiMapPin className="menu-icon" /> Address book <IoChevronForward className="arrow" />
+          </div>
+          <div className={`menu-item ${activeTab === "favorites" ? "active" : ""}`} onClick={() => setActiveTab("favorites")}>
+             <FiHeart className="menu-icon" /> Your collections <IoChevronForward className="arrow" />
+          </div>
         </div>
-        <div
-          className={activeTab === "favorites" ? "active" : ""}
-          onClick={() => setActiveTab("favorites")}
-        >
-          ❤️ My Favorites
+
+        {/* Section: Dining & experiences */}
+        <div className="profile-menu-section">
+          <div className="section-title">Dining & experiences</div>
+          <div className={`menu-item ${activeTab === "bookings" ? "active" : ""}`} onClick={() => { setActiveTab("bookings"); fetchBookings(); }}>
+             <FiCalendar className="menu-icon" /> Your bookings <IoChevronForward className="arrow" />
+          </div>
         </div>
-        <div
-          className={activeTab === "settings" ? "active" : ""}
-          onClick={() => setActiveTab("settings")}
-        >
-          ⚙️ Settings
+
+        {/* Section: More */}
+        <div className="profile-menu-section">
+          <div className="section-title">More</div>
+          <div className="menu-item" onClick={() => setShowPasswordModal(true)}>
+             <FiLock className="menu-icon" /> Change Password <IoChevronForward className="arrow" />
+          </div>
+          <div className="menu-item" onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("restaurantToken"); localStorage.removeItem("agentToken"); window.location.href="/login"; }}>
+             <FiLogOut className="menu-icon" /> Log out <IoChevronForward className="arrow" />
+          </div>
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="profile-content">
+      <div className={`profile-content ${activeTab === "menu" ? "hide-on-mobile" : ""}`}>
+        {/* Mobile Header with Back Button */}
+        {activeTab !== "menu" && (
+          <div className="mobile-content-header" onClick={() => setActiveTab("menu")}>
+             <IoChevronBack className="back-arrow" /> Back to Menu
+          </div>
+        )}
         {message && (
           <p className={`profile-message ${messageType === "error" ? "error" : ""}`}>
             {message}
@@ -765,6 +804,18 @@ export default function Profile() {
                 />
               </div>
 
+              <button onClick={updateProfile} disabled={saving} style={{ marginTop: "16px" }}>
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* ADDRESSES TAB */}
+        {activeTab === "addresses" && (
+          <>
+            <h2>Address Book</h2>
+            <div className="profile-form">
               {/* SAVED ADDRESSES */}
               <div className="form-group saved-addresses-section">
                 <label>Saved Delivery Addresses</label>
@@ -809,13 +860,6 @@ export default function Profile() {
               </button>
             </div>
 
-            {/* SECURITY — CHANGE PASSWORD */}
-            <div className="reset-password">
-              <h3>Security</h3>
-              <button className="danger" onClick={() => setShowPasswordModal(true)}>
-                🔒 Change Password
-              </button>
-            </div>
           </>
         )}
 
@@ -964,220 +1008,62 @@ export default function Profile() {
             ) : (
               <div className="bookings-list">
                 {orders.map((o) => {
+                  const firstItemImage = o.items?.[0]?.menuId?.image || "https://via.placeholder.com/60";
                   
-                  // Dynamic status color mapping
-                  let statusColorClass = "status-default";
-                  if (o.status === "Placed" || o.status === "Confirmed") statusColorClass = "status-placed";
-                  if (o.status === "Preparing" || o.status === "Assigned") statusColorClass = "status-preparing";
-                  if (o.status === "Out for Delivery") statusColorClass = "status-out-for-delivery";
-                  if (o.status === "Delivered") statusColorClass = "status-delivered";
-                  if (o.status === "Cancelled") statusColorClass = "status-cancelled";
-
                   return (
-                  <div key={o._id} className="order-card-modern">
-                    <div className="order-card-header">
-                      <div className="order-rest-info">
-                        <h3>{o.restaurant?.name || "Restaurant"}</h3>
-                        <p className="order-rest-city">{o.deliveryAddress ? o.deliveryAddress.split(",").pop().trim() : "Local"}</p>
-                      </div>
-                      <div className="order-status-wrapper">
-                        <span className={`status-badge ${statusColorClass}`}>
-                          {o.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="order-card-body">
-                      <div className="order-items-summary">
-                        {o.items?.map((item, idx) => (
-                           <div key={idx} className="order-item-detail" style={{ marginBottom: "8px", paddingBottom: "8px", borderBottom: idx < o.items.length - 1 ? "1px solid #f1f5f9" : "none" }}>
-                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                               <span className="item-text" style={{ fontWeight: "700", color: "#1e293b" }}>
-                                 {item.qty} x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}
-                               </span>
-                               <span style={{ fontWeight: "800", color: "#ff6b00" }}>₹{(item.price || 0) * item.qty}</span>
-                             </div>
-                             
-                             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "4px" }}>
-                               {item.spiceLevel && item.spiceLevel !== "None" && (
-                                 <span style={{ fontSize: "11px", color: "#ef4444", background: "#fef2f2", padding: "2px 8px", borderRadius: "10px", fontWeight: "700" }}>
-                                   🌶️ {item.spiceLevel}
-                                 </span>
-                               )}
-                               {item.addOns?.length > 0 && item.addOns.map((addon, aIdx) => (
-                                 <span key={aIdx} style={{ fontSize: "11px", color: "#16a34a", background: "#f0fdf4", padding: "2px 8px", borderRadius: "10px", fontWeight: "700" }}>
-                                   + {addon.name}
-                                 </span>
-                               ))}
-                             </div>
-
-                             {item.instructions && (
-                               <div style={{ fontSize: "11px", color: "#64748b", fontStyle: "italic", marginTop: "4px", padding: "4px 8px", background: "#f8fafc", borderRadius: "6px", border: "1px dashed #e2e8f0" }}>
-                                 " {item.instructions} "
-                               </div>
-                             )}
-                           </div>
-                        ))}
-                      </div>
-
-                      <div className="order-meta-grid">
-                        <div className="meta-item">
-                          <span className="meta-label">Order ID</span>
-                          <span className="meta-val">#{o._id.slice(-6).toUpperCase()}</span>
-                        </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Date & Time</span>
-                          <span className="meta-val">
-                            {new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })} at {new Date(o.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-                          </span>
-                        </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Total Amount</span>
-                          <span className="meta-val highlight">₹{o.totalAmount}</span>
-                        </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Payment</span>
-                          <span className="meta-val">
-                             {o.paymentMethod === "Cash on Delivery" 
-                              ? (o.cashCollected || o.paymentStatus === "Paid" ? "COD – Paid ✅" : "COD – Pending ⚠️")
-                              : o.paymentStatus}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Delivery Agent Info */}
-                      {o.deliveryAgent?.name && o.status !== "Delivered" && (
-                        <div className="agent-info-box">
-                          <div className="agent-title">🚴 Delivery Partner Assigned</div>
-                          <div className="agent-details">
-                            {o.deliveryAgent.name} • {o.deliveryAgent.phone} • {o.deliveryAgent.vehicleNumber}
+                    <div key={o._id} className="order-card-zomato" onClick={() => navigate(`/order/${o._id}`)} style={{ cursor: "pointer" }}>
+                      <div className="order-card-top">
+                        <img src={firstItemImage} alt="Order Item" className="order-dish-img" />
+                        <div className="order-rest-details">
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <h3 className="order-rest-name">{o.restaurant?.name || "Restaurant"}</h3>
+                            <IoEllipsisVertical size={18} color="#999" onClick={(e) => { e.stopPropagation(); /* Options */ }} />
                           </div>
+                          <p className="order-rest-loc">{o.deliveryAddress?.split(",").slice(-2).join(", ") || "Udaipur"}</p>
+                          <span className="order-view-menu" onClick={(e) => { e.stopPropagation(); navigate(`/restaurant/${o.restaurant?._id}`); }}>View menu ›</span>
                         </div>
-                      )}
-                    </div>
-
-                    <div className="order-card-footer">
-                      <div className="footer-actions-left">
-                        {o.paymentStatus !== "Paid" && o.status !== "Delivered" && o.paymentMethod !== "Cash on Delivery" && (
-                          <button
-                            className="btn-pay-online"
-                            onClick={() => payForOrder(o._id)}
-                          >
-                            💳 Pay Now
-                          </button>
-                        )}
-                        <button
-                          className="btn-text-only"
-                          onClick={() => setShowReceipt(showReceipt === o._id ? null : o._id)}
-                        >
-                          {showReceipt === o._id ? "Hide Receipt" : "View Receipt"}
-                        </button>
                       </div>
 
-                      <div className="footer-actions-right">
-                        {/* Track Order feature */}
-                        {o.status !== "Delivered" && o.status !== "Cancelled" && (
-                           <button 
-                             className="btn-track"
-                             onClick={() => navigate(`/track/${o._id}`)}
-                           >
-                             📍 Track Order
-                           </button>
-                        )}
+                      <div className="order-card-mid">
+                        <ul className="order-item-list">
+                          {o.items?.slice(0, 2).map((item, idx) => (
+                            <li key={idx}>
+                              <span className="veg-icon">⊡</span> {item.qty} x {item.menuId?.name}
+                            </li>
+                          ))}
+                          {o.items?.length > 2 && (
+                            <li style={{ color: "#999", fontSize: "11px" }}>+ {o.items.length - 2} more items</li>
+                          )}
+                        </ul>
+                      </div>
 
-                        <button 
-                          className="btn-reorder"
-                          onClick={() => handleReorder(o)}
-                        >
+                      <div className="order-card-bottom">
+                        <div className="order-info-text">
+                          Order placed on {new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}, {new Date(o.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                          <br />
+                          <span style={{ color: o.status === "Delivered" ? "#16a34a" : "#ffb800", fontWeight: "600" }}>{o.status}</span>
+                        </div>
+                        <div className="order-total-price">
+                          ₹{o.totalAmount.toFixed(2)} ›
+                        </div>
+                      </div>
+
+                      <div className="order-actions" onClick={(e) => e.stopPropagation()}>
+                        <button className="reorder-btn" onClick={() => handleReorder(o)}>
                           ↻ Reorder
                         </button>
-
                         {(o.status === "Placed" || o.status === "Confirmed" || o.status === "Preparing") && (
                           <button 
-                            className="btn-track"
-                            style={{ background: "#ef4444", borderColor: "#ef4444" }}
+                            className="reorder-btn cancel" 
                             onClick={() => setCancelOrderId(o._id)}
                           >
                             ✕ Cancel
                           </button>
                         )}
-
-                        {/* REVIEW BUTTON FOR ORDERS */}
-                        {o.status === "Delivered" && !o.isReviewed && (
-                            <button
-                              className="btn-rate"
-                              onClick={() => openReviewModal("Restaurant", o.restaurant?._id, o.restaurant?.name, "Order", o._id)}
-                            >
-                              ⭐ Rate
-                            </button>
-                        )}
                       </div>
                     </div>
-
-                    {/* INLINE RECEIPT FOR ORDERS */}
-                    {showReceipt === o._id && o.paymentStatus === "Paid" && (
-                      <div className="inline-receipt">
-                        <div className="receipt-card" id={`receipt-${o._id}`}>
-                          <div className="receipt-header">
-                            <div className="receipt-brand">Khamma Ghani Food Delivery</div>
-                            <div className="receipt-id">Receipt #{o.receiptId}</div>
-                          </div>
-                          <div className="receipt-body">
-                            <div className="receipt-row"><span>Restaurant</span><strong>{o.restaurant?.name}</strong></div>
-                            <div className="receipt-row"><span>Guest</span><strong>{user.name}</strong></div>
-                            
-                            <div style={{ margin: "16px 0", borderTop: "1px dashed #eee", borderBottom: "1px dashed #eee", padding: "12px 0" }}>
-                              {o.items?.map((item, idx) => (
-                                <div key={idx} style={{ marginBottom: "12px", borderBottom: idx < o.items.length - 1 ? "1px solid #f9f9f9" : "none", paddingBottom: idx < o.items.length - 1 ? "8px" : "0" }}>
-                                  <div className="receipt-row" style={{ border: "none", padding: 0 }}>
-                                    <span style={{ fontWeight: "700" }}>{item.qty}x {item.menuId?.name} {item.variant ? `(${item.variant})` : ""}</span>
-                                    <strong>₹{item.qty * (item.price || 0)}</strong>
-                                  </div>
-                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "2px" }}>
-                                    {item.spiceLevel && item.spiceLevel !== "None" && <span style={{ fontSize: "10px", color: "#ef4444" }}>🌶️ {item.spiceLevel}</span>}
-                                    {item.addOns?.map((a, i) => <span key={i} style={{ fontSize: "10px", color: "#16a34a" }}>+ {a.name}</span>)}
-                                  </div>
-                                  {item.instructions && <div style={{ fontSize: "10px", color: "#888", fontStyle: "italic", marginTop: "2px" }}>Note: "{item.instructions}"</div>}
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="receipt-row"><span>Delivery Address</span><strong style={{ textAlign: "right", maxWidth: "60%" }}>{o.deliveryAddress}</strong></div>
-                            <div className="receipt-row"><span>Delivery Distance</span><strong>{o.deliveryDistance != null ? `${Number(o.deliveryDistance).toFixed(1)} km` : "N/A"}</strong></div>
-                            
-                            {o.discount > 0 && <div className="receipt-row"><span>Discount</span><strong style={{color: "#16a34a"}}>-₹{o.discount}</strong></div>}
-                            <div className="receipt-row"><span>Delivery Fee</span><strong>{o.deliveryFee > 0 ? `₹${o.deliveryFee}` : "Free"}</strong></div>
-                            <div className="receipt-row"><span>Platform Fee</span><strong>₹{o.platformFee || 0}</strong></div>
-                            {o.codFee > 0 && <div className="receipt-row"><span>COD Fee</span><strong>₹{o.codFee}</strong></div>}
-                            {o.gst > 0 && <div className="receipt-row"><span>GST (18%)</span><strong>₹{o.gst}</strong></div>}
-                            
-                            <div className="receipt-row"><span>Method</span><strong>{o.paymentMethod}</strong></div>
-                            <div className="receipt-row"><span>Payment ID</span><strong style={{ fontFamily: 'monospace', fontSize: 12 }}>{o.paymentId}</strong></div>
-                            <div className="receipt-row total-row"><span>Final Total Due</span><strong>₹{o.totalAmount}</strong></div>
-                          </div>
-                          
-                          {o.paymentStatus === "Paid" ? (
-                            <div className="receipt-footer">
-                              <span className="paid-stamp">✓ PAID</span>
-                              <span className="receipt-date">{new Date(o.paidAt || o.createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
-                            </div>
-                          ) : (
-                            <div className="receipt-footer">
-                              <span className="paid-stamp" style={{ background: "#fffbeb", color: "#d97706" }}>⚠️ UNPAID (COD)</span>
-                            </div>
-                          )}
-                        </div>
-                        <button className="print-receipt-btn" onClick={() => {
-                          const el = document.getElementById(`receipt-${o._id}`);
-                          const w = window.open("", "_blank");
-                          w.document.write(`<html><head><title>Receipt - ${o.receiptId}</title><style>body{font-family:Inter,sans-serif;padding:40px;color:#1a1a1a}.receipt-header{text-align:center;margin-bottom:20px;border-bottom:2px dashed #eee;padding-bottom:16px}.receipt-brand{font-size:24px;font-weight:800;color:#ff6b00}.receipt-id{font-size:14px;color:#888;margin-top:4px}.receipt-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5}.receipt-row span{color:#888}.receipt-row strong{color:#1a1a1a}.total-row{border-top:2px solid #ff6b00;margin-top:8px;padding-top:12px}.total-row strong{color:#ff6b00;font-size:18px}.receipt-footer{text-align:center;margin-top:20px;padding-top:16px;border-top:2px dashed #eee}.paid-stamp{background:#f0fdf4;color:#16a34a;padding:6px 20px;border-radius:8px;font-weight:800;font-size:16px}</style></head><body>${el.innerHTML}</body></html>`);
-                          w.document.close();
-                          w.print();
-                        }}>🖨️ Print Receipt</button>
-                      </div>
-                    )}
-                  </div>
-                )})}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1229,7 +1115,7 @@ export default function Profile() {
         )}
 
         {/* PLACEHOLDERS */}
-        {activeTab !== "profile" && activeTab !== "bookings" && activeTab !== "orders" && activeTab !== "favorites" && (
+        {activeTab !== "profile" && activeTab !== "bookings" && activeTab !== "orders" && activeTab !== "favorites" && activeTab !== "addresses" && (
           <h2>Coming Soon 🚧</h2>
         )}
       </div>

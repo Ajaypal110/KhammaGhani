@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* ===================================================================
+   CUSTOM THEME TOKENS — KhammaGhani Brand Colors
+   These extend Tailwind's default palette with your brand colors.
+   Usage: bg-brand-red, text-brand-orange, bg-brand-dark etc.
+=================================================================== */
+@theme {
+    --color-brand-red: #E23744;
+    --color-brand-orange: #ff6b00;
+    --color-brand-dark: #122d1a;
+    --color-brand-cream: #fff7f0;
+    --color-brand-light: #fdfdfd;
+    --font-family-outfit: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-family-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}

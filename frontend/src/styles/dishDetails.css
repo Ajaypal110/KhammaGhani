@@ -1064,4 +1064,33 @@
     .modern-add-cart-btn {
         width: 100%;
     }
+
+    /* Mobile specific hiding of global navbar and footer */
+    body.dish-mobile-view nav.navbar,
+    body.dish-mobile-view footer {
+        display: none !important;
+    }
+
+    /* Position the mobile header buttons over the image */
+    .dish-page-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px;
+        position: absolute;
+        top: 10px;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: transparent;
+    }
+
+    /* Remove the orange pseudo-element line on section titles from profile.css */
+    body.dish-mobile-view .section-title::before {
+        display: none !important;
+    }
+
+    /* Additional spacing for mobile image to accommodate absolute header */
+    .dish-details-page {
+        padding-top: 0;
+    }
 }

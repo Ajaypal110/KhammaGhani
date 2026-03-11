@@ -35,6 +35,7 @@ import AdminCoupons from "./pages/admin/AdminCoupons";
 
 
 import Profile from "./pages/Profile";
+import OrderDetails from "./pages/OrderDetails";
 import OrderTracking from "./pages/OrderTracking";
 import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
@@ -74,6 +75,7 @@ function AppContent() {
         />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/order/:id" element={<OrderDetails />} />
         <Route path="/track/:orderId" element={<OrderTracking />} />
         <Route path="/dish/:id" element={<DishDetails />} />
         <Route path="/cart" element={<Cart />} />
