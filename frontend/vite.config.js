@@ -9,6 +9,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png'],
+      devOptions: {
+        enabled: true
+      },
       manifest: {
         name: 'KhammaGhani - Restaurants',
         short_name: 'KhammaGhani',

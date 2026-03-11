@@ -6,6 +6,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import PolicyModal from "../components/PolicyModal";
 import "../styles/policies.css";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 
 export default function Login() {
@@ -23,6 +24,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [policyAccepted, setPolicyAccepted] = useState(false);
   const [policyModal, setPolicyModal] = useState(null); // "terms" | "privacy" | null
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const isValidEmail = (val) =>
@@ -186,7 +188,7 @@ export default function Login() {
       {/* ===== AUTH CARD ===== */}
       <div className="kg-auth-card">
         <h2 className="kg-auth-card-title">
-          {step === "login" && "Log in or sign up"}
+          {step === "login" && "Login"}
           {step === "forgot" && "Forgot Password"}
           {step === "otp" && "Verify OTP"}
           {step === "reset" && "Reset Password"}
@@ -198,12 +200,6 @@ export default function Login() {
         {step === "login" && (
           <form onSubmit={loginHandler} className="kg-auth-form">
             <div className="kg-input-group">
-              <div className="kg-input-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-              </div>
               <input
                 type="text"
                 placeholder="Email or Agent / Admin ID"
@@ -215,15 +211,9 @@ export default function Login() {
               />
             </div>
 
-            <div className="kg-input-group">
-              <div className="kg-input-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              </div>
+            <div className="kg-input-group kg-password-group">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -231,6 +221,13 @@ export default function Login() {
                 autoComplete="current-password"
                 required
               />
+              <div 
+                className="kg-password-toggle" 
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+              </div>
             </div>
 
             <div className="kg-forgot-row">
@@ -256,17 +253,6 @@ export default function Login() {
                   src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
                   alt="Google"
                 />
-              </button>
-              <button
-                type="button"
-                className="kg-social-btn"
-                onClick={() => navigate("/register")}
-                title="Sign up with Email"
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E23744" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
               </button>
             </div>
 

@@ -70,14 +70,14 @@
 
 .kg-auth-brand-badge {
   display: inline-block;
-  background: #E23744;
+  background: #16a34a;
   color: #fff;
   padding: 6px 18px;
   border-radius: 6px;
   font-weight: 800;
   font-size: 20px;
   transform: rotate(-2deg);
-  box-shadow: 0 4px 12px rgba(226, 55, 68, 0.4);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
   letter-spacing: -0.5px;
 }
 
@@ -157,8 +157,8 @@
 }
 
 .kg-input-group:focus-within {
-  border-color: #E23744;
-  box-shadow: 0 0 0 3px rgba(226, 55, 68, 0.08);
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
 }
 
 .kg-input-icon {
@@ -174,8 +174,8 @@
 }
 
 .kg-input-group:focus-within .kg-input-icon {
-  color: #E23744;
-  border-right-color: #E23744;
+  color: #16a34a;
+  border-right-color: #16a34a;
 }
 
 .kg-input {
@@ -199,6 +199,26 @@
   font-weight: 400;
 }
 
+.kg-password-group {
+  position: relative;
+}
+
+.kg-password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.kg-password-toggle:hover {
+  color: #16a34a;
+}
+
 /* ===================================================================
    FORGOT ROW
 =================================================================== */
@@ -209,7 +229,7 @@
 }
 
 .kg-forgot-row span {
-  color: #E23744;
+  color: #16a34a;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -225,7 +245,7 @@
 =================================================================== */
 .kg-btn-primary {
   width: 100%;
-  background: #E23744;
+  background: #16a34a;
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -290,7 +310,7 @@
 .kg-social-btn {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
+  border-radius: 12px;
   border: 1.5px solid #e2e8f0;
   background: #fff;
   display: flex;
@@ -337,7 +357,7 @@
 }
 
 .kg-auth-footer-text span:hover {
-  color: #E23744;
+  color: #16a34a;
 }
 
 .kg-register-link {
@@ -348,7 +368,7 @@
 }
 
 .kg-register-link span {
-  color: #E23744;
+  color: #16a34a;
   font-weight: 700;
   cursor: pointer;
 }
@@ -706,11 +726,11 @@
   padding: 0 !important;
   cursor: pointer;
   flex-shrink: 0;
-  accent-color: #E23744;
+  accent-color: #16a34a;
 }
 
 .auth-policy-checkbox a {
-  color: #E23744;
+  color: #16a34a;
   text-decoration: none;
   font-weight: 600;
 }
@@ -755,7 +775,7 @@
 }
 
 .zomato-brand-badge {
-  background: #E23744;
+  background: #16a34a;
   color: #fff;
   padding: 8px 20px;
   border-radius: 6px;
@@ -763,7 +783,7 @@
   font-size: 24px;
   transform: rotate(-2deg);
   margin-bottom: 30px;
-  box-shadow: 0 6px 16px rgba(226, 55, 68, 0.4);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
   letter-spacing: -0.5px;
 }
 
@@ -836,7 +856,7 @@
 }
 
 .zomato-input:focus {
-  border-color: #E23744;
+  border-color: #16a34a;
 }
 
 .zomato-input::placeholder {
@@ -850,7 +870,7 @@
 }
 
 .zomato-forgot span {
-  color: #E23744;
+  color: #16a34a;
   font-weight: 600;
   cursor: pointer;
 }
@@ -861,7 +881,7 @@
 
 .zomato-btn-primary {
   width: 100%;
-  background: #E23744;
+  background: #16a34a;
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -946,7 +966,7 @@
 }
 
 .zomato-register-link span {
-  color: #E23744;
+  color: #16a34a;
   font-weight: 700;
   cursor: pointer;
 }

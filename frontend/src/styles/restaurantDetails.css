@@ -433,9 +433,9 @@
 .zomato-add-btn {
   width: 100%;
   background: #fff;
-  color: #16a34a;
-  /* Brand Green */
-  border: 1px solid #e2e8f0;
+  color: #e11d48;
+  /* Brand Zomato Red */
+  border: 1px solid #fecdd3;
   padding: 6px;
   font-weight: 800;
   font-size: 14px;
@@ -453,8 +453,8 @@
 }
 
 .zomato-add-btn:hover {
-  background: #f0fdf4;
-  border-color: #16a34a;
+  background: #fff1f2;
+  border-color: #e11d48;
 }
 
 .add-plus {
@@ -462,7 +462,7 @@
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -471,7 +471,7 @@
   align-items: center;
   justify-content: space-between;
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #fecdd3;
   border-radius: 8px;
   width: 100%;
   height: 38px;
@@ -480,8 +480,8 @@
 .zomato-qty-btn {
   background: none;
   border: none;
-  color: #16a34a;
-  /* Brand Green */
+  color: #e11d48;
+  /* Brand Zomato Red */
   font-size: 18px;
   font-weight: 800;
   padding: 0 10px;
@@ -493,12 +493,12 @@
 }
 
 .zomato-qty-btn:hover {
-  background: #f0fdf4;
+  background: #fff1f2;
 }
 
 .zomato-qty-val {
   font-weight: 700;
-  color: #16a34a;
+  color: #e11d48;
   font-size: 14px;
 }
 
