@@ -901,39 +901,39 @@
 
   .restaurant-grid,
   .menu-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px;
+    grid-template-columns: 1fr !important;
+    gap: 16px;
   }
 
   .res-card {
-    padding: 8px;
-    border-radius: 12px;
+    padding: 12px;
+    border-radius: 16px;
   }
 
   .res-card-img-box {
-    height: 100px;
-    border-radius: 8px;
-    margin-bottom: 8px;
+    height: 180px;
+    border-radius: 12px;
+    margin-bottom: 12px;
   }
 
   .res-card-info h4 {
-    font-size: 13px;
-    margin-bottom: 2px;
+    font-size: 16px;
+    margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .res-card-info p {
-    font-size: 10px;
-    margin-bottom: 6px;
+    font-size: 12px;
+    margin-bottom: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .res-price {
-    font-size: 13px;
+    font-size: 16px;
   }
 }
 
@@ -1457,5 +1457,109 @@
 
   .res-card-img-box {
     height: 150px;
+  }
+}
+
+/* ------- VERY SMALL PHONES (< 360px) — Navbar Fix ------- */
+@media (max-width: 360px) {
+  .navbar-container {
+    padding: 0 10px !important;
+  }
+
+  /* Hide brand text - show only KG logo */
+  .brand-main,
+  .brand-accent {
+    display: none !important;
+  }
+
+  /* Reduce sizes and gaps to prevent overflow */
+  .nav-right-persistent {
+    gap: 10px !important;
+  }
+
+  .icon-group {
+    gap: 8px !important;
+  }
+
+  .nav-icon {
+    font-size: 18px !important;
+  }
+
+  .cart-icon-wrapper {
+    padding: 6px !important;
+  }
+
+  .profile-avatar,
+  .profile-avatar img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Hide Captivating Culinary */
+  .featured-section {
+    display: none !important;
+  }
+
+  /* Reduce Categories */
+  .home-category-card {
+    min-width: 70px !important;
+    padding: 8px 4px !important;
+    gap: 4px !important;
+  }
+
+  .category-card-icon {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .category-card-name {
+    font-size: 10px !important;
+  }
+
+  /* Reduce Dish Grid and Cards */
+  .menu-grid,
+  .restaurant-grid {
+    gap: 10px !important;
+  }
+
+  .res-card {
+    padding: 6px !important;
+    border-radius: 12px !important;
+  }
+
+  .res-card-img-box {
+    height: 100px !important;
+    margin-bottom: 6px !important;
+    border-radius: 8px !important;
+  }
+
+  .res-card-info {
+    padding: 4px !important;
+  }
+
+  .res-card-info h4 {
+    font-size: 12px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .res-card-info p {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .res-price {
+    font-size: 12px !important;
+  }
+
+  /* Reduce Filter Button */
+  .restaurants-wrapper>div>button,
+  .restaurants-wrapper>div>button[style] {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+  }
+
+  .restaurants-wrapper h2 {
+    font-size: 18px !important;
   }
 }
