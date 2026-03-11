@@ -899,24 +899,36 @@
 
 @media (max-width: 480px) {
 
-  .restaurant-grid,
-  .menu-grid {
+  /* Hide ugly scrollbar on categories */
+  .home-categories-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-categories-scroll {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  /* Keep restaurants as full-width cards if desired, but menu items as list view */
+  .restaurant-grid {
     grid-template-columns: 1fr !important;
     gap: 16px;
   }
 
-  .res-card {
+  .restaurant-grid .res-card {
     padding: 12px;
     border-radius: 16px;
   }
 
-  .res-card-img-box {
+  .restaurant-grid .res-card-img-box {
     height: 180px;
     border-radius: 12px;
     margin-bottom: 12px;
   }
 
-  .res-card-info h4 {
+  .restaurant-grid .res-card-info h4 {
     font-size: 16px;
     margin-bottom: 4px;
     white-space: nowrap;
@@ -924,16 +936,61 @@
     text-overflow: ellipsis;
   }
 
-  .res-card-info p {
-    font-size: 12px;
+  /* Zomato/Swiggy style List View for Dishes */
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .menu-grid .res-card {
+    display: flex;
+    flex-direction: row;
+    padding: 12px;
+    border-radius: 16px;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .menu-grid .res-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    order: 1;
+    /* Content on the left */
+  }
+
+  .menu-grid .res-card-img-box {
+    width: 130px;
+    height: 130px;
+    flex-shrink: 0;
+    margin-bottom: 0;
+    border-radius: 12px;
+    order: 2;
+    /* Image on the right */
+  }
+
+  .menu-grid .res-card-info h4 {
+    font-size: 15px;
+    margin-bottom: 4px;
+    white-space: normal;
+    /* Allow dish names to wrap if needed */
+    line-height: 1.3;
+  }
+
+  .menu-grid .res-card-info p {
+    font-size: 11px;
     margin-bottom: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.4;
   }
 
   .res-price {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  /* Align ADD button properly in the new layout */
+  .menu-grid .res-meta.mt-2 {
+    margin-top: 10px !important;
   }
 }
 
@@ -1516,46 +1573,58 @@
     font-size: 10px !important;
   }
 
-  /* Reduce Dish Grid and Cards */
-  .menu-grid,
+  /* Reduce Restaurant Cards */
   .restaurant-grid {
     gap: 10px !important;
   }
 
-  .res-card {
-    padding: 6px !important;
+  .restaurant-grid .res-card {
+    padding: 8px !important;
     border-radius: 12px !important;
   }
 
-  .res-card-img-box {
+  .restaurant-grid .res-card-img-box {
+    height: 140px !important;
+    margin-bottom: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Reduce Menu List View Cards */
+  .menu-grid {
+    gap: 10px !important;
+  }
+
+  .menu-grid .res-card {
+    padding: 8px !important;
+    border-radius: 12px !important;
+    gap: 8px !important;
+  }
+
+  .menu-grid .res-card-img-box {
+    width: 100px !important;
     height: 100px !important;
-    margin-bottom: 6px !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
   }
 
-  .res-card-info {
-    padding: 4px !important;
-  }
-
-  .res-card-info h4 {
-    font-size: 12px !important;
+  .menu-grid .res-card-info h4 {
+    font-size: 14px !important;
     margin-bottom: 2px !important;
   }
 
-  .res-card-info p {
+  .menu-grid .res-card-info p {
     font-size: 10px !important;
     margin-bottom: 4px !important;
   }
 
   .res-price {
-    font-size: 12px !important;
+    font-size: 13px !important;
   }
 
   /* Reduce Filter Button */
   .restaurants-wrapper>div>button,
   .restaurants-wrapper>div>button[style] {
-    padding: 6px 12px !important;
-    font-size: 12px !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
     gap: 4px !important;
   }
 
