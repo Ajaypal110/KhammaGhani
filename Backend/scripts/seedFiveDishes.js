@@ -52,9 +52,10 @@ const seedFiveDishes = async () => {
     try {
         await connectDB();
 
-        // Optional: The user didn't ask to clear, but it's cleaner to clear if the goal is "seeding"
-        // console.log("🧹 Clearing existing menu items...");
-        // await Menu.deleteMany({});
+        // Clear existing menu items before seeding
+        console.log("🧹 Clearing all existing menu items from the database...");
+        const deleteResult = await Menu.deleteMany({});
+        console.log(`✅ Deleted ${deleteResult.deletedCount} items.`);
         
         const restaurants = await User.find({ role: "restaurant" });
         if (restaurants.length === 0) {
