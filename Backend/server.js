@@ -17,6 +17,7 @@ import agentPortalRoutes from "./routes/agentPortalRoutes.js";
 import seedAdmin from "./utils/adminSeeder.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
+import keepAlive from "./utils/keepAlive.js";
 
 
 dotenv.config();
@@ -50,6 +51,10 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+// Start Keep-Alive to prevent Render spin-down
+keepAlive(process.env.RENDER_EXTERNAL_URL || "https://khammaghani.onrender.com");
+
 app.listen(PORT, () =>
   console.log(`Server running on port ${PORT}`)
 );
