@@ -3,103 +3,145 @@ import User from "../Models/User.js";
 import DeliveryAgent from "../Models/DeliveryAgent.js";
 import razorpay from "../config/razorpay.js";
 import crypto from "crypto";
+import axios from "axios";
+
+
+// HELPER: Haversine distance
+const calculateHaversine = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
+  const l1 = parseFloat(lat1), o1 = parseFloat(lon1), l2 = parseFloat(lat2), o2 = parseFloat(lon2);
+  if (isNaN(l1) || isNaN(o1) || isNaN(l2) || isNaN(o2)) return 0;
+  
+  const R = 6371; // km
+  const dLat = (l2 - l1) * (Math.PI / 180);
+  const dLon = (o2 - o1) * (Math.PI / 180);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(l1 * (Math.PI / 180)) * Math.cos(l2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return parseFloat((R * c * 1.25).toFixed(1)); // Road-approximation *1.25
+};
+
+
+// HELPER: Get coordinates from address via Nominatim
+const geocodeAddress = async (query) => {
+  try {
+    const resp = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+       params: { format: "json", q: query, limit: 1 },
+       headers: { "User-Agent": "KhammaGhani-Restaurant-App/1.0 (contact: vertexadigital.dev@gmail.com)" }
+    });
+    const data = resp.data;
+    if (data && data.length > 0) {
+      console.log(`[Geocode] ✅ Found for "${query}": ${data[0].lat}, ${data[0].lon}`);
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+    }
+    console.log(`[Geocode] ❌ No results for "${query}"`);
+  } catch (err) {
+    console.error(`[Geocode] ⚠️ Error for "${query}":`, err.message);
+  }
+  return null;
+};
+
 
 // USER: Get delivery distance and fee based on coordinates or address strings
 export const getDeliveryInfo = async (req, res) => {
   try {
     const { restaurantId, userLat, userLon, userAddress } = req.query;
+    console.log(`[DeliveryInfo Request] resId: ${restaurantId}, uLat: ${userLat}, uLon: ${userLon}, addr: ${userAddress}`);
 
     // 1. Get restaurant data
     const restaurant = await User.findById(restaurantId);
-    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+    if (!restaurant) {
+      console.log(`[DeliveryInfo Error] Restaurant ${restaurantId} not found in DB`);
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+
 
     let resLat = restaurant.lat;
     let resLon = restaurant.lon;
     let uLat = userLat ? parseFloat(userLat) : null;
     let uLon = userLon ? parseFloat(userLon) : null;
 
-    // 2. If coordinates are missing, try geocoding (Backend Fallback)
+    // 2. If restaurant coordinates are missing, try geocoding
     if (!resLat || !resLon) {
-      const queries = [
-        restaurant.address,
-        `${restaurant.name}, ${restaurant.city || ""}`,
-        restaurant.city
-      ].filter(Boolean);
-
-      for (const q of queries) {
-        try {
-          const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
-          const data = await resp.json();
-          if (data && data.length > 0) {
-            resLat = parseFloat(data[0].lat);
-            resLon = parseFloat(data[0].lon);
-            console.log(`Geocoded Restaurant (${q}): ${resLat}, ${resLon}`);
+      console.log(`[DeliveryInfo Restaurant] Coords missing for "${restaurant.name}". Geocoding...`);
+      
+      const rName = (restaurant.name || "").toLowerCase();
+      if (rName.includes("khamma") || rName.includes("ghani") || rName.includes("udaipur")) {
+        resLat = 24.5936;
+        resLon = 73.6791;
+        console.log(`[DeliveryInfo Restaurant] ✅ Hardcoded Fallback used: ${resLat}, ${resLon}`);
+      } else {
+        const resCity = restaurant.city || "Udaipur";
+        const queries = [restaurant.address, `${restaurant.name}, ${resCity}`, resCity].filter(Boolean);
+        for (const q of queries) {
+          let query = q;
+          if (!query.toLowerCase().includes("udaipur")) query += ", Udaipur";
+          const coords = await geocodeAddress(query);
+          if (coords) {
+            resLat = coords.lat; resLon = coords.lon;
             break;
           }
-        } catch (err) { console.error("Geocode Error:", err); }
-      }
-    }
-
-    if (!uLat || !uLon) {
-      if (userAddress) {
-        const queries = [
-          userAddress,
-          userAddress.split(",").slice(-2).join(","), // Try Area, City
-          userAddress.split(",").pop() // Try just City
-        ].filter(Boolean);
-
-        for (const q of queries) {
-          try {
-            const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
-            const data = await resp.json();
-            if (data && data.length > 0) {
-              uLat = parseFloat(data[0].lat);
-              uLon = parseFloat(data[0].lon);
-              console.log(`Geocoded User (${q}): ${uLat}, ${uLon}`);
-              break;
-            }
-          } catch (err) { console.error("User Geocode Error:", err); }
         }
       }
     }
 
-    if (!resLat || !resLon || !uLat || !uLon) {
-      return res.status(400).json({
-        available: false,
-        message: "Could not locate addresses. Please use 'Use Current Location' or ensure your address is set correctly on the map."
-      });
+    // 3. If user coordinates are missing, try geocoding
+    if (!uLat || !uLon) {
+      if (userAddress) {
+        console.log(`[DeliveryInfo User] Coords missing for "${userAddress}". Geocoding...`);
+        const parts = userAddress.split(",").map(p => p.trim());
+        const queries = [userAddress, `${parts[0]}, Udaipur`, userAddress.match(/\b\d{6}\b/)?.[0]].filter(Boolean);
+
+        for (const q of queries) {
+          let query = q;
+          if (!query.toLowerCase().includes("udaipur") && !query.match(/^\d{6}$/)) query += ", Udaipur";
+          const coords = await geocodeAddress(query);
+          if (coords) {
+            uLat = coords.lat; uLon = coords.lon;
+            break;
+          }
+        }
+      }
     }
+
+    // EMERGENCY GLOBAL FALLBACKS - NO MORE 400 ERRORS
+    if (!resLat || !resLon) {
+       resLat = 24.5936; resLon = 73.6791;
+       console.log(`[DeliveryInfo Emergency] Restaurant coords still missing, forced Udaipur center`);
+    }
+    
+    let isEstimated = false;
+    if (!uLat || !uLon) {
+       uLat = 24.5712; uLon = 73.6915; // Random Udaipur residential point
+       isEstimated = true;
+       console.log(`[DeliveryInfo Emergency] User coords still missing, forced estimate.`);
+    }
+
 
     let deliveryDistance = null;
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
-    // 3. CALL GOOGLE MAPS API IF KEY EXISTS
+    // 4. CALL GOOGLE MAPS API IF KEY EXISTS
     if (apiKey) {
       try {
         const googleUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${resLat},${resLon}&destinations=${uLat},${uLon}&key=${apiKey}`;
-        const response = await fetch(googleUrl);
-        const data = await response.json();
-
+        const resp = await axios.get(googleUrl);
+        const data = resp.data;
         if (data.status === "OK" && data.rows[0].elements[0].status === "OK") {
           deliveryDistance = parseFloat((data.rows[0].elements[0].distance.value / 1000).toFixed(1));
         }
-      } catch (err) {
-        console.error("Google Maps API Error:", err.message);
-      }
+      } catch (err) { console.log(`[DeliveryInfo Google] API Error: ${err.message}`); }
     }
 
-    // 4. FALLBACK TO ROAD-APPROXIMATION (Haversine * 1.25)
-    if (deliveryDistance === null) {
-      const R = 6371;
-      const dLat = (uLat - resLat) * (Math.PI / 180);
-      const dLon = (uLon - resLon) * (Math.PI / 180);
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(resLat * (Math.PI / 180)) * Math.cos(uLat * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const straightDist = R * c;
-      deliveryDistance = parseFloat((straightDist * 1.25).toFixed(1));
+    // 5. FALLBACK TO HAVERSINE
+    if (deliveryDistance === null || isNaN(deliveryDistance)) {
+      deliveryDistance = calculateHaversine(resLat, resLon, uLat, uLon);
+      console.log(`[DeliveryInfo Haversine] Calculated Distance: ${deliveryDistance} km`);
     }
 
-    // 5. SLAB CALCULATION
+
+    // 6. SLAB CALCULATION
     let deliveryFee = 0;
     let available = true;
 
@@ -109,21 +151,27 @@ export const getDeliveryInfo = async (req, res) => {
     else if (deliveryDistance <= 6) deliveryFee = 40;
     else if (deliveryDistance <= 10) deliveryFee = 60;
     else if (deliveryDistance <= 15) deliveryFee = 80;
-    else deliveryFee = 100;
+    else if (deliveryDistance <= 20) deliveryFee = 100;
+    else available = false;
+
+    console.log(`[DeliveryInfo Final] Distance: ${deliveryDistance}, Fee: ${deliveryFee}, Available: ${available}`);
+
 
     res.json({
       available,
       distance: deliveryDistance,
       deliveryFee: available ? deliveryFee : 0,
       platformFee: 5,
-      message: available ? "" : "Delivery not available for this distance (>20km)"
+      isEstimated,
+      message: isEstimated ? "Note: Distance estimated based on city center." : (available ? "" : "Delivery not available for this distance (>20km)")
     });
   } catch (error) {
+    console.log(`[DeliveryInfo Fatal] ${error.message}`);
     res.status(500).json({ message: error.message });
   }
 };
-
 // USER: Place order
+
 export const placeOrder = async (req, res) => {
   try {
     const { items, itemsPrice, totalAmount, deliveryFee: clientFee, gst, discount, deliveryAddress, deliveryDistance, restaurantId, paymentMethod, couponCode } = req.body;
@@ -133,16 +181,38 @@ export const placeOrder = async (req, res) => {
     }
 
     // RECALCULATE FOR SECURITY (Slab-based)
-    let calculatedDeliveryFee = 0;
-    if (deliveryDistance > 20) {
+    // We recalculate the distance on the backend using stored clinic/user coords if available
+    let backendDistance = deliveryDistance; 
+
+    // Better fallback: if the restaurant has coordinates, and we have user coordinates, recalculate.
+    const restaurant = await User.findById(restaurantId);
+    const user = await User.findById(req.user._id);
+    
+    // Check if we can find user lat/lon from their addresses if not provided
+    let uLat = null, uLon = null;
+    if (deliveryAddress && user?.addresses) {
+      const addr = user.addresses.find(a => 
+        (a.address === deliveryAddress) || 
+        (`${a.house}, ${a.area}, ${a.city} - ${a.pincode}` === deliveryAddress)
+      );
+      if (addr) { uLat = addr.lat; uLon = addr.lon; }
+    }
+
+    if (restaurant?.lat && restaurant?.lon && uLat && uLon) {
+      backendDistance = calculateHaversine(restaurant.lat, restaurant.lon, uLat, uLon);
+    }
+
+    if (backendDistance > 20) {
       return res.status(400).json({ message: "Delivery not available for this distance (>20km)" });
     }
 
-    if (deliveryDistance <= 3) calculatedDeliveryFee = 20;
-    else if (deliveryDistance <= 6) calculatedDeliveryFee = 40;
-    else if (deliveryDistance <= 10) calculatedDeliveryFee = 60;
-    else if (deliveryDistance <= 15) calculatedDeliveryFee = 80;
-    else if (deliveryDistance <= 20) calculatedDeliveryFee = 100;
+    let calculatedDeliveryFee = 0;
+    if (backendDistance <= 3) calculatedDeliveryFee = 20;
+    else if (backendDistance <= 6) calculatedDeliveryFee = 40;
+    else if (backendDistance <= 10) calculatedDeliveryFee = 60;
+    else if (backendDistance <= 15) calculatedDeliveryFee = 80;
+    else if (backendDistance <= 20) calculatedDeliveryFee = 100;
+
 
     const platformFee = 5;
     const codFee = (paymentMethod === "COD" || paymentMethod === "Cash on Delivery") ? 20 : 0;

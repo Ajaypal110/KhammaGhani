@@ -1580,10 +1580,12 @@ function AnalyticsSection() {
    SETTINGS SECTION
 ================================================================ */
 function SettingsSection({ refreshProfile }) {
-  const [profile, setProfile] = useState({ name: "", phone: "", profileImage: "" });
+  const [profile, setProfile] = useState({ name: "", phone: "", profileImage: "", address: "", lat: "", lon: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [locLoading, setLocLoading] = useState(false);
   const [msg, setMsg] = useState("");
+
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -1592,8 +1594,12 @@ function SettingsSection({ refreshProfile }) {
         setProfile({
           name: data.name || "",
           phone: data.phone || "",
-          profileImage: data.profileImage || ""
+          profileImage: data.profileImage || "",
+          address: data.address || "",
+          lat: data.lat || "",
+          lon: data.lon || ""
         });
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -1607,14 +1613,56 @@ function SettingsSection({ refreshProfile }) {
     setSaving(true);
     setMsg("");
     try {
-      await API.put("/restaurants/my/profile", profile);
-      setMsg("✅ Profile updated successfully!");
+      await API.put("/restaurants/my/profile", {
+        name: profile.name,
+        phone: profile.phone,
+        profileImage: profile.profileImage
+      });
+      
+      // Separate call for address/coords as it's a different endpoint
+      await API.put("/restaurants/my/address", {
+        address: profile.address,
+        lat: profile.lat,
+        lon: profile.lon
+      });
+
+      setMsg("✅ Profile & Location updated successfully!");
       refreshProfile(); // Refresh parent state
     } catch (err) {
       setMsg("❌ Failed to update profile.");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported");
+      return;
+    }
+    setLocLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setProfile(prev => ({ ...prev, lat: latitude, lon: longitude }));
+        
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          if (data && data.display_name) {
+             setProfile(prev => ({ ...prev, address: data.display_name }));
+          }
+        } catch (e) {
+          console.error("Reverse geocode error", e);
+        } finally {
+          setLocLoading(false);
+        }
+      },
+      (err) => {
+        alert("Failed to get location: " + err.message);
+        setLocLoading(false);
+      }
+    );
   };
 
   if (loading) return <Loader />;
@@ -1654,6 +1702,41 @@ function SettingsSection({ refreshProfile }) {
             style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", outline: "none", fontSize: "15px" }}
           />
         </div>
+
+        <div style={{ borderTop: "1px solid #f1f5f9", margin: "20px 0", paddingTop: "20px" }}>
+           <h3 style={{ fontSize: "16px", fontWeight: "800", marginBottom: "16px", color: "#334155" }}>📍 Delivery Location</h3>
+           
+           <div className="form-group" style={{ marginBottom: "16px" }}>
+             <label style={{ display: "block", fontSize: "13px", fontWeight: "700", color: "#64748b", marginBottom: "6px" }}>Full Address</label>
+             <textarea 
+               value={profile.address} 
+               onChange={e => setProfile({...profile, address: e.target.value})}
+               placeholder="123 Street, City, State, Country"
+               style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0", outline: "none", fontSize: "14px", minHeight: "80px", resize: "none" }}
+             />
+           </div>
+
+           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "16px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", color: "#94a3b8", marginBottom: "4px" }}>Latitude</label>
+                <input type="number" step="any" value={profile.lat} onChange={e => setProfile({...profile, lat: e.target.value})} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #e2e8f0" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", color: "#94a3b8", marginBottom: "4px" }}>Longitude</label>
+                <input type="number" step="any" value={profile.lon} onChange={e => setProfile({...profile, lon: e.target.value})} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #e2e8f0" }} />
+              </div>
+           </div>
+
+           <button 
+             type="button" 
+             onClick={handleGetLocation}
+             disabled={locLoading}
+             style={{ width: "100%", padding: "10px", background: "#f8fafc", color: "#475569", border: "1.5px solid #e2e8f0", borderRadius: "10px", fontWeight: "700", fontSize: "13px", cursor: "pointer", marginBottom: "20px" }}
+           >
+             {locLoading ? "⏳ Detecting..." : "📌 Use Current Device Location"}
+           </button>
+        </div>
+
 
         {profile.profileImage && (
           <div style={{ marginBottom: "24px", textAlign: "center" }}>

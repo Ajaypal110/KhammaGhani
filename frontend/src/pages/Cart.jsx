@@ -331,10 +331,15 @@ export default function Cart() {
           }
         });
         
-        if (data.available || data.distance !== undefined) {
+        if (data.available) {
           setDistanceKm(data.distance);
           setDeliveryFee(data.deliveryFee || 0);
           setPlatformFee(data.platformFee || 0);
+          setDistError(null);
+        } else {
+          setDistanceKm(data.distance); // Still show distance even if too far
+          setDeliveryFee(0);
+          setDistError(data.message || "Delivery not available for this location.");
         }
       } catch (err) {
         console.error("Error fetching delivery info from backend:", err);
@@ -343,6 +348,7 @@ export default function Cart() {
       } finally {
         setDistLoading(false);
       }
+
     } else {
        setDistanceKm(null);
     }
@@ -674,11 +680,18 @@ export default function Cart() {
               </div>
             ) : distError && selectedAddrId ? (
               <div style={{ marginTop: "16px", background: "#fef2f2", padding: "12px", borderRadius: "10px", border: "1px solid #fee2e2" }}>
-                <p style={{ fontSize: "13px", color: "#ef4444", margin: 0, fontWeight: "600" }}>
+                <p style={{ fontSize: "13px", color: "#ef4444", margin: "0 0 8px 0", fontWeight: "600" }}>
                   ⚠️ {distError}
                 </p>
+                <button 
+                  onClick={handleGetLocation}
+                  style={{ background: "#ef4444", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "8px", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                >
+                  📍 Use Live Location Instead
+                </button>
               </div>
             ) : null}
+
           </div>
 
           <div className="cart-card">

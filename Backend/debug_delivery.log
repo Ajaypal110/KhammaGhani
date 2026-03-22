@@ -1,0 +1,92 @@
+[2026-03-22T11:11:23.943Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:11:24.044Z] [Restaurant] Coords missing for "Khammaghani Bhopal". Geocoding...
+[2026-03-22T11:11:24.045Z] [Restaurant] ✅ Hardcoded Fallback used: 24.5936, 73.6791
+[2026-03-22T11:11:24.047Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:11:24.978Z] [Haversine] Calculated Distance: 16.6 km
+[2026-03-22T11:11:24.979Z] [Final] Distance: 16.6, Fee: 100, Available: true
+[2026-03-22T11:11:25.067Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:11:25.168Z] [Restaurant] Coords missing for "Khammaghani Bhopal". Geocoding...
+[2026-03-22T11:11:25.170Z] [Restaurant] ✅ Hardcoded Fallback used: 24.5936, 73.6791
+[2026-03-22T11:11:25.171Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:11:25.220Z] [Haversine] Calculated Distance: 16.6 km
+[2026-03-22T11:11:25.222Z] [Final] Distance: 16.6, Fee: 100, Available: true
+[2026-03-22T11:11:30.894Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, paras chok, udaipur - 313003
+[2026-03-22T11:11:31.002Z] [Restaurant] Coords missing for "Khammaghani Bhopal". Geocoding...
+[2026-03-22T11:11:31.004Z] [Restaurant] ✅ Hardcoded Fallback used: 24.5936, 73.6791
+[2026-03-22T11:11:31.005Z] [User] Coords missing for "312, paras chok, udaipur - 313003". Geocoding...
+[2026-03-22T11:11:32.441Z] [Haversine] Calculated Distance: 2.3 km
+[2026-03-22T11:11:32.442Z] [Final] Distance: 2.3, Fee: 20, Available: true
+[2026-03-22T11:11:32.542Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, paras chok, udaipur - 313003
+[2026-03-22T11:11:32.643Z] [Restaurant] Coords missing for "Khammaghani Bhopal". Geocoding...
+[2026-03-22T11:11:32.645Z] [Restaurant] ✅ Hardcoded Fallback used: 24.5936, 73.6791
+[2026-03-22T11:11:32.647Z] [User] Coords missing for "312, paras chok, udaipur - 313003". Geocoding...
+[2026-03-22T11:11:32.749Z] [Haversine] Calculated Distance: 2.3 km
+[2026-03-22T11:11:32.750Z] [Final] Distance: 2.3, Fee: 20, Available: true
+[2026-03-22T11:11:37.256Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:11:37.356Z] [Restaurant] Coords missing for "Khammaghani Bhopal". Geocoding...
+[2026-03-22T11:11:37.357Z] [Restaurant] ✅ Hardcoded Fallback used: 24.5936, 73.6791
+[2026-03-22T11:11:37.359Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:11:37.700Z] [Haversine] Calculated Distance: 16.6 km
+[2026-03-22T11:11:37.704Z] [Final] Distance: 16.6, Fee: 100, Available: true
+[2026-03-22T11:11:37.867Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:11:37.969Z] [Restaurant] Coords missing for "Khammaghani Bhopal". Geocoding...
+[2026-03-22T11:11:37.970Z] [Restaurant] ✅ Hardcoded Fallback used: 24.5936, 73.6791
+[2026-03-22T11:11:37.972Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:11:38.026Z] [Haversine] Calculated Distance: 16.6 km
+[2026-03-22T11:11:38.027Z] [Final] Distance: 16.6, Fee: 100, Available: true
+[2026-03-22T11:16:02.990Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:16:03.091Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:16:03.403Z] [Haversine] Calculated Distance: 491.3 km
+[2026-03-22T11:16:03.405Z] [Final] Distance: 491.3, Fee: 0, Available: false
+[2026-03-22T11:16:03.508Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:16:03.607Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:16:03.661Z] [Haversine] Calculated Distance: 491.3 km
+[2026-03-22T11:16:03.663Z] [Final] Distance: 491.3, Fee: 0, Available: false
+[2026-03-22T11:20:36.714Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:20:36.816Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:20:37.033Z] [Haversine] Calculated Distance: 491.3 km
+[2026-03-22T11:20:37.035Z] [Final] Distance: 491.3, Fee: 0, Available: false
+[2026-03-22T11:20:37.123Z] [Request] resId: 69883dddb62c48f8a379a7b5, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:20:37.224Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:20:37.286Z] [Haversine] Calculated Distance: 491.3 km
+[2026-03-22T11:20:37.287Z] [Final] Distance: 491.3, Fee: 0, Available: false
+[2026-03-22T11:20:58.115Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:20:58.217Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:20:58.425Z] [Haversine] Calculated Distance: 12.6 km
+[2026-03-22T11:20:58.427Z] [Final] Distance: 12.6, Fee: 80, Available: true
+[2026-03-22T11:20:58.486Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:20:58.627Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:20:58.683Z] [Haversine] Calculated Distance: 12.6 km
+[2026-03-22T11:20:58.684Z] [Final] Distance: 12.6, Fee: 80, Available: true
+[2026-03-22T11:21:07.077Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, paras chok, udaipur - 313003
+[2026-03-22T11:21:07.131Z] [User] Coords missing for "312, paras chok, udaipur - 313003". Geocoding...
+[2026-03-22T11:21:07.541Z] [Haversine] Calculated Distance: 3.6 km
+[2026-03-22T11:21:07.543Z] [Final] Distance: 3.6, Fee: 40, Available: true
+[2026-03-22T11:21:07.639Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, paras chok, udaipur - 313003
+[2026-03-22T11:21:07.729Z] [User] Coords missing for "312, paras chok, udaipur - 313003". Geocoding...
+[2026-03-22T11:21:07.844Z] [Haversine] Calculated Distance: 3.6 km
+[2026-03-22T11:21:07.846Z] [Final] Distance: 3.6, Fee: 40, Available: true
+[2026-03-22T11:21:09.481Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:21:09.583Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:21:09.638Z] [Haversine] Calculated Distance: 12.6 km
+[2026-03-22T11:21:09.639Z] [Final] Distance: 12.6, Fee: 80, Available: true
+[2026-03-22T11:21:09.741Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:21:09.890Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:21:09.946Z] [Haversine] Calculated Distance: 12.6 km
+[2026-03-22T11:21:09.947Z] [Final] Distance: 12.6, Fee: 80, Available: true
+[2026-03-22T11:21:13.271Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, paras chok, udaipur - 313003
+[2026-03-22T11:21:13.365Z] [User] Coords missing for "312, paras chok, udaipur - 313003". Geocoding...
+[2026-03-22T11:21:13.465Z] [Haversine] Calculated Distance: 3.6 km
+[2026-03-22T11:21:13.466Z] [Final] Distance: 3.6, Fee: 40, Available: true
+[2026-03-22T11:21:13.542Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, paras chok, udaipur - 313003
+[2026-03-22T11:21:13.598Z] [User] Coords missing for "312, paras chok, udaipur - 313003". Geocoding...
+[2026-03-22T11:21:13.697Z] [Haversine] Calculated Distance: 3.6 km
+[2026-03-22T11:21:13.699Z] [Final] Distance: 3.6, Fee: 40, Available: true
+[2026-03-22T11:21:18.186Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:21:18.243Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:21:18.287Z] [Haversine] Calculated Distance: 12.6 km
+[2026-03-22T11:21:18.289Z] [Final] Distance: 12.6, Fee: 80, Available: true
+[2026-03-22T11:21:18.337Z] [Request] resId: 69883ddbb62c48f8a379a794, uLat: undefined, uLon: undefined, addr: 312, Umra, Girwa Tehsil - 313003
+[2026-03-22T11:21:18.493Z] [User] Coords missing for "312, Umra, Girwa Tehsil - 313003". Geocoding...
+[2026-03-22T11:21:18.535Z] [Haversine] Calculated Distance: 12.6 km
+[2026-03-22T11:21:18.537Z] [Final] Distance: 12.6, Fee: 80, Available: true
